@@ -15,6 +15,12 @@ IF(WIN32)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -bigobj")
 ENDIF()
 
+find_package(Boost REQUIRED
+    filesystem
+    serialization
+)
+
+
 find_package(OpenCV REQUIRED)
 
 if("${OpenCV_VERSION}" VERSION_LESS "2.4.3")
@@ -74,6 +80,7 @@ target_link_libraries(${PROJECT_NAME}
 ${OpenCV_LIBS}
 ${EIGEN3_LIBS}
 ${Pangolin_LIBRARIES}
+${Boost_LIBRARIES}
     DBoW2
     g2o
 )
