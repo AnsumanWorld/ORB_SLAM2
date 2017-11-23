@@ -22,6 +22,6 @@ if not exist "%OrbSlamBuildDir%" mkdir "%OrbSlamBuildDir%"
 cd "%OrbSlamBuildDir%"
 
 call cmake.exe -G "%OrbSlamCMakeGeneratorName%" -DBUILD_EXAMPLES=ON "%~dp0"
-call cmake.exe --build . --config %OrbSlamBuildType%
+rem call cmake.exe --build . --config %OrbSlamBuildType%
 
 endlocal

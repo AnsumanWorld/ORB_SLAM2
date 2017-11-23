@@ -7,6 +7,7 @@
             "configurationType": "Debug",
             "inheritEnvironments": [ "msvc_x86" ],
             "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
+            "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
             "cmakeCommandArgs": "",
             "buildCommandArgs": "-v",
             "ctestCommandArgs": "",
@@ -27,6 +28,7 @@
             "configurationType": "RelWithDebInfo",
             "inheritEnvironments": [ "msvc_x86" ],
             "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
+            "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
             "cmakeCommandArgs": "",
             "buildCommandArgs": "-v",
             "ctestCommandArgs": "",
@@ -47,6 +49,7 @@
             "configurationType": "Debug",
             "inheritEnvironments": [ "msvc_x64" ],
             "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
+            "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
             "cmakeCommandArgs": "",
             "buildCommandArgs": "-v",
             "ctestCommandArgs": "",
@@ -67,6 +70,7 @@
             "configurationType": "RelWithDebInfo",
             "inheritEnvironments": [ "msvc_x64" ],
             "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
+            "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
             "cmakeCommandArgs": "",
             "buildCommandArgs": "-v",
             "ctestCommandArgs": "",
@@ -80,6 +84,44 @@
                     "value": "${env.USERPROFILE}\\Software\\vcpkg\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake"
                 }
             ]
+        },
+        {
+            "name": "Linux-Debug",
+            "generator": "Unix Makefiles",
+            "remoteMachineName": "${defaultRemoteMachineName}",
+            "configurationType": "Debug",
+            "remoteCMakeListsRoot": "/var/tmp/src/${workspaceHash}/${name}",
+            "cmakeExecutable": "/usr/local/bin/cmake",
+            "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
+            "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
+            "remoteBuildRoot": "/var/tmp/build/${workspaceHash}/build/${name}",
+            "remoteInstallRoot": "/var/tmp/build/${workspaceHash}/install/${name}",
+            "remoteCopySources": true,
+            "remoteCopySourcesOutputVerbosity": "Normal",
+            "remoteCopySourcesConcurrentCopies": "10",
+            "cmakeCommandArgs": "",
+            "buildCommandArgs": "",
+            "ctestCommandArgs": "",
+            "inheritEnvironments": [ "linux-x64" ]
+        },
+        {
+            "name": "Linux-Release",
+            "generator": "Unix Makefiles",
+            "remoteMachineName": "${defaultRemoteMachineName}",
+            "configurationType": "Release",
+            "remoteCMakeListsRoot": "/var/tmp/src/${workspaceHash}/${name}",
+            "cmakeExecutable": "/usr/local/bin/cmake",
+            "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
+            "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
+            "remoteBuildRoot": "/var/tmp/build/${workspaceHash}/build/${name}",
+            "remoteInstallRoot": "/var/tmp/build/${workspaceHash}/install/${name}",
+            "remoteCopySources": true,
+            "remoteCopySourcesOutputVerbosity": "Normal",
+            "remoteCopySourcesConcurrentCopies": "10",
+            "cmakeCommandArgs": "",
+            "buildCommandArgs": "",
+            "ctestCommandArgs": "",
+            "inheritEnvironments": [ "linux-x64" ]
         }
     ]
 }

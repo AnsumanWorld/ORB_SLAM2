@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.5)
 project(orb-slam2)
 
 SET(ORBSLAM2_LIB_TYPE STATIC)
@@ -17,15 +17,8 @@ ENDIF()
 
 find_package(OpenCV REQUIRED)
 
-if("${OpenCV_VERSION}" VERSION_LESS "2.4.3")
-	message(FATAL_ERROR "OpenCV > 2.4.3 not found.")
-endif()
-
 find_package(Eigen3 REQUIRED)
 
-if("${EIGEN3_VERSION}" VERSION_LESS "3.1.0")
-	message(FATAL_ERROR "Eigen3 > 3.1.0 not found.")
-   endif()
 find_package(Pangolin REQUIRED)
 
 include_directories(
@@ -66,7 +59,7 @@ target_sources(${PROJECT_NAME} PRIVATE
     bootstrap_linux.sh
     build_linux.sh
     build_ros.sh)
-if(CMAKE_COMPILER_IS_GNUCXX)
+if(CMAKE_CXX_COMPILER_ID STREQUAL GCC)
     set(options -O3 -march=native)
     add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:${options}>")
 endif()

@@ -22,6 +22,7 @@ rem ==============================
 rem Update and Install packages.
 rem ==============================
 call "%VcPkgPath%" update
+call "%VcPkgPath%" remove --outdated --recurse 
 call "%VcPkgPath%" install eigen3 opencv pangolin --triplet %VcPkgTriplet%
 
 set "VcPkgTripletDir=%VcPkgDir%\installed\%VcPkgTriplet%"
