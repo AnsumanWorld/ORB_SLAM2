@@ -10,4 +10,5 @@ echo OrbSlamBuildType= %OrbSlamBuildType%
 
 call cmake.exe --build "%OrbSlamBuildDir%" --config %OrbSlamBuildType%
 
+popd
 endlocal
