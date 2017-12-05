@@ -4,10 +4,12 @@ ScriptDir=$(realpath $(dirname $0))
 ProjectDir=$(realpath ${ScriptDir}/../..)
 cd ${ProjectDir}
 
-$(git whatchanged HEAD^! | grep docker/Dockerfile > /dev/null)
+git diff --name-only ${TRAVIS_COMMIT_RANGE} 
+
+$(git diff --name-only ${TRAVIS_COMMIT_RANGE} | grep docker/Dockerfile > /dev/null)
 dockerfile_status=$?
 
-$(git whatchanged HEAD^! | grep scripts/linux/bootstrap.sh > /dev/null)
+$(git diff --name-only ${TRAVIS_COMMIT_RANGE} | grep scripts/linux/bootstrap.sh > /dev/null)
 bootstrap_status=$?
 
 new_image_status=1
