@@ -1287,14 +1287,14 @@ void Tracking::UpdateLocalKeyFrames()
     }
 
 
+    // The original implementation modifies a vector while holding iterators to it. Crashes due to UDB observed.
     // Include also some not-already-included keyframes that are neighbors to already-included keyframes
-    for(vector<KeyFrame*>::const_iterator itKF=mvpLocalKeyFrames.begin(), itEndKF=mvpLocalKeyFrames.end(); itKF!=itEndKF; itKF++)
-    {
+    for (auto itKF = 0u; itKF < mvpLocalKeyFrames.size(); ++itKF) {
         // Limit the number of keyframes
         if(mvpLocalKeyFrames.size()>80)
             break;
 
-        KeyFrame* pKF = *itKF;
+        KeyFrame* pKF = mvpLocalKeyFrames.at(itKF);
 
         const vector<KeyFrame*> vNeighs = pKF->GetBestCovisibilityKeyFrames(10);
 
