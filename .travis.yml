@@ -1,6 +1,4 @@
 sudo: required
-git:
-  depth: 1
 services:
   - docker
 before_install:

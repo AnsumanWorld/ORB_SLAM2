@@ -4,8 +4,6 @@ ScriptDir=$(realpath $(dirname $0))
 ProjectDir=$(realpath ${ScriptDir}/../..)
 cd ${ProjectDir}
 
-git diff --name-only ${TRAVIS_COMMIT_RANGE} 
-
 $(git diff --name-only ${TRAVIS_COMMIT_RANGE} | grep docker/Dockerfile > /dev/null)
 dockerfile_status=$?
 
