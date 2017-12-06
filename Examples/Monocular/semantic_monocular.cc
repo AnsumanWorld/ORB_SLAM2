@@ -144,7 +144,6 @@ int run_slam_loop(int argc, char** argv)
 
             // Pass the image to the SLAM system
             slam.get().TrackMonocular(image, static_cast<double>(time));
-            Pause(70);
             time++;
         }
     } catch (std::exception const& ex_) {
