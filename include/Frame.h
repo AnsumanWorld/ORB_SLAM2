@@ -189,7 +189,7 @@ public:
     static float mnMaxY;
 
     static bool mbInitialComputations;
-
+	std::vector<cv::Rect> mRoiList;
 
 private:
 
