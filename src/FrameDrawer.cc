@@ -112,19 +112,9 @@ cv::Mat FrameDrawer::DrawFrame()
                 {
 					if(vCurrentKeys[i].class_id != -1)
 					{
-						/*if(vCurrentKeys[i].class_id ==255)
-						{
-							gOrgSemanticFeatureCount++;
-							cv::rectangle(im,pt1,pt2,cv::Scalar(0,0,255));
-							cv::circle(im,vCurrentKeys[i].pt,2,cv::Scalar(0,0,255),-1);
-						}
-						else
-						{*/
-							cv::rectangle(im,pt1,pt2,cv::Scalar(0,0,255));
-							cv::circle(im,vCurrentKeys[i].pt,2,cv::Scalar(0,0,255),-1);
-							gNewSemanticFeatureCount++;
-						//}
-
+						cv::rectangle(im,pt1,pt2,cv::Scalar(0,0,255));
+						cv::circle(im,vCurrentKeys[i].pt,2,cv::Scalar(0,0,255),-1);
+						gNewSemanticFeatureCount++;
 					}
 					else
 					{
