@@ -44,7 +44,7 @@ public:
     void SetCurrentCameraPose(const cv::Mat &Tcw);
     void SetReferenceKeyFrame(KeyFrame *pKF);
     void GetCurrentOpenGLCameraMatrix(pangolin::OpenGlMatrix &M);
-
+	void DrawPoints(cv::Mat &pos,int PointSize,float red,float green,float blue);
 private:
 
     float mKeyFrameSize;
