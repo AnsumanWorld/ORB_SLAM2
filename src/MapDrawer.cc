@@ -41,6 +41,15 @@ MapDrawer::MapDrawer(Map* pMap, const string &strSettingPath):mpMap(pMap)
 
 }
 
+void MapDrawer::DrawPoints(cv::Mat &pos,int PointSize,float red,float green,float blue)
+{
+	glPointSize(PointSize);
+	glBegin(GL_POINTS);
+	glColor3f(red,green,blue);
+	glVertex3f(pos.at<float>(0),pos.at<float>(1),pos.at<float>(2));
+	glEnd();
+}
+
 void MapDrawer::DrawMapPoints()
 {
     const vector<MapPoint*> &vpMPs = mpMap->GetAllMapPoints();
@@ -51,33 +60,35 @@ void MapDrawer::DrawMapPoints()
     if(vpMPs.empty())
         return;
 
-    glPointSize(mPointSize);
-    glBegin(GL_POINTS);
-    glColor3f(0.0,0.0,0.0);
-
     for(size_t i=0, iend=vpMPs.size(); i<iend;i++)
     {
         if(vpMPs[i]->isBad() || spRefMPs.count(vpMPs[i]))
             continue;
         cv::Mat pos = vpMPs[i]->GetWorldPos();
-        glVertex3f(pos.at<float>(0),pos.at<float>(1),pos.at<float>(2));
+		
+		if(true == vpMPs[i]->mSemanticMapPoints)
+		{
+			DrawPoints(pos,10,0.0,1.0,0.0);
+		}
+		else
+			DrawPoints(pos,mPointSize,0.0,0.0,0.0);
     }
-    glEnd();
-
-    glPointSize(mPointSize);
-    glBegin(GL_POINTS);
-    glColor3f(1.0,0.0,0.0);
 
     for(set<MapPoint*>::iterator sit=spRefMPs.begin(), send=spRefMPs.end(); sit!=send; sit++)
     {
         if((*sit)->isBad())
             continue;
         cv::Mat pos = (*sit)->GetWorldPos();
-        glVertex3f(pos.at<float>(0),pos.at<float>(1),pos.at<float>(2));
+		
+		if(true == (*sit)->mSemanticMapPoints)
+		{
+			DrawPoints(pos,10,0.0,0.0,1.0);
+		}
+		else
+			DrawPoints(pos,mPointSize,1.0,0.0,0.0);
 
     }
 
-    glEnd();
 }
 
 void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph)
