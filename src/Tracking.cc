@@ -257,12 +257,6 @@ cv::Mat Tracking::GrabImageMonocular(const cv::Mat &im, const double &timestamp)
     }
 
 	KeySemanticObjGrp* pTraficsignGrp = mpSystem->GetSemanticObjGrp();
-	std::vector<cv::Rect> RoiList;
-	if(pTraficsignGrp)
-	{
-		pTraficsignGrp->GetSemanticObjects(RoiList,Frame::nNextId);
-		mpFrameDrawer->SetInterestingObject(RoiList);
-	}
 	
     if(mState==NOT_INITIALIZED || mState==NO_IMAGES_YET)
         mCurrentFrame = Frame(mImGray,timestamp,mpIniORBextractor,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth,pTraficsignGrp);

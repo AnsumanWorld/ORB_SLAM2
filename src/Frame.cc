@@ -296,25 +296,26 @@ void Frame::AssignFeaturesToGrid()
 void Frame::ExtractORBInSubImage(const cv::Mat &im,std::vector<cv::KeyPoint> &AllSubImageKeypoints,cv::Mat &SubDescriptors)
 {
 	//mnScaleLevels
-	std::vector<cv::Rect> RoiList;
 	double ScaleX = 1;
 	double ScaleY = 1;
 	
 	if ( (NULL != mpTraficsignGrp) && (true == mpTraficsignGrp->isLoaded))
 	{
-		mpTraficsignGrp->GetSemanticObjects(RoiList,mnId);
+		mpTraficsignGrp->GetSemanticObjects(mRoiList,mnId);
 		if(!mpORBextractorSub)
 			mpORBextractorSub = new ORBextractor(mpORBextractorLeft->Getfeatures(),mfScaleFactor,mnScaleLevels,mpORBextractorLeft->GetiniThFAST(),mpORBextractorLeft->GetminThFAST());	
 
 		cv::Mat AllImageDescriptorList[50];
 		int DescriptorIndex = 0;
-		for(int SubImageIndex = 0;SubImageIndex<RoiList.size();SubImageIndex++)
+		for(int SubImageIndex = 0;SubImageIndex<mRoiList.size();SubImageIndex++)
 		{
 			std::vector<cv::KeyPoint> SubImageKeypoints;
 			cv::Mat SubImageDescriptors;
 			//width should be highier than height which is need for DistributeOctTree()
-			cv::Mat subimage(im(RoiList[SubImageIndex]));
+			cv::Mat subimage(im(mRoiList[SubImageIndex]));
 			cv::Mat scaleUpImg;
+			ScaleX = 1;
+			ScaleY = 1;
 			if(subimage.cols < MIN_ORB_IMG_WIDTH)				
 				ScaleX = (double)MIN_ORB_IMG_WIDTH / subimage.cols;
 			if(subimage.rows < MIN_ORB_IMG_HEIGHT)
@@ -326,7 +327,7 @@ void Frame::ExtractORBInSubImage(const cv::Mat &im,std::vector<cv::KeyPoint> &Al
 				int ClassId = -1;
 				mpTraficsignGrp->GetSemanticObjectClassid(ClassId,mnId,SubImageIndex);
 				ScaleBack(SubImageKeypoints,ScaleX,ScaleY);
-				LinearTransform(SubImageKeypoints, RoiList[SubImageIndex],ClassId);
+				LinearTransform(SubImageKeypoints, mRoiList[SubImageIndex],ClassId);
 				AllSubImageKeypoints.insert(AllSubImageKeypoints.end(), SubImageKeypoints.begin(), SubImageKeypoints.end());
 				AllImageDescriptorList[DescriptorIndex++] = SubImageDescriptors;
 			}
@@ -351,14 +352,12 @@ void Frame::ExtractORB(int flag, const cv::Mat &im)
 					
 			ExtractORBInSubImage(im,SubImageKeypoints,SubDescriptors);
 			if(SubImageKeypoints.size())
-			{	
+			{
 				cv::Mat OrgDescriptors;
 				(*mpORBextractorLeft)(im,cv::Mat(),mvKeys,OrgDescriptors);
 				UpdateOrgSemanticClassid(mvKeys,255);
 				mvKeys.insert(mvKeys.end(), SubImageKeypoints.begin(), SubImageKeypoints.end());
 				cv::vconcat(OrgDescriptors, SubDescriptors, mDescriptors);	
-				//DrawKeypoint1("Merge",im,SubImageKeypoints);
-				//cv::waitKey();
 			}
 			else
 				(*mpORBextractorLeft)(im,cv::Mat(),mvKeys,mDescriptors);
