@@ -27,6 +27,7 @@
 
 #include<opencv2/core/core.hpp>
 #include<mutex>
+#include <atomic>
 
 namespace ORB_SLAM2
 {
@@ -81,6 +82,9 @@ public:
     int PredictScale(const float &currentDist, KeyFrame*pKF);
     int PredictScale(const float &currentDist, Frame* pF);
 
+    void set_semantic(bool);
+    bool is_semantic() const;
+
 public:
     long unsigned int mnId;
     static long unsigned int nNextId;
@@ -111,7 +115,7 @@ public:
 
 
     static std::mutex mGlobalMutex;
-	bool mSemanticMapPoints;
+
 protected:    
 
      // Position in absolute coordinates
@@ -145,6 +149,7 @@ protected:
 
      std::mutex mMutexPos;
      std::mutex mMutexFeatures;
+     std::atomic<bool> _is_semantic;
 };
 
 } //namespace ORB_SLAM

@@ -21,6 +21,7 @@
 #include "Frame.h"
 #include "Converter.h"
 #include "ORBmatcher.h"
+#include "statistics.h"
 #include <thread>
 
 #define MIN_ORB_IMG_WIDTH 90 
@@ -60,7 +61,7 @@ Frame::Frame(const Frame &frame)
         SetPose(frame.mTcw);
 }
 
-
+// Constructor for stereo cameras.
 Frame::Frame(const cv::Mat &imLeft, const cv::Mat &imRight, const double &timeStamp, ORBextractor* extractorLeft, ORBextractor* extractorRight, ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth,KeySemanticObjGrp* pTraficsignGrp)
     :mpORBvocabulary(voc),mpORBextractorLeft(extractorLeft),mpORBextractorRight(extractorRight), mTimeStamp(timeStamp), mK(K.clone()),mDistCoef(distCoef.clone()), mbf(bf), mThDepth(thDepth),
      mpReferenceKF(static_cast<KeyFrame*>(NULL)),mpTraficsignGrp(pTraficsignGrp)
@@ -119,6 +120,7 @@ Frame::Frame(const cv::Mat &imLeft, const cv::Mat &imRight, const double &timeSt
     AssignFeaturesToGrid();
 }
 
+// Constructor for RGB-D cameras.
 Frame::Frame(const cv::Mat &imGray, const cv::Mat &imDepth, const double &timeStamp, ORBextractor* extractor,ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth,KeySemanticObjGrp* pTraficsignGrp)
     :mpORBvocabulary(voc),mpORBextractorLeft(extractor),mpORBextractorRight(static_cast<ORBextractor*>(NULL)),
      mTimeStamp(timeStamp), mK(K.clone()),mDistCoef(distCoef.clone()), mbf(bf), mThDepth(thDepth),mpTraficsignGrp(pTraficsignGrp)
@@ -173,14 +175,15 @@ Frame::Frame(const cv::Mat &imGray, const cv::Mat &imDepth, const double &timeSt
     AssignFeaturesToGrid();
 }
 
-
+// Constructor for Monocular cameras.
 Frame::Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extractor,ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth,KeySemanticObjGrp* pTraficsignGrp)
     :mpORBvocabulary(voc),mpORBextractorLeft(extractor),mpORBextractorRight(static_cast<ORBextractor*>(NULL)),
      mTimeStamp(timeStamp), mK(K.clone()),mDistCoef(distCoef.clone()), mbf(bf), mThDepth(thDepth),mpTraficsignGrp(pTraficsignGrp)
 {
     // Frame ID
     mnId=nNextId++;
-
+    statistics::get().update_frame_count(1);
+    
     // Scale Level Info
     mnScaleLevels = mpORBextractorLeft->GetLevels();
     mfScaleFactor = mpORBextractorLeft->GetScaleFactor();
@@ -198,6 +201,7 @@ Frame::Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extra
     if(mvKeys.empty())
         return;
 
+    statistics::get().update_frame_keypoint_stats(mvKeys);
     UndistortKeyPoints();
 
     // Set no stereo information
@@ -346,7 +350,6 @@ void Frame::ExtractORBInSubImage(const cv::Mat &im,std::vector<cv::KeyPoint> &Al
 
 void Frame::ExtractORB(int flag, const cv::Mat &im)
 {
-		
     if(flag==0)
 	{
 		if ( (NULL != mpTraficsignGrp) && (true == mpTraficsignGrp->isLoaded))
@@ -355,10 +358,12 @@ void Frame::ExtractORB(int flag, const cv::Mat &im)
 			cv::Mat SubDescriptors;
 					
 			ExtractORBInSubImage(im,SubImageKeypoints,SubDescriptors);
+
 			if(SubImageKeypoints.size())
 			{
 				cv::Mat OrgDescriptors;
 				(*mpORBextractorLeft)(im,cv::Mat(),mvKeys,OrgDescriptors);
+
 				UpdateOrgSemanticClassid(mvKeys,255);
 				mvKeys.insert(mvKeys.end(), SubImageKeypoints.begin(), SubImageKeypoints.end());
 				cv::vconcat(OrgDescriptors, SubDescriptors, mDescriptors);	
@@ -392,7 +397,6 @@ void Frame::ExtractORB(int flag, const cv::Mat &im)
 		else		
 			(*mpORBextractorRight)(im,cv::Mat(),mvKeysRight,mDescriptorsRight);
 	}
-	
 }
 
 void Frame::SetPose(cv::Mat Tcw)

@@ -22,7 +22,7 @@
 #include "LoopClosing.h"
 #include "ORBmatcher.h"
 #include "Optimizer.h"
-
+#include "statistics.h"
 #include<mutex>
 
 namespace ORB_SLAM2
@@ -435,8 +435,11 @@ void LocalMapping::CreateNewMapPoints()
 
             // Triangulation is succesfull
             MapPoint* pMP = new MapPoint(x3D,mpCurrentKeyFrame,mpMap);
+            statistics::get().update_mappoint_count(1);
 			if( (kp1.class_id != -1) || (kp2.class_id != -1))
-				pMP->mSemanticMapPoints = true;
+            {
+                pMP->set_semantic(true);
+            }
 			
             pMP->AddObservation(mpCurrentKeyFrame,idx1);            
             pMP->AddObservation(pKF2,idx2);

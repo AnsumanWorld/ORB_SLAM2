@@ -1,0 +1,11 @@
+name: orb-slam2
+channels:
+    - https://conda.anaconda.org/menpo
+    - conda-forge
+dependencies:
+    - numpy
+    - matplotlib
+    - opencv3
+    - scipy
+    - ffmpeg
+    - pillow

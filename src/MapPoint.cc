@@ -20,6 +20,7 @@
 
 #include "MapPoint.h"
 #include "ORBmatcher.h"
+#include "statistics.h"
 
 #include<mutex>
 
@@ -41,7 +42,7 @@ MapPoint::MapPoint(const cv::Mat &Pos, KeyFrame *pRefKF, Map* pMap):
     // MapPoints can be created from Tracking and Local Mapping. This mutex avoid conflicts with id.
     unique_lock<mutex> lock(mpMap->mMutexPointCreation);
     mnId=nNextId++;
-	mSemanticMapPoints = false;
+	_is_semantic = false;
 }
 
 MapPoint::MapPoint(const cv::Mat &Pos, Map* pMap, Frame* pFrame, const int &idxF):
@@ -50,6 +51,8 @@ MapPoint::MapPoint(const cv::Mat &Pos, Map* pMap, Frame* pFrame, const int &idxF
     mnCorrectedReference(0), mnBAGlobalForKF(0), mpRefKF(static_cast<KeyFrame*>(NULL)), mnVisible(1),
     mnFound(1), mbBad(false), mpReplaced(NULL), mpMap(pMap)
 {
+    statistics::get().update_mappoint_count(1);
+    
     Pos.copyTo(mWorldPos);
     cv::Mat Ow = pFrame->GetCameraCenter();
     mNormalVector = mWorldPos - Ow;
@@ -69,7 +72,22 @@ MapPoint::MapPoint(const cv::Mat &Pos, Map* pMap, Frame* pFrame, const int &idxF
     // MapPoints can be created from Tracking and Local Mapping. This mutex avoid conflicts with id.
     unique_lock<mutex> lock(mpMap->mMutexPointCreation);
     mnId=nNextId++;
-	mSemanticMapPoints = false;
+	_is_semantic = false;
+}
+
+bool MapPoint::is_semantic() const
+{
+    return _is_semantic;
+}
+
+void MapPoint::set_semantic(bool val)
+{
+    _is_semantic = val;
+
+    if(val == true)
+    {
+        statistics::get().update_semantic_mappoint_count(1);
+    }
 }
 
 void MapPoint::SetWorldPos(const cv::Mat &Pos)

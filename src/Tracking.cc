@@ -29,7 +29,7 @@
 #include"Converter.h"
 #include"Map.h"
 #include"Initializer.h"
-
+#include "statistics.h"
 #include"Optimizer.h"
 #include"PnPsolver.h"
 
@@ -661,6 +661,7 @@ void Tracking::CreateInitialMapMonocular()
         cv::Mat worldPos(mvIniP3D[i]);
 
         MapPoint* pMP = new MapPoint(worldPos,pKFcur,mpMap);
+        statistics::get().update_mappoint_count(1);
 
         pKFini->AddMapPoint(pMP,i);
         pKFcur->AddMapPoint(pMP,mvIniMatches[i]);
@@ -851,6 +852,7 @@ void Tracking::UpdateLastFrame()
         {
             cv::Mat x3D = mLastFrame.UnprojectStereo(i);
             MapPoint* pNewMP = new MapPoint(x3D,mpMap,&mLastFrame,i);
+            statistics::get().update_mappoint_count(1);
 
             mLastFrame.mvpMapPoints[i]=pNewMP;
 
