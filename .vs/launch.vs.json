@@ -5,8 +5,8 @@
     {
       "type": "default",
       "project": "CMakeLists.txt",
-      "projectTarget": "${buildRoot}\\semantic_monocular.exe",
-      "name": "${buildRoot}\\semantic_monocular.exe",
+      "projectTarget": "semantic_monocular.exe",
+      "name": "semantic_monocular.exe",
       "args": [
         "${projectDir}\\Vocabulary\\ORBvoc.bin",
         "${projectDir}\\Examples\\Monocular\\Garching-Test-Drive.yaml",
