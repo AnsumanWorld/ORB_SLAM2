@@ -22,6 +22,7 @@
 #include "ext/app_monitor_api.h"
 #include "System.h"
 #include "Converter.h"
+#include "statistics.h"
 #include <thread>
 #include <pangolin/pangolin.h>
 #include <iomanip>
@@ -348,6 +349,9 @@ void System::Shutdown()
 
     if(mpViewer)
         pangolin::BindToContext("ORB-SLAM2: Map Viewer");
+
+    statistics::get().update_map_stats(mpMap);
+    statistics::get().print_stats();
 }
 
 void System::SaveTrajectoryTUM(const string &filename)

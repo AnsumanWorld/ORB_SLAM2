@@ -60,6 +60,7 @@ src/Sim3Solver.cc
 src/Initializer.cc
 src/Viewer.cc
 src/KeySemanticObjGrp.cc
+src/statistics.cc
 )
 
 if(CMAKE_COMPILER_IS_GNUCXX)
