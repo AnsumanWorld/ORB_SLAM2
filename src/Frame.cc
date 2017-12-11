@@ -355,7 +355,6 @@ void Frame::ExtractORB(int flag, const cv::Mat &im)
 			{	
 				cv::Mat OrgDescriptors;
 				(*mpORBextractorRight)(im,cv::Mat(),mvKeysRight,OrgDescriptors);
-				UpdateOrgSemanticClassid(mvKeysRight,255);
 				mvKeysRight.insert(mvKeysRight.end(), SubImageKeypoints.begin(), SubImageKeypoints.end());
 				cv::vconcat(OrgDescriptors, SubDescriptors, mDescriptorsRight);	
 			}
