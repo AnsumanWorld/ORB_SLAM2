@@ -113,18 +113,8 @@ cv::Mat FrameDrawer::DrawFrame()
                 {
 					if(vCurrentKeys[i].class_id != -1)
 					{
-
-						if(vCurrentKeys[i].class_id !=255)
-						{
-							cv::rectangle(im,pt1,pt2,cv::Scalar(0,0,255));
-							cv::circle(im,vCurrentKeys[i].pt,2,cv::Scalar(0,0,255),-1);
-						}
-						else
-						{
-							cv::rectangle(im,pt1,pt2,cv::Scalar(255,0,0));
-							cv::circle(im,vCurrentKeys[i].pt,2,cv::Scalar(255,0,0),-1);
-						}
-
+						cv::rectangle(im,pt1,pt2,cv::Scalar(0,0,255));
+						cv::circle(im,vCurrentKeys[i].pt,2,cv::Scalar(0,0,255),-1);
 					}
 					else
 					{
@@ -151,7 +141,7 @@ cv::Mat FrameDrawer::DrawFrame()
         }
 		for(int Index = 0;Index <RoiList.size();Index++)
 		{
-			cv::rectangle(im,RoiList[Index],cv::Scalar(255,255,255));
+			cv::rectangle(im,RoiList[Index],cv::Scalar(0,0,255));
 		}
     }
 

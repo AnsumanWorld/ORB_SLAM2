@@ -271,28 +271,6 @@ void Frame::AssignFeaturesToGrid()
 	}
  }
  
- void Frame::UpdateOrgSemanticClassid(std::vector<cv::KeyPoint> &vKeys,int ClassId)
- {
-	std::vector<cv::Rect> RoiList;
-	if ( (NULL != mpTraficsignGrp) && (true == mpTraficsignGrp->isLoaded))
-	{
-		mpTraficsignGrp->GetSemanticObjects(RoiList,mnId);
-		for(int SubImageIndex = 0;SubImageIndex<RoiList.size();SubImageIndex++)
-		{
-			for(int Index = 0;Index<vKeys.size();Index++)
-			{
-				if( (vKeys[Index].pt.x >= RoiList[SubImageIndex].x) && (vKeys[Index].pt.x < (RoiList[SubImageIndex].x + RoiList[SubImageIndex].width)))
-				{
-					if( (vKeys[Index].pt.y >= RoiList[SubImageIndex].y) && (vKeys[Index].pt.y < (RoiList[SubImageIndex].y + RoiList[SubImageIndex].height)))
-					{
-						vKeys[Index].class_id = ClassId;
-					}
-				}
-			}
-		}
-	}
- }
- 
 void Frame::ExtractORBInSubImage(const cv::Mat &im,std::vector<cv::KeyPoint> &AllSubImageKeypoints,cv::Mat &SubDescriptors)
 {
 	//mnScaleLevels
@@ -355,7 +333,6 @@ void Frame::ExtractORB(int flag, const cv::Mat &im)
 			{
 				cv::Mat OrgDescriptors;
 				(*mpORBextractorLeft)(im,cv::Mat(),mvKeys,OrgDescriptors);
-				UpdateOrgSemanticClassid(mvKeys,255);
 				mvKeys.insert(mvKeys.end(), SubImageKeypoints.begin(), SubImageKeypoints.end());
 				cv::vconcat(OrgDescriptors, SubDescriptors, mDescriptors);	
 			}
