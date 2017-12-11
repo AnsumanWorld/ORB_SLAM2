@@ -28,8 +28,7 @@
 
 namespace ORB_SLAM2
 {
-	int gNewSemanticFeatureCount = 0;
-	int gOrgSemanticFeatureCount = 0;
+
 FrameDrawer::FrameDrawer(Map* pMap):mpMap(pMap)
 {
     mState=Tracking::SYSTEM_NOT_READY;
@@ -47,8 +46,9 @@ cv::Mat FrameDrawer::DrawFrame()
     vector<cv::KeyPoint> vCurrentKeys; // KeyPoints in current frame
     vector<bool> vbVO, vbMap; // Tracked MapPoints in current frame
     int state; // Tracking state
-	gNewSemanticFeatureCount = 0;
-	gOrgSemanticFeatureCount = 0;
+	std::vector<cv::Rect> RoiList;
+	
+	
     //Copy variables within scoped mutex
     {
         unique_lock<mutex> lock(mMutex);
@@ -74,6 +74,7 @@ cv::Mat FrameDrawer::DrawFrame()
         {
             vCurrentKeys = mvCurrentKeys;
         }
+		RoiList.assign(mRoiList.begin(), mRoiList.end());
     } // destroy scoped mutex -> release mutex
 
     if(im.channels()<3) //this should be always true
@@ -112,9 +113,18 @@ cv::Mat FrameDrawer::DrawFrame()
                 {
 					if(vCurrentKeys[i].class_id != -1)
 					{
-						cv::rectangle(im,pt1,pt2,cv::Scalar(0,0,255));
-						cv::circle(im,vCurrentKeys[i].pt,2,cv::Scalar(0,0,255),-1);
-						gNewSemanticFeatureCount++;
+
+						if(vCurrentKeys[i].class_id !=255)
+						{
+							cv::rectangle(im,pt1,pt2,cv::Scalar(0,0,255));
+							cv::circle(im,vCurrentKeys[i].pt,2,cv::Scalar(0,0,255),-1);
+						}
+						else
+						{
+							cv::rectangle(im,pt1,pt2,cv::Scalar(255,0,0));
+							cv::circle(im,vCurrentKeys[i].pt,2,cv::Scalar(255,0,0),-1);
+						}
+
 					}
 					else
 					{
@@ -139,9 +149,9 @@ cv::Mat FrameDrawer::DrawFrame()
                 }
             }
         }
-		for(int Index = 0;Index <mRoiList.size();Index++)
+		for(int Index = 0;Index <RoiList.size();Index++)
 		{
-			cv::rectangle(im,mRoiList[Index],cv::Scalar(0,0,255));
+			cv::rectangle(im,RoiList[Index],cv::Scalar(255,255,255));
 		}
     }
 
@@ -170,15 +180,7 @@ void FrameDrawer::DrawTextInfo(cv::Mat &im, int nState, cv::Mat &imText)
         s << "KFs: " << nKFs << ", MPs: " << nMPs << ", Matches: " << mnTracked;
         if(mnTrackedVO>0)
             s << ", + VO matches: " << mnTrackedVO;
-		if(gNewSemanticFeatureCount != 0)
-		{
-			s << " New Semantic = "<<gNewSemanticFeatureCount;
-			
-		}
-		if(gOrgSemanticFeatureCount != 0)
-		{
-			s << " Org Semantic = "<<gOrgSemanticFeatureCount;
-		}
+
     }
     else if(nState==Tracking::LOST)
     {
@@ -208,7 +210,7 @@ void FrameDrawer::Update(Tracking *pTracker)
     mvbVO = vector<bool>(N,false);
     mvbMap = vector<bool>(N,false);
     mbOnlyTracking = pTracker->mbOnlyTracking;
-
+	mRoiList.assign(pTracker->mCurrentFrame.mRoiList.begin(), pTracker->mCurrentFrame.mRoiList.end());
 
     if(pTracker->mLastProcessedState==Tracking::NOT_INITIALIZED)
     {

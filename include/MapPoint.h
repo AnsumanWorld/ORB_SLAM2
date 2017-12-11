@@ -111,7 +111,7 @@ public:
 
 
     static std::mutex mGlobalMutex;
-
+	bool mSemanticMapPoints;
 protected:    
 
      // Position in absolute coordinates

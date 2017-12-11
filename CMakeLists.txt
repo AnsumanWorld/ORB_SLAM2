@@ -23,8 +23,6 @@ endif()
 
 find_package(Eigen3 REQUIRED)
 set(Boost_USE_STATIC_LIBS ON)
-set(Boost_DEBUG ON)
-set(Boost_DETAILED_FAILURE_MSG ON)
 find_package(Boost REQUIRED COMPONENTS filesystem)
 if("${EIGEN3_VERSION}" VERSION_LESS "3.1.0")
 	message(FATAL_ERROR "Eigen3 > 3.1.0 not found.")

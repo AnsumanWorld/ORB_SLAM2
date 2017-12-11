@@ -435,7 +435,9 @@ void LocalMapping::CreateNewMapPoints()
 
             // Triangulation is succesfull
             MapPoint* pMP = new MapPoint(x3D,mpCurrentKeyFrame,mpMap);
-
+			if( (kp1.class_id != -1) || (kp2.class_id != -1))
+				pMP->mSemanticMapPoints = true;
+			
             pMP->AddObservation(mpCurrentKeyFrame,idx1);            
             pMP->AddObservation(pKF2,idx2);
 
