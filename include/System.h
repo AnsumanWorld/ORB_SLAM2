@@ -47,6 +47,12 @@ class Tracking;
 class LocalMapping;
 class LoopClosing;
 
+enum RUN_STATUS{
+    PLAYING=0,
+    PAUSED=1,
+    STOPPPED=2
+ };
+	
 class System
 {
 public:
@@ -125,6 +131,8 @@ public:
 	
 	KeySemanticObjGrp* GetSemanticObjGrp();
 	void SetSemanticObjGrpContent(traffic_sign_map_t const & InterestedObject);
+    void SetCurrentRunStatus(RUN_STATUS CurrentRunStatus);
+    void RunEventLoop();
 private:
 
     // Input sensor
@@ -178,6 +186,7 @@ private:
     std::vector<cv::KeyPoint> mTrackedKeyPointsUn;
     std::mutex mMutexState;
 	KeySemanticObjGrp mSemanticObjGrp;
+    RUN_STATUS mCurrentRunStatus;
 };
 
 }// namespace ORB_SLAM

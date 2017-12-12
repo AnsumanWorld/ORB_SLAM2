@@ -72,6 +72,9 @@ void Viewer::Run()
     pangolin::Var<bool> menuShowGraph("menu.Show Graph",true,true);
     pangolin::Var<bool> menuLocalizationMode("menu.Localization Mode",false,true);
     pangolin::Var<bool> menuReset("menu.Reset",false,false);
+    pangolin::Var<bool> menuPlay("menu.Play",false,false);
+    pangolin::Var<bool> menuPause("menu.Pause",false,false);
+    pangolin::Var<bool> menuStop("menu.Stop",false,false);
 
     // Define Camera Render Object (for view / scene browsing)
     pangolin::OpenGlRenderState s_cam(
@@ -152,6 +155,22 @@ void Viewer::Run()
             mpSystem->Reset();
             menuReset = false;
         }
+        else if(menuPlay)
+        {
+            menuPlay = false;
+            mpSystem->SetCurrentRunStatus(RUN_STATUS::PLAYING);
+        }
+        else if(menuPause)
+        {
+            menuPause = false;
+            mpSystem->SetCurrentRunStatus(RUN_STATUS::PAUSED);
+        }
+        else if(menuStop)
+        {
+            menuStop = false;
+            mpSystem->SetCurrentRunStatus(RUN_STATUS::PAUSED);
+        }
+
 
         if(Stop())
         {
