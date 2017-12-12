@@ -175,19 +175,19 @@ void statistics::print_stats()
     + std::to_string(percent(_map_semantic_mps, _map_semantic_kp_count))
     + newline;
 
-    std::cout << "\n*** Statistics ***\n";
+    std::cout << "\n*** Debug Statistics ***\n";
     std::cout << frame_stats;
     std::cout << kp_stats;
     std::cout << semantic_kp_stats;
     std::cout << mp_stats;
     std::cout << kf_kp_mp_stats;
     std::cout << kf_semantic_kp_mp_stats;
-    std::cout << "\nPoint Cloud Statistics\n";
+
+    std::cout << "\n*** Point Cloud Statistics ***\n";
     std::cout << map_kf_stats;
     std::cout << map_kp_stats;
     std::cout << map_mp_stats;
     std::cout << map_semantic_kp_mp_stats;
-    std::cout << "--- Statistics ---\n";
 }
 
 double statistics::percent(
