@@ -435,7 +435,7 @@ void LocalMapping::CreateNewMapPoints()
 
             // Triangulation is succesfull
             MapPoint* pMP = new MapPoint(x3D,mpCurrentKeyFrame,mpMap);
-            statistics::get().update_mappoint_count(1);
+
 			if( (kp1.class_id != -1) || (kp2.class_id != -1))
             {
                 pMP->set_semantic(true);
