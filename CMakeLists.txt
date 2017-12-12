@@ -129,7 +129,9 @@ target_link_libraries(vocconv ${PROJECT_NAME})
 # Experiments
 add_executable(orb-extract
 experiments/orb-extract/main.cpp)
-target_link_libraries(orb-extract ${PROJECT_NAME})
+target_link_libraries(orb-extract
+    orb-slam2 
+    Boost::filesystem)
 
 add_custom_target(orb-slam2-ext SOURCES
     ext/app_monitor.h
