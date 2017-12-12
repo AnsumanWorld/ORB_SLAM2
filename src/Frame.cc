@@ -276,7 +276,7 @@ void Frame::AssignFeaturesToGrid()
 	std::vector<cv::Rect> RoiList;
 	if ( (NULL != mpTraficsignGrp) && (true == mpTraficsignGrp->isLoaded))
 	{
-		mpTraficsignGrp->GetSemanticObjects(RoiList,mnId);
+		mpTraficsignGrp->GetSemanticObjects(RoiList,static_cast<int>(mTimeStamp));
 		for(int SubImageIndex = 0;SubImageIndex<RoiList.size();SubImageIndex++)
 		{
 			for(int Index = 0;Index<vKeys.size();Index++)
@@ -301,7 +301,7 @@ void Frame::ExtractORBInSubImage(const cv::Mat &im,std::vector<cv::KeyPoint> &Al
 	
 	if ( (NULL != mpTraficsignGrp) && (true == mpTraficsignGrp->isLoaded))
 	{
-		mpTraficsignGrp->GetSemanticObjects(mRoiList,mnId);
+		mpTraficsignGrp->GetSemanticObjects(mRoiList,static_cast<int>(mTimeStamp));
 		if(!mpORBextractorSub)
 			mpORBextractorSub = new ORBextractor(mpORBextractorLeft->Getfeatures(),mfScaleFactor,mnScaleLevels,mpORBextractorLeft->GetiniThFAST(),mpORBextractorLeft->GetminThFAST());	
 
