@@ -141,7 +141,7 @@ cv::Mat FrameDrawer::DrawFrame()
         }
 		for(int Index = 0;Index <RoiList.size();Index++)
 		{
-			cv::rectangle(im,RoiList[Index],cv::Scalar(0,0,255));
+			cv::rectangle(im,RoiList[Index],cv::Scalar(255,255,255));
 		}
     }
 
