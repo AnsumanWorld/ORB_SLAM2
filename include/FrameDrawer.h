@@ -37,6 +37,13 @@ namespace ORB_SLAM2
 class Tracking;
 class Viewer;
 
+struct FrameInfoRequired
+{
+    int mFrameId;
+    std::vector<int> mNumOfKeypointsPerSubImage;
+    int mNumOfKeypointsFiltered;
+};
+
 class FrameDrawer
 {
 public:
@@ -50,7 +57,7 @@ public:
 	void SetInterestingObject(std::vector<cv::Rect> &RoiList);
 protected:
 
-    void DrawTextInfo(cv::Mat &im, int nState, cv::Mat &imText);
+    void DrawTextInfo(cv::Mat &im, int nState, FrameInfoRequired nFrameInfoReq, cv::Mat &imText);
 
     // Info of the frame to be drawn
     cv::Mat mIm;
@@ -66,6 +73,7 @@ protected:
     Map* mpMap;
 	std::vector<cv::Rect> mRoiList;
     std::mutex mMutex;
+    FrameInfoRequired mvFrameInfoReq;
 };
 
 } //namespace ORB_SLAM
