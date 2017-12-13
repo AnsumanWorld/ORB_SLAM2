@@ -47,7 +47,8 @@ cv::Mat FrameDrawer::DrawFrame()
     vector<bool> vbVO, vbMap; // Tracked MapPoints in current frame
     int state; // Tracking state
 	std::vector<cv::Rect> RoiList;
-	
+	FrameInfoRequired vFrameInfoReq;
+    
 	
     //Copy variables within scoped mutex
     {
@@ -69,6 +70,8 @@ cv::Mat FrameDrawer::DrawFrame()
             vCurrentKeys = mvCurrentKeys;
             vbVO = mvbVO;
             vbMap = mvbMap;
+            vFrameInfoReq = mvFrameInfoReq;
+            
         }
         else if(mState==Tracking::LOST)
         {
@@ -94,6 +97,7 @@ cv::Mat FrameDrawer::DrawFrame()
     }
     else if(state==Tracking::OK) //TRACKING
     {
+        vFrameInfoReq.mNumOfKeypointsFiltered = 0;
         mnTracked=0;
         mnTrackedVO=0;
         const float r = 5;
@@ -113,17 +117,9 @@ cv::Mat FrameDrawer::DrawFrame()
                 {
 					if(vCurrentKeys[i].class_id != -1)
 					{
-						if(vCurrentKeys[i].class_id ==255)
-						{
-							cv::rectangle(im,pt1,pt2,cv::Scalar(0,0,255));
-							cv::circle(im,vCurrentKeys[i].pt,2,cv::Scalar(0,0,255),-1);
-						}
-						else
-						{
-							cv::rectangle(im,pt1,pt2,cv::Scalar(255,0,0));
-							cv::circle(im,vCurrentKeys[i].pt,2,cv::Scalar(255,0,0),-1);
-						}
-
+                    	cv::rectangle(im,pt1,pt2,cv::Scalar(0,0,255));
+						cv::circle(im,vCurrentKeys[i].pt,2,cv::Scalar(0,0,255),-1);
+                        ++vFrameInfoReq.mNumOfKeypointsFiltered;
 					}
 					else
 					{
@@ -155,13 +151,13 @@ cv::Mat FrameDrawer::DrawFrame()
     }
 
     cv::Mat imWithInfo;
-    DrawTextInfo(im,state, imWithInfo);
+    DrawTextInfo(im,state,vFrameInfoReq,imWithInfo);
 	
     return imWithInfo;
 }
 
 
-void FrameDrawer::DrawTextInfo(cv::Mat &im, int nState, cv::Mat &imText)
+void FrameDrawer::DrawTextInfo(cv::Mat &im, int nState, FrameInfoRequired nFrameInfoReq, cv::Mat &imText)
 {
     stringstream s;
     if(nState==Tracking::NO_IMAGES_YET)
@@ -179,7 +175,32 @@ void FrameDrawer::DrawTextInfo(cv::Mat &im, int nState, cv::Mat &imText)
         s << "KFs: " << nKFs << ", MPs: " << nMPs << ", Matches: " << mnTracked;
         if(mnTrackedVO>0)
             s << ", + VO matches: " << mnTrackedVO;
-
+        s <<", Frame id: "<< std::setw(6) << std::setfill('0') << nFrameInfoReq.mFrameId;
+        s << ", n(Filtered semantic features): " << nFrameInfoReq.mNumOfKeypointsFiltered;
+        s << ", n(Semantic features){L-R}: " ;
+        if(0 != nFrameInfoReq.mNumOfKeypointsPerSubImage.size())
+        {
+            int totalKeypointsInSubImages = 0;
+            for(auto it = nFrameInfoReq.mNumOfKeypointsPerSubImage.begin(); it != nFrameInfoReq.mNumOfKeypointsPerSubImage.end(); ++it)
+            {       
+                if(std::next(it) != nFrameInfoReq.mNumOfKeypointsPerSubImage.end())
+                {
+                    s << *it << ",";
+                    totalKeypointsInSubImages +=  *it;
+                }
+                else
+                {
+                    s << *it;
+                    totalKeypointsInSubImages +=  *it;
+                }
+            }
+            s << ":(total) " << totalKeypointsInSubImages;
+        }
+        else
+        {
+            s << " 0 ";
+        }
+        
     }
     else if(nState==Tracking::LOST)
     {
@@ -218,6 +239,8 @@ void FrameDrawer::Update(Tracking *pTracker)
     }
     else if(pTracker->mLastProcessedState==Tracking::OK)
     {
+        mvFrameInfoReq.mFrameId = pTracker->mCurrentFrame.mnId;
+        mvFrameInfoReq.mNumOfKeypointsPerSubImage = pTracker->mCurrentFrame.mKeypointsPerSubImage;
         for(int i=0;i<N;i++)
         {
             MapPoint* pMP = pTracker->mCurrentFrame.mvpMapPoints[i];
