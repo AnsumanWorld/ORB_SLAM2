@@ -158,17 +158,17 @@ void Viewer::Run()
         else if(menuPlay)
         {
             menuPlay = false;
-            mpSystem->SetCurrentRunStatus(RUN_STATUS::PLAYING);
+            mpSystem->Play();
         }
         else if(menuPause)
         {
             menuPause = false;
-            mpSystem->SetCurrentRunStatus(RUN_STATUS::PAUSED);
+            mpSystem->Pause();
         }
         else if(menuStop)
         {
             menuStop = false;
-            mpSystem->SetCurrentRunStatus(RUN_STATUS::PAUSED);
+            mpSystem->Stop();
         }
 
 
