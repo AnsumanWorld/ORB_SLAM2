@@ -47,7 +47,7 @@ cv::Mat FrameDrawer::DrawFrame()
     vector<bool> vbVO, vbMap; // Tracked MapPoints in current frame
     int state; // Tracking state
 	std::vector<cv::Rect> RoiList;
-	FrameInfoRequired vFrameInfoReq;
+	FrameInfo frameInfo;
     
 	
     //Copy variables within scoped mutex
@@ -70,7 +70,7 @@ cv::Mat FrameDrawer::DrawFrame()
             vCurrentKeys = mvCurrentKeys;
             vbVO = mvbVO;
             vbMap = mvbMap;
-            vFrameInfoReq = mvFrameInfoReq;
+            frameInfo = mFrameInfo;
             
         }
         else if(mState==Tracking::LOST)
@@ -97,7 +97,7 @@ cv::Mat FrameDrawer::DrawFrame()
     }
     else if(state==Tracking::OK) //TRACKING
     {
-        vFrameInfoReq.mNumOfKeypointsFiltered = 0;
+        frameInfo.mnDisplayedSemKPs = 0;
         mnTracked=0;
         mnTrackedVO=0;
         const float r = 5;
@@ -119,7 +119,7 @@ cv::Mat FrameDrawer::DrawFrame()
 					{
                     	cv::rectangle(im,pt1,pt2,cv::Scalar(0,0,255));
 						cv::circle(im,vCurrentKeys[i].pt,2,cv::Scalar(0,0,255),-1);
-                        ++vFrameInfoReq.mNumOfKeypointsFiltered;
+                        ++frameInfo.mnDisplayedSemKPs;
 					}
 					else
 					{
@@ -151,13 +151,13 @@ cv::Mat FrameDrawer::DrawFrame()
     }
 
     cv::Mat imWithInfo;
-    DrawTextInfo(im,state,vFrameInfoReq,imWithInfo);
+    DrawTextInfo(im,state,frameInfo,imWithInfo);
 	
     return imWithInfo;
 }
 
 
-void FrameDrawer::DrawTextInfo(cv::Mat &im, int nState, FrameInfoRequired nFrameInfoReq, cv::Mat &imText)
+void FrameDrawer::DrawTextInfo(cv::Mat &im, int nState, FrameInfo frameInfo, cv::Mat &imText)
 {
     stringstream s;
     if(nState==Tracking::NO_IMAGES_YET)
@@ -175,17 +175,18 @@ void FrameDrawer::DrawTextInfo(cv::Mat &im, int nState, FrameInfoRequired nFrame
         s << "KFs: " << nKFs << ", MPs: " << nMPs << ", Matches: " << mnTracked;
         if(mnTrackedVO>0)
             s << ", + VO matches: " << mnTrackedVO;
-        s <<", Frame id: "<< std::setw(6) << std::setfill('0') << nFrameInfoReq.mFrameId;
-        s << ", n(Filtered semantic features): " << nFrameInfoReq.mNumOfKeypointsFiltered;
-        s << ", n(Semantic features){L-R}: " ;
-        if(0 != nFrameInfoReq.mNumOfKeypointsPerSubImage.size())
+        s <<", Frame id: "<< std::setw(6) << std::setfill('0') << frameInfo.mFrameId;
+        s << ", Sem. features: " << frameInfo.mvKPsPerSubImage.size();
+        s << ", Displayed SKPs: " << frameInfo.mnDisplayedSemKPs;
+        s << ", Extracted SKPs: " ;
+        if(frameInfo.mvKPsPerSubImage.size())
         {
             int totalKeypointsInSubImages = 0;
-            for(auto it = nFrameInfoReq.mNumOfKeypointsPerSubImage.begin(); it != nFrameInfoReq.mNumOfKeypointsPerSubImage.end(); ++it)
+            for(auto it = frameInfo.mvKPsPerSubImage.begin(); it != frameInfo.mvKPsPerSubImage.end(); ++it)
             {       
-                if(std::next(it) != nFrameInfoReq.mNumOfKeypointsPerSubImage.end())
+                if(std::next(it) != frameInfo.mvKPsPerSubImage.end())
                 {
-                    s << *it << ",";
+                    s << *it << "+";
                     totalKeypointsInSubImages +=  *it;
                 }
                 else
@@ -194,11 +195,11 @@ void FrameDrawer::DrawTextInfo(cv::Mat &im, int nState, FrameInfoRequired nFrame
                     totalKeypointsInSubImages +=  *it;
                 }
             }
-            s << ":(total) " << totalKeypointsInSubImages;
+            if(frameInfo.mvKPsPerSubImage.size() != 1) s << "=" << totalKeypointsInSubImages;
         }
         else
         {
-            s << " 0 ";
+            s << "0";
         }
         
     }
@@ -239,8 +240,8 @@ void FrameDrawer::Update(Tracking *pTracker)
     }
     else if(pTracker->mLastProcessedState==Tracking::OK)
     {
-        mvFrameInfoReq.mFrameId = pTracker->mCurrentFrame.mnId;
-        mvFrameInfoReq.mNumOfKeypointsPerSubImage = pTracker->mCurrentFrame.mKeypointsPerSubImage;
+        mFrameInfo.mFrameId = pTracker->mCurrentFrame.mnId;
+        mFrameInfo.mvKPsPerSubImage = pTracker->mCurrentFrame.mvKPsPerSubImage;
         for(int i=0;i<N;i++)
         {
             MapPoint* pMP = pTracker->mCurrentFrame.mvpMapPoints[i];

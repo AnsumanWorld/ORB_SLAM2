@@ -190,7 +190,7 @@ public:
 
     static bool mbInitialComputations;
 	std::vector<cv::Rect> mRoiList;
-    std::vector<int> mKeypointsPerSubImage;
+    std::vector<int> mvKPsPerSubImage;
 
 private:
 
