@@ -52,7 +52,7 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     "under certain conditions. See LICENSE.txt." << endl << endl;
 
     cout << "Input sensor was set to: ";
-    mCurrentRunStatus = RUN_STATUS::PLAYING;
+    mCurAppState = app_state::Stopped;
 
     if(mSensor==MONOCULAR)
         cout << "Monocular" << endl;
@@ -530,14 +530,29 @@ void System::SetSemanticObjGrpContent(traffic_sign_map_t const &InterestedObject
 {
 	mSemanticObjGrp.SetSemanticObjGrpContent(InterestedObject);
 }
-void System::SetCurrentRunStatus(RUN_STATUS CurrentRunStatus)
-{
-    mCurrentRunStatus = CurrentRunStatus;
-}
+
 void System::RunEventLoop()
 {
-    while(mCurrentRunStatus == RUN_STATUS::PAUSED)
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    std::unique_lock<std::mutex> pause(mMutexAppState);
+    if (mCurAppState != app_state::Playing)
+    {
+        mWaitForPlay.wait(pause);
+    }
 }
 
+void System::Play()
+{
+    mCurAppState = app_state::Playing;
+    mWaitForPlay.notify_one();
+}
+
+void System::Pause()
+{
+    mCurAppState = app_state::Paused;
+}
+
+void System::Stop()
+{
+    mCurAppState = app_state::Stopped;
+}
 } //namespace ORB_SLAM
