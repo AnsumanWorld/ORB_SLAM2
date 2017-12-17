@@ -30,28 +30,30 @@ namespace ORB_SLAM2
 long unsigned int MapPoint::nNextId=0;
 mutex MapPoint::mGlobalMutex;
 
-MapPoint::MapPoint(const cv::Mat &Pos, KeyFrame *pRefKF, Map* pMap):
+MapPoint::MapPoint(const cv::Mat &Pos, KeyFrame *pRefKF, Map* pMap, bool semantic):
     mnFirstKFid(pRefKF->mnId), mnFirstFrame(pRefKF->mnFrameId), nObs(0), mnTrackReferenceForFrame(0),
     mnLastFrameSeen(0), mnBALocalForKF(0), mnFuseCandidateForKF(0), mnLoopPointForKF(0), mnCorrectedByKF(0),
     mnCorrectedReference(0), mnBAGlobalForKF(0), mpRefKF(pRefKF), mnVisible(1), mnFound(1), mbBad(false),
     mpReplaced(static_cast<MapPoint*>(NULL)), mfMinDistance(0), mfMaxDistance(0), mpMap(pMap)
+    , _is_semantic(semantic)
 {
     statistics::get().update_mappoint_count(1);
     
     Pos.copyTo(mWorldPos);
     mNormalVector = cv::Mat::zeros(3,1,CV_32F);
 
+    if(_is_semantic)
+        statistics::get().update_semantic_mappoint_count(1);
     // MapPoints can be created from Tracking and Local Mapping. This mutex avoid conflicts with id.
     unique_lock<mutex> lock(mpMap->mMutexPointCreation);
     mnId=nNextId++;
-	_is_semantic = false;
 }
 
-MapPoint::MapPoint(const cv::Mat &Pos, Map* pMap, Frame* pFrame, const int &idxF):
+MapPoint::MapPoint(const cv::Mat &Pos, Map* pMap, Frame* pFrame, const int &idxF, bool semantic):
     mnFirstKFid(-1), mnFirstFrame(pFrame->mnId), nObs(0), mnTrackReferenceForFrame(0), mnLastFrameSeen(0),
     mnBALocalForKF(0), mnFuseCandidateForKF(0),mnLoopPointForKF(0), mnCorrectedByKF(0),
     mnCorrectedReference(0), mnBAGlobalForKF(0), mpRefKF(static_cast<KeyFrame*>(NULL)), mnVisible(1),
-    mnFound(1), mbBad(false), mpReplaced(NULL), mpMap(pMap)
+    mnFound(1), mbBad(false), mpReplaced(NULL), mpMap(pMap), _is_semantic(semantic)
 {
     statistics::get().update_mappoint_count(1);
     
@@ -71,25 +73,17 @@ MapPoint::MapPoint(const cv::Mat &Pos, Map* pMap, Frame* pFrame, const int &idxF
 
     pFrame->mDescriptors.row(idxF).copyTo(mDescriptor);
 
+    if(_is_semantic)
+        statistics::get().update_semantic_mappoint_count(1);
+
     // MapPoints can be created from Tracking and Local Mapping. This mutex avoid conflicts with id.
     unique_lock<mutex> lock(mpMap->mMutexPointCreation);
     mnId=nNextId++;
-	_is_semantic = false;
 }
 
 bool MapPoint::is_semantic() const
 {
     return _is_semantic;
-}
-
-void MapPoint::set_semantic(bool val)
-{
-    _is_semantic = val;
-
-    if(val == true)
-    {
-        statistics::get().update_semantic_mappoint_count(1);
-    }
 }
 
 void MapPoint::SetWorldPos(const cv::Mat &Pos)

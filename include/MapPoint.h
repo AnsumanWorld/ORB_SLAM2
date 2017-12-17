@@ -40,8 +40,8 @@ class Frame;
 class MapPoint
 {
 public:
-    MapPoint(const cv::Mat &Pos, KeyFrame* pRefKF, Map* pMap);
-    MapPoint(const cv::Mat &Pos,  Map* pMap, Frame* pFrame, const int &idxF);
+    MapPoint(const cv::Mat &Pos, KeyFrame* pRefKF, Map* pMap, bool semantic=false);
+    MapPoint(const cv::Mat &Pos,  Map* pMap, Frame* pFrame, const int &idxF, bool semantic=false);
 
     void SetWorldPos(const cv::Mat &Pos);
     cv::Mat GetWorldPos();
@@ -81,8 +81,7 @@ public:
     float GetMaxDistanceInvariance();
     int PredictScale(const float &currentDist, KeyFrame*pKF);
     int PredictScale(const float &currentDist, Frame* pF);
-
-    void set_semantic(bool);
+    
     bool is_semantic() const;
 
 public:

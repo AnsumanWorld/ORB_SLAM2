@@ -433,14 +433,12 @@ void LocalMapping::CreateNewMapPoints()
             if(ratioDist*ratioFactor<ratioOctave || ratioDist>ratioOctave*ratioFactor)
                 continue;
 
-            // Triangulation is succesfull
-            MapPoint* pMP = new MapPoint(x3D,mpCurrentKeyFrame,mpMap);
+            bool is_semantic{false};
+			if(kp1.class_id != -1 || kp2.class_id != -1)
+                is_semantic = true;
 
-			if( (kp1.class_id != -1) || (kp2.class_id != -1))
-            {
-                pMP->set_semantic(true);
-            }
-			
+            // Triangulation is succesfull
+            MapPoint* pMP = new MapPoint(x3D,mpCurrentKeyFrame,mpMap,is_semantic);
             pMP->AddObservation(mpCurrentKeyFrame,idx1);            
             pMP->AddObservation(pKF2,idx2);
 
