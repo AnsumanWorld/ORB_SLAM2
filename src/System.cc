@@ -530,6 +530,21 @@ void System::SetSemanticObjGrpContent(traffic_sign_map_t const &InterestedObject
 	mSemanticObjGrp.SetSemanticObjGrpContent(InterestedObject);
 }
 
+bool System::Playing() const
+{
+    return _monitor->is_playing();
+}
+
+bool System::Paused() const
+{
+    return _monitor->is_paused();
+}
+
+bool System::Stopped() const
+{
+    return _monitor->is_stopped();
+}
+
 void System::Play()
 {
     if (_monitor) {

@@ -10,6 +10,10 @@ namespace ORB_SLAM2 {
             virtual void stop() = 0;
             virtual void pause() = 0;
 
+            virtual bool is_playing() const = 0;
+            virtual bool is_stopped() const = 0;
+            virtual bool is_paused() const = 0;
+
             // Will try to wait on current thread
             virtual void request_wait() = 0;
         protected:

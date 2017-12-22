@@ -11,22 +11,37 @@ namespace ORB_SLAM2 {
             app_monitor _monitor;
             void play() override
             {
-                _monitor.play();
+                _monitor.send(system_event::play);
             }
 
             void stop() override
             {
-                _monitor.stop();
+                _monitor.send(system_event::stop);
             }
 
             void pause() override
             {
-                _monitor.pause();
+                _monitor.send(system_event::pause);
             }
 
             void request_wait() override
             {
                 _monitor.request_wait();
+            }
+
+            bool is_playing() const override
+            {
+                return _monitor.is_state(state::playing);
+            }
+            
+            bool is_stopped() const override 
+            {
+                return _monitor.is_state(state::stopped);
+            }
+
+            bool is_paused() const override
+            {
+                return _monitor.is_state(state::paused);
             }
         };
     }

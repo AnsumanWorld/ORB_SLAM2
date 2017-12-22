@@ -113,16 +113,6 @@ namespace ORB_SLAM2 {
 
                 return handler->second;
             }
-
-            void handle_event(system_event ev_)
-            {
-                {
-                    std::unique_lock<std::mutex> lock{_lock};
-                    // handle event, perform state transition if any
-                    get_state_handler()(ev_);
-                }
-                _cv.notify_all();
-            }
         public:
             app_monitor()
                 : _state{state::stopped}
@@ -130,19 +120,14 @@ namespace ORB_SLAM2 {
             {
             }
 
-            void play()
+            void send(system_event ev_)
             {
-                handle_event(system_event::play);
-            }
-
-            void pause()
-            {
-                handle_event(system_event::pause);
-            }
-
-            void stop()
-            {
-                handle_event(system_event::stop);
+                {
+                    std::unique_lock<std::mutex> lock{_lock};
+                    // handle event, perform state transition if any
+                    get_state_handler()(ev_);
+                }
+                _cv.notify_all();
             }
 
             /// May be only invoked on tracking thread!
@@ -157,6 +142,11 @@ namespace ORB_SLAM2 {
                         _cv.wait(lock/*, [&]() { return _state == state::playing; }*/);
                     }
                 }
+            }
+
+            bool is_state(state const& s_) const
+            {
+                return s_ == _state;
             }
         };
     }

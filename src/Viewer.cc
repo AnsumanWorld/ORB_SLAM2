@@ -157,26 +157,26 @@ void Viewer::Run()
         }
         else if(menuPlay)
         {
-            menuPlay = false;
             mpSystem->Play();
         }
         else if(menuPause)
         {
-            menuPause = false;
             mpSystem->Pause();
         }
         else if(menuStop)
         {
-            menuStop = false;
             mpSystem->Stop();
         }
 
+        menuPlay = mpSystem->Playing();
+        menuPause = mpSystem->Paused();
+        menuStop = mpSystem->Stopped();
 
         if(Stop())
         {
             while(isStopped())
             {
-				std::this_thread::sleep_for(std::chrono::milliseconds(3));
+                std::this_thread::sleep_for(std::chrono::milliseconds(3));
             }
         }
 
