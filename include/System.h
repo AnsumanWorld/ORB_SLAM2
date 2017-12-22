@@ -130,8 +130,13 @@ public:
     std::vector<MapPoint*> GetTrackedMapPoints();
     std::vector<cv::KeyPoint> GetTrackedKeyPointsUn();
 	
-	KeySemanticObjGrp* GetSemanticObjGrp();
-	void SetSemanticObjGrpContent(traffic_sign_map_t const & InterestedObject);
+    KeySemanticObjGrp* GetSemanticObjGrp();
+    void SetSemanticObjGrpContent(traffic_sign_map_t const & InterestedObject);
+
+    bool Playing() const;
+    bool Paused() const;
+    bool Stopped() const;
+
     void Play();
     void Pause();
     void Stop();
