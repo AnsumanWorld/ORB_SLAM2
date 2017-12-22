@@ -125,12 +125,12 @@ add_executable(vocconv
 tools/vocconv.cc)
 target_link_libraries(vocconv ${PROJECT_NAME})
 
-target_sources(orb-slam2 PRIVATE
+add_custom_target(orb-slam2-ext SOURCES
     ext/app_monitor.h
     ext/app_monitor_api.h
     ext/app_monitor_api_impl.h)
 
-target_sources(orb-slam2 PRIVATE
+add_custom_target(orb-slam2-scripts SOURCES
     scripts/windows/bootstrap.bat
     scripts/windows/build.bat
     scripts/windows/run_slam_on_garching_test_drive.bat
