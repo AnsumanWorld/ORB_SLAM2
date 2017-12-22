@@ -126,6 +126,11 @@ tools/vocconv.cc)
 target_link_libraries(vocconv ${PROJECT_NAME})
 
 target_sources(orb-slam2 PRIVATE
+    ext/app_monitor.h
+    ext/app_monitor_api.h
+    ext/app_monitor_api_impl.h)
+
+target_sources(orb-slam2 PRIVATE
     scripts/windows/bootstrap.bat
     scripts/windows/build.bat
     scripts/windows/run_slam_on_garching_test_drive.bat
