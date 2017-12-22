@@ -19,7 +19,7 @@
 */
 
 
-
+#include "ext/app_monitor_api.h"
 #include "System.h"
 #include "Converter.h"
 #include <thread>
@@ -27,22 +27,23 @@
 #include <iomanip>
 #include <chrono>
 
-bool has_suffix(const std::string &str, const std::string &suffix) {
-  std::size_t index = str.find(suffix, str.size() - suffix.size());
-  return (index != std::string::npos);
-}
 namespace ORB_SLAM2
 {
-
 bool has_suffix(const std::string &str, const std::string &suffix)
 {
     std::size_t index = str.find(suffix, str.size() - suffix.size());
     return (index != std::string::npos);
 }
 
-System::System(const string &strVocFile, const string &strSettingsFile, const eSensor sensor,
-               const bool bUseViewer):mSensor(sensor), mpViewer(static_cast<Viewer*>(NULL)), mbReset(false),mbActivateLocalizationMode(false),
-        mbDeactivateLocalizationMode(false)
+System::System(const string &strVocFile, const string &strSettingsFile, const eSensor sensor, 
+    ext::app_monitor_api* monitor_,
+    const bool bUseViewer)
+    : mSensor(sensor)
+    , mpViewer(static_cast<Viewer*>(NULL))
+    , mbReset(false)
+    , mbActivateLocalizationMode(false)
+    , mbDeactivateLocalizationMode(false)
+    , _monitor(monitor_)
 {
     // Output welcome message
     cout << endl <<
@@ -52,7 +53,6 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     "under certain conditions. See LICENSE.txt." << endl << endl;
 
     cout << "Input sensor was set to: ";
-    mCurAppState = app_state::Stopped;
 
     if(mSensor==MONOCULAR)
         cout << "Monocular" << endl;
@@ -248,7 +248,6 @@ cv::Mat System::TrackRGBD(const cv::Mat &im, const cv::Mat &depthmap, const doub
 
 cv::Mat System::TrackMonocular(const cv::Mat &im, const double &timestamp)
 {
-    RunEventLoop();
     if(mSensor!=MONOCULAR)
     {
         cerr << "ERROR: you called TrackMonocular but input sensor was not set to Monocular." << endl;
@@ -531,28 +530,24 @@ void System::SetSemanticObjGrpContent(traffic_sign_map_t const &InterestedObject
 	mSemanticObjGrp.SetSemanticObjGrpContent(InterestedObject);
 }
 
-void System::RunEventLoop()
-{
-    std::unique_lock<std::mutex> pause(mMutexAppState);
-    if (mCurAppState != app_state::Playing)
-    {
-        mWaitForPlay.wait(pause);
-    }
-}
-
 void System::Play()
 {
-    mCurAppState = app_state::Playing;
-    mWaitForPlay.notify_one();
+    if (_monitor) {
+        _monitor->play();
+    }
 }
 
 void System::Pause()
 {
-    mCurAppState = app_state::Paused;
+    if (_monitor) {
+        _monitor->pause();
+    }
 }
 
 void System::Stop()
 {
-    mCurAppState = app_state::Stopped;
+    if (_monitor) {
+        _monitor->stop();
+    }
 }
 } //namespace ORB_SLAM

@@ -18,6 +18,9 @@
 * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "System.h"
+#include "ext/app_monitor_api_impl.h"
+
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/foreach.hpp>
@@ -30,13 +33,11 @@
 #include<opencv2/core/core.hpp>
 #include <vector>
 #include <map>
-#include<System.h>
 
 #include <boost/filesystem.hpp>
 #include <vector>
 #include <cinttypes>
 #include <stdexcept>
-#include <memory>
 
 namespace fs = boost::filesystem;
 
@@ -44,8 +45,6 @@ using namespace std;
 using boost::property_tree::ptree;
 void show_interesting_object(std::map<long unsigned int, std::vector<ORB_SLAM2::TrafficSign> > &image_trafficsigns_map);
 bool ExtractSemanticObjGrp(std::string jsonFilename, std::map<long unsigned int, std::vector<ORB_SLAM2::TrafficSign> > &SemanticObjGrp);
-void LoadImages(const string &strFile, vector<string> &vstrImageFilenames,
-                vector<double> &vTimestamps);
 
 int gImgWidth = 1280;
 int gImgHeight = 720;
@@ -96,12 +95,13 @@ public:
         return _slam;
     }
 
-    slam_object(input_args const& args_)
-        : _slam(
+    slam_object(input_args const& args_, ORB_SLAM2::ext::app_monitor_api* monitor_)
+        : _slam{
             args_.path_to_vocabulary,
             args_.path_to_camera_settings,
             ORB_SLAM2::System::MONOCULAR,
-            true)
+            monitor_,
+            true}
     {}
 
     ~slam_object()
@@ -109,12 +109,6 @@ public:
         shutdown();
     }
 };
-void Pause(int WaitTime)
-{
-    //pause on entering space bar
-    if (cv::waitKey(WaitTime) == 32)
-        cv::waitKey();
-}
 
 int run_slam_loop(int argc, char** argv)
 {
@@ -129,13 +123,19 @@ int run_slam_loop(int argc, char** argv)
         ORB_SLAM2::traffic_sign_map_t traffic_signs;
         // Create SLAM system. It initializes all system threads and gets ready to process frames.
 
-        slam_object slam{args};
+        ORB_SLAM2::ext::app_monitor_impl app_monitor_inst;
+        ORB_SLAM2::ext::app_monitor_api* app_monitor = &app_monitor_inst;
+
+        slam_object slam{args, app_monitor};
         if (ExtractSemanticObjGrp(args.path_to_json_file, traffic_signs)) {
             slam.get().SetSemanticObjGrpContent(traffic_signs);
         }
 
         std::uint64_t time = 0;
+
         for (auto const& file : image_files) {
+            app_monitor->request_wait();
+
             auto image = cv::imread(file.generic_string(), CV_LOAD_IMAGE_UNCHANGED);
 
             if (image.empty()) {
@@ -144,7 +144,7 @@ int run_slam_loop(int argc, char** argv)
 
             // Pass the image to the SLAM system
             slam.get().TrackMonocular(image, static_cast<double>(time));
-            Pause(70);
+            
             time++;
         }
     } catch (std::exception const& ex_) {
