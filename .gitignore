@@ -32,6 +32,5 @@ products/
 /.vs/config
 /.vs/ORB_SLAM2
 /.vs/ProjectSettings.json
-/.vs/slnx.sqlite
+/.vs/slnx.sqlite*
 data/
-
