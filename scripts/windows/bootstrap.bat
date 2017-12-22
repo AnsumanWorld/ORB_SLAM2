@@ -1,6 +1,6 @@
 @echo off
 
-set "OrbSlamPlatform=x86"
+set "OrbSlamPlatform=x64"
 set "OrbSlamToolset=v141"
 set "OrbSlamBuildType=Release"
 
