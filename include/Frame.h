@@ -22,6 +22,7 @@
 #define FRAME_H
 
 #include<vector>
+#include<map>
 
 #include "MapPoint.h"
 #include "Thirdparty/DBoW2/DBoW2/BowVector.h"
@@ -36,6 +37,12 @@ namespace ORB_SLAM2
 {
 #define FRAME_GRID_ROWS 48
 #define FRAME_GRID_COLS 64
+
+struct SubImageInfo
+{
+    int mnSemanticKPs;
+    int mnEffectiveSemanticKPs;
+};
 
 class MapPoint;
 class KeyFrame;
@@ -190,7 +197,7 @@ public:
 
     static bool mbInitialComputations;
 	std::vector<cv::Rect> mRoiList;
-    std::vector<int> mvKPsPerSubImage;
+    std::map<int,SubImageInfo> mKPsPerSubImage;
 
 private:
 

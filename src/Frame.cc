@@ -328,7 +328,10 @@ void Frame::ExtractORBInSubImage(const cv::Mat &im,std::vector<cv::KeyPoint> &Al
 				mpTraficsignGrp->GetSemanticObjectClassid(ClassId,mnId,SubImageIndex);
 				ScaleBack(SubImageKeypoints,ScaleX,ScaleY);
 				LinearTransform(SubImageKeypoints, mRoiList[SubImageIndex],ClassId);
-                mvKPsPerSubImage.push_back(SubImageKeypoints.size()); 
+                SubImageInfo subImageInfo;
+                subImageInfo.mnSemanticKPs = SubImageKeypoints.size();
+                subImageInfo.mnEffectiveSemanticKPs = 0;
+                mKPsPerSubImage.insert({ClassId,subImageInfo}); 
 				AllSubImageKeypoints.insert(AllSubImageKeypoints.end(), SubImageKeypoints.begin(), SubImageKeypoints.end());
 				AllImageDescriptorList[DescriptorIndex++] = SubImageDescriptors;
 			}

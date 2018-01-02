@@ -97,7 +97,6 @@ cv::Mat FrameDrawer::DrawFrame()
     }
     else if(state==Tracking::OK) //TRACKING
     {
-        frameInfo.mnDisplayedSemKPs = 0;
         mnTracked=0;
         mnTrackedVO=0;
         const float r = 5;
@@ -119,7 +118,10 @@ cv::Mat FrameDrawer::DrawFrame()
 					{
                     	cv::rectangle(im,pt1,pt2,cv::Scalar(0,0,255));
 						cv::circle(im,vCurrentKeys[i].pt,2,cv::Scalar(0,0,255),-1);
-                        ++frameInfo.mnDisplayedSemKPs;
+                        if(frameInfo.mKPsPerSubImage.count(vCurrentKeys[i].class_id) != 0)
+                        {
+                            ++((*frameInfo.mKPsPerSubImage.find(vCurrentKeys[i].class_id)).second.mnEffectiveSemanticKPs);
+                        }
 					}
 					else
 					{
@@ -175,31 +177,34 @@ void FrameDrawer::DrawTextInfo(cv::Mat &im, int nState, FrameInfo frameInfo, cv:
         s << "KFs: " << nKFs << ", MPs: " << nMPs << ", Matches: " << mnTracked;
         if(mnTrackedVO>0)
             s << ", + VO matches: " << mnTrackedVO;
-        s <<", Frame id: "<< std::setw(6) << std::setfill('0') << frameInfo.mFrameId;
-        s << ", Sem. features: " << frameInfo.mvKPsPerSubImage.size();
-        s << ", Displayed SKPs: " << frameInfo.mnDisplayedSemKPs;
-        s << ", Extracted SKPs: " ;
-        if(frameInfo.mvKPsPerSubImage.size())
+        s <<", FID: "<< std::setw(6) << std::setfill('0') << frameInfo.mFrameId;
+        s << ", SF: " << frameInfo.mKPsPerSubImage.size();
+        if(frameInfo.mKPsPerSubImage.size())
         {
-            int totalKeypointsInSubImages = 0;
-            for(auto it = frameInfo.mvKPsPerSubImage.begin(); it != frameInfo.mvKPsPerSubImage.end(); ++it)
-            {       
-                if(std::next(it) != frameInfo.mvKPsPerSubImage.end())
-                {
-                    s << *it << "+";
-                    totalKeypointsInSubImages +=  *it;
-                }
-                else
-                {
-                    s << *it;
-                    totalKeypointsInSubImages +=  *it;
-                }
+            s << ", #SKPs/Feat: [" ;
+            int i=0;
+            bool first = true;
+            for(auto it = frameInfo.mKPsPerSubImage.begin(); it != frameInfo.mKPsPerSubImage.end(); ++it)
+            {     
+                if(!first) s << ",";  
+                s << i <<":";
+                s << (*it).second.mnSemanticKPs; 
+                ++i;
+                first = false;
             }
-            if(frameInfo.mvKPsPerSubImage.size() != 1) s << "=" << totalKeypointsInSubImages;
-        }
-        else
-        {
-            s << "0";
+            s << "] ";
+            s << ", #ESKPs/Feat: [" ;
+            i = 0;
+            first = true;
+            for(auto it = frameInfo.mKPsPerSubImage.begin(); it != frameInfo.mKPsPerSubImage.end(); ++it)
+            {       
+                if(!first) s << ",";  
+                s << i <<":";
+                s << (*it).second.mnEffectiveSemanticKPs;
+                ++i;
+                first = false;
+            }
+            s << "] ";
         }
         
     }
@@ -241,7 +246,7 @@ void FrameDrawer::Update(Tracking *pTracker)
     else if(pTracker->mLastProcessedState==Tracking::OK)
     {
         mFrameInfo.mFrameId = pTracker->mCurrentFrame.mnId;
-        mFrameInfo.mvKPsPerSubImage = pTracker->mCurrentFrame.mvKPsPerSubImage;
+        mFrameInfo.mKPsPerSubImage = pTracker->mCurrentFrame.mKPsPerSubImage;
         for(int i=0;i<N;i++)
         {
             MapPoint* pMP = pTracker->mCurrentFrame.mvpMapPoints[i];
