@@ -40,8 +40,7 @@ class Viewer;
 struct FrameInfo
 {
     int mFrameId;
-    std::vector<int> mvKPsPerSubImage;
-    int mnDisplayedSemKPs;
+    std::map<int,SubImageInfo> mKPsPerSubImage;
 };
 
 class FrameDrawer
