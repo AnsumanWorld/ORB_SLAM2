@@ -24,6 +24,7 @@
 
 #include<string>
 #include<thread>
+#include<condition_variable>
 #include<opencv2/core/core.hpp>
 
 #include "Tracking.h"
