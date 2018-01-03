@@ -66,7 +66,7 @@ void MapDrawer::DrawMapPoints()
             continue;
         cv::Mat pos = vpMPs[i]->GetWorldPos();
 		
-		if(true == vpMPs[i]->is_semantic())
+		if(vpMPs[i]->is_semantic())
 		{
 			DrawPoints(pos,10,0.0,1.0,0.0);
 		}
@@ -80,7 +80,7 @@ void MapDrawer::DrawMapPoints()
             continue;
         cv::Mat pos = (*sit)->GetWorldPos();
 		
-		if(true == (*sit)->is_semantic())
+		if((*sit)->is_semantic())
 		{
 			DrawPoints(pos,10,0.0,0.0,1.0);
 		}
