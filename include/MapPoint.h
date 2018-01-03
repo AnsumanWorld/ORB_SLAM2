@@ -27,7 +27,6 @@
 
 #include<opencv2/core/core.hpp>
 #include<mutex>
-#include <atomic>
 
 namespace ORB_SLAM2
 {
