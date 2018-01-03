@@ -148,7 +148,7 @@ protected:
 
      std::mutex mMutexPos;
      std::mutex mMutexFeatures;
-     std::atomic<bool> _is_semantic;
+     const bool _is_semantic;
 };
 
 } //namespace ORB_SLAM
