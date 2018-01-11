@@ -1,0 +1,19 @@
+{
+    "version": "0.2.1",
+    "tasks": [
+        {
+            "taskName": "configure x86 v141",
+            "appliesTo": "scripts/windows/configure.bat",
+            "command": "${workspaceRoot}\\scripts\\windows\\configure.bat",
+            "args": [ "x86 v141 Release" ],
+            "type": "launch"
+        },
+        {
+            "taskName": "configure x64 v141",
+            "appliesTo": "scripts/windows/configure.bat",
+            "command": "${workspaceRoot}\\scripts\\windows\\configure.bat",
+            "args": [ "x64 v141 Release" ],
+            "type": "launch"
+        }
+    ]
+}
