@@ -1,10 +1,10 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.0)
 project(orb-slam2)
 
 SET(ORBSLAM2_LIB_TYPE STATIC)
 option( BUILD_EXAMPLES "Build Examples" ON )
 
-LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
+#LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
 add_definitions("-DCOMPILEDWITHC11")
 IF(WIN32)
     add_definitions("-DNOMINMAX")
@@ -22,11 +22,13 @@ if("${OpenCV_VERSION}" VERSION_LESS "2.4.3")
 endif()
 
 find_package(Eigen3 REQUIRED)
-set(Boost_USE_STATIC_LIBS ON)
+
 find_package(Boost REQUIRED COMPONENTS filesystem)
-if("${EIGEN3_VERSION}" VERSION_LESS "3.1.0")
+
+if("${EIGEN3_VERSION_STRING}" VERSION_LESS "3.1.0")
 	message(FATAL_ERROR "Eigen3 > 3.1.0 not found.")
-   endif()
+endif()
+
 find_package(Pangolin REQUIRED)
 
 include_directories(
@@ -107,15 +109,20 @@ if(BUILD_ALL_EXAMPLES)
     target_link_libraries(mono_video orb-slam2)
 
     add_executable(semantic_monocular Examples/Monocular/semantic_monocular.cc)
-    target_link_libraries(semantic_monocular orb-slam2 ${Boost_LIBRARIES})
+    target_link_libraries(semantic_monocular orb-slam2 filesystem)
 
     add_executable(semantic_monocular_video Examples/Monocular/semantic_monocular_video.cpp)
-    target_link_libraries(semantic_monocular_video orb-slam2 ${Boost_LIBRARIES})
+    target_link_libraries(semantic_monocular_video orb-slam2 filesystem)
 elseif(BUILD_EXAMPLES)
     add_executable(semantic_monocular Examples/Monocular/semantic_monocular.cc)
     target_link_libraries(semantic_monocular 
         orb-slam2 
-        Boost::filesystem)
+        ${Boost_LIBRARIES})
+
+    add_executable(mono_grabbing Examples/Monocular/mono_grabbing.cc)
+    target_link_libraries(mono_grabbing 
+        orb-slam2
+        ${Boost_LIBRARIES})
 
     add_executable(mono_video Examples/Monocular/mono_video.cc)
     target_link_libraries(mono_video orb-slam2)
@@ -132,7 +139,7 @@ if(BUILD_EXPERIMENTS)
     experiments/orb-extract/main.cpp)
     target_link_libraries(orb-extract
         orb-slam2 
-        Boost::filesystem)
+        ${Boost_LIBRARIES})
 endif()
 
 add_custom_target(orb-slam2-ext SOURCES

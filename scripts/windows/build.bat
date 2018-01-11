@@ -5,10 +5,10 @@ setlocal
 call "%~dp0configure.bat" %*
 if errorlevel 1 echo configure error, bailing out & exit /b 1
 
-echo OrbSlamBuildDir = %OrbSlamBuildDir%
-echo OrbSlamBuildType= %OrbSlamBuildType%
+echo BuildDir = %BuildDir%
+echo BuildType= %BuildType%
 
-call cmake.exe --build "%OrbSlamBuildDir%" --config %OrbSlamBuildType%
+call cmake.exe --build "%BuildDir%" --config %BuildType%
 
 popd
 endlocal

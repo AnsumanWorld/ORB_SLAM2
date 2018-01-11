@@ -2,25 +2,25 @@
 
 setlocal
 call "%~dp0bootstrap.bat" %*
-if errorlevel 1 echo Bootstrapping error, bailing out & exit /b 1
 
-set "OrbSlamCMakeGeneratorName=Visual Studio 14 2015"
+set "CMakeGeneratorName=Visual Studio 15 2017 Win64"
 
-if "%OrbSlamPlatform%"=="x86" (
-    if "%OrbSlamToolset%"=="v140" set "OrbSlamCMakeGeneratorName=Visual Studio 14 2015"
-    if "%OrbSlamToolset%"=="v141" set "OrbSlamCMakeGeneratorName=Visual Studio 15 2017"
+if "%Platform%"=="x86" (
+    if "%Toolset%"=="v140" set "CMakeGeneratorName=Visual Studio 14 2015"
+    if "%Toolset%"=="v141" set "CMakeGeneratorName=Visual Studio 15 2017"
 )
 
-if "%OrbSlamPlatform%"=="x64" (
-    if "%OrbSlamToolset%"=="v140" set "OrbSlamCMakeGeneratorName=Visual Studio 14 2015 Win64"
-    if "%OrbSlamToolset%"=="v141" set "OrbSlamCMakeGeneratorName=Visual Studio 15 2017 Win64"
+if "%Platform%"=="x64" (
+    if "%Toolset%"=="v140" set "CMakeGeneratorName=Visual Studio 14 2015 Win64"
+    if "%Toolset%"=="v141" set "CMakeGeneratorName=Visual Studio 15 2017 Win64"
 )
 
-set "OrbSlamBuildDir=%~dp0..\..\products\cmake.msbuild.windows.%OrbSlamPlatform%.%OrbSlamToolset%"
-if not exist "%OrbSlamBuildDir%" mkdir "%OrbSlamBuildDir%"
-pushd "%OrbSlamBuildDir%"
+set "BuildDir=%~dp0..\..\products\cmake.msbuild.windows.%Platform%.%Toolset%"
 
-call cmake.exe -G "%OrbSlamCMakeGeneratorName%" -DBUILD_EXAMPLES=ON -DVCPKG_TARGET_TRIPLET=%VcPkgTriplet% -DCMAKE_TOOLCHAIN_FILE="%VcPkgDir%\scripts\buildsystems\vcpkg.cmake" "%~dp0..\.."
+if not exist "%BuildDir%" mkdir "%BuildDir%"
+pushd "%BuildDir%"
+
+call cmake.exe -G "%CMakeGeneratorName%" -DBUILD_EXAMPLES=ON -DVCPKG_TARGET_TRIPLET=%VcPkgTriplet% -DCMAKE_TOOLCHAIN_FILE="%VcPkgDir%\scripts\buildsystems\vcpkg.cmake" "%~dp0..\.."
 
 popd
-endlocal & set "OrbSlamBuildDir=%OrbSlamBuildDir%" & set "OrbSlamBuildType=%OrbSlamBuildType%"
+endlocal & set "BuildDir=%BuildDir%" & set "BuildType=%BuildType%"
