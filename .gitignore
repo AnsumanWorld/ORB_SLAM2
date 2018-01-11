@@ -27,7 +27,6 @@ build/
 lib/
 products/
 
-/.vs/tasks.vs.json
 /.vs/VSWorkspaceState.json
 /.vs/config
 /.vs/ORB_SLAM2
