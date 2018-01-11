@@ -141,6 +141,12 @@ add_custom_target(orb-slam2-ext SOURCES
     ext/app_monitor_api_impl.h)
 
 add_custom_target(orb-slam2-scripts SOURCES
+    appveyor.yml
+    .travis.yml
+    CMakeSettings.json
+    CppProperties.json
+    .vs/launch.vs.json
+    .vs/tasks.vs.json
     scripts/windows/bootstrap.bat
     scripts/windows/configure.bat
     scripts/windows/build.bat
