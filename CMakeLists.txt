@@ -26,7 +26,7 @@ if("${OpenCV_VERSION}" VERSION_LESS "2.4.3")
 endif()
 
 find_package(Eigen3 REQUIRED)
-set(Boost_USE_STATIC_LIBS ON)
+
 find_package(Boost REQUIRED COMPONENTS filesystem)
 
 if("${EIGEN3_VERSION_STRING}" VERSION_LESS "3.1.0")
@@ -104,7 +104,12 @@ elseif(BUILD_EXAMPLES)
     add_executable(semantic_monocular Examples/Monocular/semantic_monocular.cc Examples/Monocular/semantic_monocular.hpp)
     target_link_libraries(semantic_monocular 
         orb-slam2 
-        Boost::filesystem)
+        ${Boost_LIBRARIES})
+
+    add_executable(mono_grabbing Examples/Monocular/mono_grabbing.cc)
+    target_link_libraries(mono_grabbing 
+        orb-slam2
+        ${Boost_LIBRARIES})
 
     add_executable(mono_grabbing Examples/Monocular/mono_grabbing.cc)
     target_link_libraries(mono_grabbing 
