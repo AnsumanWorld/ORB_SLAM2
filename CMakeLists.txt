@@ -142,6 +142,7 @@ add_custom_target(orb-slam2-ext SOURCES
 
 add_custom_target(orb-slam2-scripts SOURCES
     scripts/windows/bootstrap.bat
+    scripts/windows/configure.bat
     scripts/windows/build.bat
     scripts/windows/run_slam_on_garching_test_drive.bat
     scripts/linux/bootstrap.sh
