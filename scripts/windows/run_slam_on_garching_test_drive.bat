@@ -1,10 +1,19 @@
 @echo off
 
 setlocal
-set "VcpkgBinDir=%~d0\Software\vcpkg\vcpkg\installed\x86-windows-v141\bin"
+set "OrbSlamPlatform=x64"
+set "OrbSlamToolset=v141"
+set "OrbSlamBuildType=Release"
+
+if NOT "%~1"=="" set "OrbSlamPlatform=%~1"
+if NOT "%~2"=="" set "OrbSlamToolset=%~2"
+
+set "VcPkgTriplet=%OrbSlamPlatform%-windows-%OrbSlamToolset%"
+set "VcpkgBinDir=%~d0\Software\vcpkgbin\installed\%VcPkgTriplet%\bin"
+echo "%VcpkgBinDir%"
 set "ProjectDir=%~dp0..\.."
-set "Path=%Path%;%VcpkgBinDir%;C:\Program Files\7-Zip"
-set "OrbSlam2ProductsDir=%ProjectDir%\products\cmake.msbuild.windows.x86.v141"
+set "Path=%VcpkgBinDir%;C:\Program Files\7-Zip;%Path%"
+set "OrbSlam2ProductsDir=%ProjectDir%\products\cmake.msbuild.windows.%OrbSlamPlatform%.%OrbSlamToolset%.%OrbSlamBuildType%"
 
 cd %ProjectDir%
 

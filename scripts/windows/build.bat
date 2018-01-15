@@ -2,9 +2,9 @@
 
 setlocal
 
-set "OrbSlamPlatform=x86"
+set "OrbSlamPlatform=x64"
 set "OrbSlamToolset=v141"
-set "OrbSlamBuildType=Debug"
+set "OrbSlamBuildType=Release"
 
 if NOT "%~1"=="" set "OrbSlamPlatform=%~1"
 if NOT "%~2"=="" set "OrbSlamToolset=%~2"
@@ -25,7 +25,7 @@ if "%OrbSlamPlatform%"=="x64" (
     if "%OrbSlamToolset%"=="v141" set "OrbSlamCMakeGeneratorName=Visual Studio 15 2017 Win64"
 )
 
-set "OrbSlamBuildDir=%~dp0..\..\products\cmake.msbuild.windows.%OrbSlamPlatform%.%OrbSlamToolset%"
+set "OrbSlamBuildDir=%~dp0..\..\products\cmake.msbuild.windows.%OrbSlamPlatform%.%OrbSlamToolset%.%OrbSlamBuildType%"
 if not exist "%OrbSlamBuildDir%" mkdir "%OrbSlamBuildDir%"
 cd "%OrbSlamBuildDir%"
 
