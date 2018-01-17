@@ -107,7 +107,6 @@ public:
 	void ExtractORBInSubImage(const cv::Mat &im,std::vector<cv::KeyPoint> &SubImageKeypoints,cv::Mat &SubDescriptors);
 	 void LinearTransform(std::vector<cv::KeyPoint> &vKeys,cv::Rect &CropArea,int ClassId);
 	 void ScaleBack(std::vector<cv::KeyPoint> &vKeys,double ScaleX,double ScaleY);
-	 void UpdateOrgSemanticClassid(std::vector<cv::KeyPoint> &vKeys,int ClassId);
 public:
     // Vocabulary used for relocalization.
     ORBVocabulary* mpORBvocabulary;
