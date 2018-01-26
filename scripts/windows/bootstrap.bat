@@ -12,7 +12,7 @@ rem ----------------------------------
 rem Locate vcpkg using environment variables
 rem ----------------------------------
 set "VcPkgDir=%~d0\Software\vcpkg\vcpkg"
-set "VcpkgTriplet=%OrbSlamPlatform%-windows-%OrbSlamToolset%"
+set "VcpkgTriplet=%OrbSlamPlatform%-windows"
 if defined VCPKG_ROOT_DIR if /i not "%VCPKG_ROOT_DIR%"=="" set "VcPkgDir=%VCPKG_ROOT_DIR%"
 if defined VCPKG_DEFAULT_TRIPLET if /i not "%VCPKG_DEFAULT_TRIPLET%"=="" set "VcpkgTriplet=%VCPKG_DEFAULT_TRIPLET%"
 
@@ -26,17 +26,24 @@ if not exist "%VcPkgDir%" set "VcPkgDir=C:\.vcpkg\vcpkg"
 if not exist "%VcPkgDir%" set "VcPkgDir=%USERPROFILE%\.vcpkg\vcpkg"
 if not exist "%VcPkgDir%" (
     echo vcpkg not found, installing at %VcPkgDir%...
-    git clone --recursive https://github.com/paul-michalik/vcpkg.git "%VcPkgDir%"
-    call "%VcPkgDir%\bootstrap-vcpkg.bat"
+    git clone --recursive https://github.com/Microsoft/vcpkg.git "%VcPkgDir%"
 ) else (
-    echo vcpkg found at %VcPkgDir%...
-    rem Do not pull or update existing vcpkg installation
-    rem pushd "%VcPkgDir%"
-    rem git pull --all --prune
-    rem popd 
+    echo vcpkg found at %VcPkgDir%, pushd "%VcPkgDir%"...
+    pushd "%VcPkgDir%"
+    echo in: %cd%
+    git pull --all --prune
+    echo in: %cd%
+    popd
+    echo in: %cd%
 )
 
+exit /b 0
+
 if not exist "%VcPkgDir%" echo vcpkg path is not set correctly, bailing out & exit /b 1
+
+echo %CD%
+
+call "%VcPkgDir%\bootstrap-vcpkg.bat"
 
 echo. & echo Bootstrapping dependencies for triplet: %VcPkgTriplet% & echo.
 
@@ -49,7 +56,7 @@ rem Update and Install packages.
 rem ==============================
 call "%VcPkgPath%" update
 call "%VcPkgPath%" remove --outdated --recurse
-call "%VcPkgPath%" install boost eigen3 opencv pangolin --triplet %VcPkgTriplet%
+call "%VcPkgPath%" install boost-filesystem eigen3 opencv pangolin --triplet %VcPkgTriplet%
 
 set "VcPkgTripletDir=%VcPkgDir%\installed\%VcPkgTriplet%"
 
