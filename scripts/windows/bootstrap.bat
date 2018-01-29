@@ -27,23 +27,27 @@ if not exist "%VcPkgDir%" set "VcPkgDir=%USERPROFILE%\.vcpkg\vcpkg"
 if not exist "%VcPkgDir%" (
     echo vcpkg not found, installing at %VcPkgDir%...
     git clone --recursive https://github.com/Microsoft/vcpkg.git "%VcPkgDir%"
+    call "%VcPkgDir%\bootstrap-vcpkg.bat"
 ) else (
-    echo vcpkg found at %VcPkgDir%, pushd "%VcPkgDir%"...
+    echo vcpkg found at %VcPkgDir%...
+
+    rem
+    rem Check whether we have a difference in the toolsrc folder. If non empty, %errorlevel% should be 0  
+    rem git diff --name-only origin/HEAD remotes/origin/HEAD | find "toolsrc/" > NUL & echo %errorlevel%
+    rem Put this to local function or better script...
+    rem
+
     pushd "%VcPkgDir%"
-    echo in: %cd%
     git pull --all --prune
-    echo in: %cd%
     popd
-    echo in: %cd%
+
+    rem
+    rem only invoke when changes to "toolsrc/" were made
+    rem 
+    call "%VcPkgDir%\bootstrap-vcpkg.bat"
 )
 
-exit /b 0
-
 if not exist "%VcPkgDir%" echo vcpkg path is not set correctly, bailing out & exit /b 1
-
-echo %CD%
-
-call "%VcPkgDir%\bootstrap-vcpkg.bat"
 
 echo. & echo Bootstrapping dependencies for triplet: %VcPkgTriplet% & echo.
 
@@ -52,10 +56,9 @@ set "VcPkgPath=%VcPkgDir%\vcpkg.exe"
 if not exist "%VcPkgPath%" echo vcpkg path is not set correctly, bailing out & exit /b 1
 
 rem ==============================
-rem Update and Install packages.
+rem Upgrade and Install packages.
 rem ==============================
-call "%VcPkgPath%" update
-call "%VcPkgPath%" remove --outdated --recurse
+call "%VcPkgPath%" upgrade --no-dry-run --triplet %VcPkgTriplet%
 call "%VcPkgPath%" install boost-filesystem eigen3 opencv pangolin --triplet %VcPkgTriplet%
 
 set "VcPkgTripletDir=%VcPkgDir%\installed\%VcPkgTriplet%"
