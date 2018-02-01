@@ -9,10 +9,17 @@
       "name": "semantic_monocular.exe",
       "args": [
         "${projectDir}\\Vocabulary\\ORBvoc.bin",
-        "${projectDir}\\Examples\\Monocular\\Garching-Test-Drive.yaml",
-        "${projectDir}\\data\\Garching_LoopClosure-3-images",
-        "${projectDir}\\data\\Garching_LoopClosure-3-features.json"
+        "${projectDir}\\Examples\\Monocular\\Garching-Test-Drive.yaml"
       ]
+    },
+    {
+        "type": "default",
+        "project": "Examples\\Monocular\\mono_grabbing.exe",
+        "name": "mono_grabbing.exe",
+        "args": [
+            "${projectDir}\\Vocabulary\\ORBvoc.bin",
+            "${projectDir}\\Examples\\Monocular\\Garching-Test-Drive.yaml"
+        ]
     }
   ]
 }
