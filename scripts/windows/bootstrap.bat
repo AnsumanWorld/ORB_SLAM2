@@ -44,7 +44,7 @@ if not exist "%VcPkgDir%" (
     rem
     rem only invoke when changes to "toolsrc/" were made
     rem 
-    call "%VcPkgDir%\bootstrap-vcpkg.bat"
+    rem call "%VcPkgDir%\bootstrap-vcpkg.bat"
 )
 
 if not exist "%VcPkgDir%" echo vcpkg path is not set correctly, bailing out & exit /b 1

@@ -23,7 +23,6 @@ endif()
 
 find_package(Eigen3 REQUIRED)
 
-set(Boost_DEBUG ON)
 find_package(Boost REQUIRED COMPONENTS filesystem)
 
 if("${EIGEN3_VERSION}" VERSION_LESS "3.1.0")
@@ -122,8 +121,9 @@ elseif(BUILD_EXAMPLES)
 
     add_executable(mono_grabbing Examples/Monocular/mono_grabbing.cc)
     target_link_libraries(mono_grabbing 
-        orb-slam2 
-        filesystem)
+        ${OpenCV_LIBS})
+        #orb-slam2 
+        #filesystem)
 
     add_executable(mono_video Examples/Monocular/mono_video.cc)
     target_link_libraries(mono_video orb-slam2)
