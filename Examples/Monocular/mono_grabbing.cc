@@ -31,6 +31,7 @@ int main(int argc, char** argv)
             
             // get a new frame from camera
             for (;;) {
+                video_capture.read(frame);
                 cv::cvtColor(frame, grabbed_img, cv::COLOR_BGR2GRAY);
                 cv::imshow(camera_window_name, grabbed_img);
                 if (cv::waitKey(30) >= 0) {
