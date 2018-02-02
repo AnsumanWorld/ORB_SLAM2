@@ -117,13 +117,12 @@ elseif(BUILD_EXAMPLES)
     add_executable(semantic_monocular Examples/Monocular/semantic_monocular.cc)
     target_link_libraries(semantic_monocular 
         orb-slam2 
-        filesystem)
+        ${Boost_LIBRARIES})
 
     add_executable(mono_grabbing Examples/Monocular/mono_grabbing.cc)
     target_link_libraries(mono_grabbing 
-        ${OpenCV_LIBS})
-        #orb-slam2 
-        #filesystem)
+        orb-slam2
+        ${Boost_LIBRARIES})
 
     add_executable(mono_video Examples/Monocular/mono_video.cc)
     target_link_libraries(mono_video orb-slam2)
@@ -140,7 +139,7 @@ if(BUILD_EXPERIMENTS)
     experiments/orb-extract/main.cpp)
     target_link_libraries(orb-extract
         orb-slam2 
-        filesystem)
+        ${Boost_LIBRARIES})
 endif()
 
 add_custom_target(orb-slam2-ext SOURCES

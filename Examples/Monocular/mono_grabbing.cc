@@ -30,14 +30,13 @@ int main(int argc, char** argv)
             cv::Mat frame;
             
             // get a new frame from camera
-            while (video_capture.read(frame)) { 
+            for (;;) {
                 cv::cvtColor(frame, grabbed_img, cv::COLOR_BGR2GRAY);
                 cv::imshow(camera_window_name, grabbed_img);
                 if (cv::waitKey(30) >= 0) {
                     break;
                 }
             }
-
             cv::destroyWindow(camera_window_name);
 
             //ORB_SLAM2::System slam(vocabulary_file, settings_file,
