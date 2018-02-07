@@ -5,45 +5,50 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-SET(ORBSLAM2_LIB_TYPE STATIC)
-option( BUILD_EXAMPLES "Build Examples" ON )
+set(ORBSLAM2_LIB_TYPE STATIC)
+option(BUILD_EXAMPLES "Build Examples" ON )
 
-#LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
 add_definitions("-DCOMPILEDWITHC11")
-IF(WIN32)
+if(WIN32)
     add_definitions("-DNOMINMAX")
     add_definitions("-DWINDOWS")
     add_definitions("-DORBSLAM_EXPORT")    
     add_compile_options("/MP")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -bigobj")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -bigobj")
-ENDIF()
+endif()
+
+if(CMAKE_COMPILER_IS_GNUCXX)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -O3 -march=native ")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3 -march=native")
+endif()
 
 find_package(OpenCV REQUIRED)
 
 if("${OpenCV_VERSION}" VERSION_LESS "2.4.3")
-	message(FATAL_ERROR "OpenCV > 2.4.3 not found.")
+    message(FATAL_ERROR "OpenCV > 2.4.3 not found.")
 endif()
 
 find_package(Eigen3 REQUIRED)
-
 find_package(Boost REQUIRED COMPONENTS filesystem log)
 
 if("${EIGEN3_VERSION_STRING}" VERSION_LESS "3.1.0")
-	message(FATAL_ERROR "Eigen3 > 3.1.0 not found.")
-   endif()
+    message(FATAL_ERROR "Eigen3 > 3.1.0 not found.")
+endif()
 
 find_package(Pangolin REQUIRED)
+find_package(G2O REQUIRED)
 
 include_directories(
 ${PROJECT_SOURCE_DIR}
 ${PROJECT_SOURCE_DIR}/include
 ${EIGEN3_INCLUDE_DIR}
 ${Pangolin_INCLUDE_DIRS}
+${G2O_INCLUDE_DIR}
 )
 
 add_subdirectory(Thirdparty/DBoW2)
-add_subdirectory(Thirdparty/g2o)
 
 # INTERFACE targets seems to be broken for "Visual Studio" generators. 
 # I want to see these files in the generated solutions, hence the hack with
@@ -96,19 +101,15 @@ src/Initializer.cc
 src/Viewer.cc
 )
 
-if(CMAKE_COMPILER_IS_GNUCXX)
-    set(options -O3 -march=native)
-    add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:${options}>")
-endif()
-
 target_link_libraries(orb-slam2
     orb-slam2-ext
     ${OpenCV_LIBS}
     ${EIGEN3_LIBS}
     ${Pangolin_LIBRARIES}
     DBoW2
-    g2o
+    ${G2O_LIBS}
 )
+
 target_include_directories(orb-slam2 INTERFACE $<INSTALL_INTERFACE:include>)
 install(TARGETS orb-slam2 EXPORT orb-slam2  
     RUNTIME DESTINATION bin
@@ -169,11 +170,7 @@ target_link_libraries(vocconv ${PROJECT_NAME})
 
 # Experiments
 if(BUILD_EXPERIMENTS)
-    add_executable(orb-extract
-    experiments/orb-extract/main.cpp)
-    target_link_libraries(orb-extract
-        orb-slam2 
-        ${Boost_LIBRARIES})
+    add_subdirectory(experiments)
 endif()
 
 # Scripts and utilities as target

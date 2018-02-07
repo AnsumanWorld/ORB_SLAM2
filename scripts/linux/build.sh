@@ -34,6 +34,7 @@ cmake ${ProjectDir} \
     -B${BuildDir} \
     -DCMAKE_BUILD_TYPE=${Buildtype} \
     -DBUILD_EXAMPLES=ON \
+    -DBUILD_EXPERIMENTS=ON \
     -DCMAKE_INSTALL_PREFIX=/usr/local
 
 cmake --build ${BuildDir} --target install -- -j${cores}

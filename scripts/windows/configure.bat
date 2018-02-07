@@ -28,6 +28,7 @@ rem
 call cmake.exe -G "%CMakeGeneratorName%" ^
 -DCMAKE_INSTALL_PREFIX="%InstallDir%" ^
 -DVCPKG_TARGET_TRIPLET=%VcPkgTriplet% ^
+-DG2O_ROOT="%VcPkgDir%\installed\%VcPkgTriplet%" ^
 -DCMAKE_TOOLCHAIN_FILE="%VcPkgDir%\scripts\buildsystems\vcpkg.cmake" ^
 "%~dp0..\.."
 

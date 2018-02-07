@@ -56,6 +56,7 @@ set "VcPkgDeps=boost-filesystem boost-property-tree boost-log eigen3 opencv[ffmp
 call :BootstrapVcPkgExe
 call "%VcPkgDir%\vcpkg.exe" upgrade %VcPkgDeps% --no-dry-run --triplet %VcPkgTriplet%
 call "%VcPkgDir%\vcpkg.exe" install %VcPkgDeps% --triplet %VcPkgTriplet%
+call "%VcPkgDir%\vcpkg.exe" install g2o --triplet %VcPkgTriplet% --head
 endlocal & ^
 set "VcPkgDir=%VcPkgDir%" & ^
 set "VcPkgTriplet=%VcPkgTriplet%" & ^
