@@ -312,3 +312,25 @@ vocconv Vocabulary/ORBvoc.bin Vocabulary/ORBvoc.txt
 ### Note
 
 Although different input formats are supported it is recommended to use binary format, as it saves lot of loading time. ORB-SLAM2 loads binary vocabulary much faster compared to xml and text vocabulary
+
+## 10.2 eval_vo
+
+eval_vo is a evaluation tool from KITTI which calculates and plots trajectory errors using ground truth as reference
+
+### Usage
+
+1. Generate trajectory in KITTI pose format
+2. Paste trajectory under `tools/eval_vo/results/<result_sha>/data/` directory
+3. Paste ground truth under `tools/eval_vo/data/odometry/poses/` directory
+4. Input trajectory filename and ground truth filename should match. Filenames from `00.txt` to `21.txt` are supported
+5. Number of lines in ground truth file and input trajectory should match
+6. Run `./tools/eval_vo/run.sh <result_sha>`
+
+### Example
+
+Lets assume, we have `KeyFrameTrajectoryKITTI.txt` generated for `00` sequence, then we should follow below steps.
+1. Rename `KeyFrameTrajectoryKITTI.txt` to `00.txt`
+2. Paste `00.txt` under `tools/eval_vo/results/00/data/00.txt`
+3. Ground truth for `00` sequence is already present at `tools/eval_vo/data/odometry/poses/00.txt`, if you have different ground truth file you can overwrite this.
+4. Run `./tools/eval_vo/run.sh 00`
+5. Results will be generated under `tools/eval_vo/results/00/`

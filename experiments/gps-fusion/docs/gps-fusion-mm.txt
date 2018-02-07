@@ -1,0 +1,14 @@
+GPS-Fusion-Plan
+	Approaches
+		unary gps edge + binary camera edges + binary gps edges
+		unary gps edge binary camera edge
+		binary edges between vertices with gps
+	Tasks
+		Unary GPS edge sample program
+			Start with 2D
+			Extend to 3D
+		GPS errors required for information matrix of gps edge 
+		coordinate conversion
+		Integrate to ORB-SLAM2
+			GPS Assisted BA
+		Real time testing

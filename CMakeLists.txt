@@ -48,6 +48,7 @@ endif()
 
 find_package(Pangolin REQUIRED)
 find_package(G2O REQUIRED)
+find_package(GTest REQUIRED)
 
 include_directories(
 ${PROJECT_SOURCE_DIR}
@@ -58,6 +59,8 @@ ${G2O_INCLUDE_DIR}
 )
 
 add_subdirectory(Thirdparty/DBoW2)
+add_subdirectory(util)
+add_subdirectory(ext_g2o)
 
 # INTERFACE targets seems to be broken for "Visual Studio" generators. 
 # I want to see these files in the generated solutions, hence the hack with
@@ -68,7 +71,14 @@ add_library(orb-slam2-ext STATIC
     ext/app_monitor_api_impl.h
     ext/messages.h
     ext/statistics.h	
-    ext/statistics.cc)
+    ext/statistics.cc
+    ext/GeodeticCoords.h
+    ext/GeodeticCoords.cpp
+    ext/gps_cfg.h
+    ext/gps_cfg.cpp
+    ext/gps_adder.h
+    ext/gps_adder.cpp
+)
 
 target_include_directories(orb-slam2-ext PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
@@ -117,6 +127,8 @@ target_link_libraries(orb-slam2
     ${Pangolin_LIBRARIES}
     DBoW2
     ${G2O_LIBS}
+    g2o_slamext
+    util
 )
 
 target_include_directories(orb-slam2 INTERFACE $<INSTALL_INTERFACE:include>)
@@ -187,13 +199,18 @@ endif()
 endif()
 
 # Build tools
-add_executable(vocconv
-tools/vocconv.cc)
-target_link_libraries(vocconv ${PROJECT_NAME})
+if(BUILD_TOOLS)
+    add_subdirectory(tools)
+endif()
 
 # Experiments
 if(BUILD_EXPERIMENTS)
     add_subdirectory(experiments)
+endif()
+
+# Tests
+if(BUILD_TESTS)
+    add_subdirectory(tests)
 endif()
 
 # Scripts and utilities as target

@@ -31,6 +31,7 @@
 
 #include <mutex>
 
+#include "ext/messages.h"
 
 namespace ORB_SLAM2
 {
@@ -188,6 +189,7 @@ public:
     const int mnMaxY;
     const cv::Mat mK;
 
+    ext::pos_info_opt_t _gps_pos;
 
     // The following variables need to be accessed trough a mutex to be thread safe.
 protected:
