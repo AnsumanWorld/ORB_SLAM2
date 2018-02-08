@@ -247,6 +247,12 @@ cv::Mat System::TrackRGBD(const cv::Mat &im, const cv::Mat &depthmap, const doub
     return Tcw;
 }
 
+cv::Mat System::TrackMonocular(std::tuple<image_t, time_point_t, sensor_info> slam_input)
+{
+	//const double &timestamp = std::get<1>(slam_input).time_since_epoch().count();
+	const double &timestamp = std::get<1>(slam_input);
+	return TrackMonocular(std::get<0>(slam_input), timestamp);
+}
 cv::Mat System::TrackMonocular(const cv::Mat &im, const double &timestamp)
 {
     if(mSensor!=MONOCULAR)
@@ -532,6 +538,11 @@ KeySemanticObjGrp* System::GetSemanticObjGrp()
 void System::SetSemanticObjGrpContent(traffic_sign_map_t const &InterestedObject)
 {
 	mSemanticObjGrp.SetSemanticObjGrpContent(InterestedObject);
+}
+
+void System::add_sensor_info(sensor_info const &sensor_input)
+{
+	mSemanticObjGrp.add_sensor_info(sensor_input);
 }
 
 bool System::Playing() const

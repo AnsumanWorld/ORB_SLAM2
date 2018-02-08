@@ -352,7 +352,7 @@ void Frame::ExtractORB(int flag, const cv::Mat &im)
 {
     if(flag==0)
 	{
-		if ( (NULL != mpTraficsignGrp) && (true == mpTraficsignGrp->isLoaded))
+		if ( (true == mpTraficsignGrp->is_sensor_info) && (NULL != mpTraficsignGrp) && (true == mpTraficsignGrp->isLoaded))
 		{	
 			std::vector<cv::KeyPoint> SubImageKeypoints;
 			cv::Mat SubDescriptors;
@@ -377,7 +377,7 @@ void Frame::ExtractORB(int flag, const cv::Mat &im)
 	}
     else
 	{	
-		if ( (NULL != mpTraficsignGrp) && (true == mpTraficsignGrp->isLoaded))
+		if (( true == mpTraficsignGrp->is_sensor_info) && (NULL != mpTraficsignGrp) && (true == mpTraficsignGrp->isLoaded))
 		{	
 			std::vector<cv::KeyPoint> SubImageKeypoints;
 			cv::Mat SubDescriptors;

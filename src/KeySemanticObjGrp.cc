@@ -27,6 +27,7 @@ namespace ORB_SLAM2
 KeySemanticObjGrp::KeySemanticObjGrp()
 {
 	isLoaded = false;
+	is_sensor_info = false;
 }
 
 
@@ -86,4 +87,10 @@ void KeySemanticObjGrp::SetSemanticObjGrpContent(traffic_sign_map_t const& Inter
 	mSemanticObjGrp = InterestedObjGrp;
 }
 
+void KeySemanticObjGrp::add_sensor_info(sensor_info const &sensor_input)
+{
+	if(msensor_input.tsr)
+		is_sensor_info = true;
+		mSemanticObjGrp = msensor_input.tsr.get().interested_object;
+}
 } //namespace ORB_SLAM
