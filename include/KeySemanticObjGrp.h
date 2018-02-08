@@ -27,7 +27,9 @@
 #include <vector>
 #include <map>
 #include <iostream>
-
+#include <boost/optional.hpp>
+#include <chrono>
+#include <vector>
 
 namespace ORB_SLAM2
 {
@@ -37,13 +39,32 @@ namespace ORB_SLAM2
         float confidence;
         cv::Rect Roi;
     };
-    using traffic_sign_map_t = std::map<long unsigned int, std::vector<TrafficSign> >;
+    using traffic_sign_map_t = std::map<long unsigned int, std::vector<TrafficSign>>;
+	using time_point_t = double/*std::chrono::time_point<double>*/;
+	using image_t = cv::Mat;
+
+	// the equivalent of the JSON object we use today...
+	struct tsr_info {
+		traffic_sign_map_t interested_object;
+	};
+
+	// vector, matrix are aliases to Eigen types
+	struct pos_info {
+		// longitude, latitude, altitude?
+		std::vector<int> position;
+		//symmetric_matrix<3, 3> covariance;
+	};
+
+	struct sensor_info {
+		boost::optional<tsr_info> tsr;
+		boost::optional<pos_info> pos;
+	};
 
 class KeySemanticObjGrp
 {
 	
 	traffic_sign_map_t mSemanticObjGrp;
-	
+	sensor_info msensor_input;
    public:
 	KeySemanticObjGrp();	
 	bool GetSemanticObjects(std::vector<cv::Rect> &RoiList, long unsigned int frameid);
@@ -51,7 +72,9 @@ class KeySemanticObjGrp
 	bool GetSemanticObjectList(std::vector<TrafficSign> &TraficsignList, long unsigned int frameid);
 	bool GetSemanticObjectClassid(int &ClassID, long unsigned int frameid,long unsigned int ObjectIndex);
 	KeySemanticObjGrp& GetSemanticObjGrp();
+	void add_sensor_info(sensor_info const &sensor_input);
 	bool isLoaded;
+	bool is_sensor_info;
 };
 
 
