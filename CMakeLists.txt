@@ -30,7 +30,7 @@ if("${EIGEN3_VERSION}" VERSION_LESS "3.1.0")
 find_package(Pangolin REQUIRED)
 
 find_package(DBoW2 REQUIRED)
-find_package(Dlib REQUIRED)
+find_package(DLib REQUIRED)
 
 include_directories(
 ${PROJECT_SOURCE_DIR}

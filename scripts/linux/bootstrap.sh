@@ -63,6 +63,12 @@ download_packages() {
     pangolin_url=https://github.com/stevenlovegrove/Pangolin/archive/v0.5.tar.gz
 
     download_file pangolin ${pangolin_url}
+
+    dbow2_url=https://github.com/apattnaik0721013/DBoW2/archive/master.zip
+
+    download_file dbow2 ${dbow2_url}
+
+
 }
 
 install_pangolin() {
@@ -82,6 +88,22 @@ install_pangolin() {
     make install
 }
 
+install_DBow2() {
+    cd ${packages_dir}/dbow2
+    extracted_folder=DBoW2-master
+    archive_file=master.zip
+    if [ ! -e ${extracted_folder} ]
+    then
+        unzip -n ${archive_file}
+    fi
+    cd ${extracted_folder}
+    mkdir -p release
+    cd release
+    cmake -D CMAKE_BUILD_TYPE=release -D CMAKE_INSTALL_PREFIX=${install_dir} ..
+    make -j${cores}
+    make install
+}
+
 cleanup() {
     apt-get -y autoremove
     apt-get -y autoclean
@@ -91,4 +113,5 @@ cleanup() {
 install_dependencies
 download_packages
 install_pangolin
+install_DBow2
 cleanup
