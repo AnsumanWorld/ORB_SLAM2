@@ -22,12 +22,15 @@ if("${OpenCV_VERSION}" VERSION_LESS "2.4.3")
 endif()
 
 find_package(Eigen3 REQUIRED)
-set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_STATIC_LIBS OFF)
 find_package(Boost REQUIRED COMPONENTS filesystem)
 if("${EIGEN3_VERSION}" VERSION_LESS "3.1.0")
 	message(FATAL_ERROR "Eigen3 > 3.1.0 not found.")
    endif()
 find_package(Pangolin REQUIRED)
+
+find_package(DBoW2 REQUIRED)
+find_package(Dlib REQUIRED)
 
 include_directories(
 ${PROJECT_SOURCE_DIR}
@@ -36,7 +39,7 @@ ${EIGEN3_INCLUDE_DIR}
 ${Pangolin_INCLUDE_DIRS}
 )
 
-add_subdirectory(Thirdparty/DBoW2)
+
 add_subdirectory(Thirdparty/g2o)
 
 add_library(orb-slam2 ${ORBSLAM2_LIB_TYPE}
@@ -72,8 +75,9 @@ target_link_libraries(orb-slam2
 ${OpenCV_LIBS}
 ${EIGEN3_LIBS}
 ${Pangolin_LIBRARIES}
-    DBoW2
     g2o
+${DBoW2_LIBRARIES}
+${DLib_LIBRARY}
 )
 target_include_directories(orb-slam2 INTERFACE $<INSTALL_INTERFACE:include>)
 install(TARGETS orb-slam2 EXPORT orb-slam2Config    
