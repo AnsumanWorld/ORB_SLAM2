@@ -130,6 +130,11 @@ elseif(BUILD_EXAMPLES)
 
     add_executable(mono_video Examples/Monocular/mono_video.cc)
     target_link_libraries(mono_video orb-slam2)
+	
+    add_executable(semantic_monocular_ext Examples/Monocular/semantic_monocular_ext.cc)
+    target_link_libraries(semantic_monocular_ext 
+        orb-slam2 
+        ${Boost_LIBRARIES})
 endif()
 
 # Build tools
