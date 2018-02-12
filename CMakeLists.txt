@@ -121,7 +121,7 @@ elseif(BUILD_EXAMPLES)
     add_executable(semantic_monocular Examples/Monocular/semantic_monocular.cc)
     target_link_libraries(semantic_monocular 
         orb-slam2 
-        ${Boost_LIBRARIES})
+        Boost::filesystem)
 
     add_executable(mono_grabbing Examples/Monocular/mono_grabbing.cc)
     target_link_libraries(mono_grabbing 
@@ -134,7 +134,7 @@ elseif(BUILD_EXAMPLES)
     add_executable(semantic_monocular_ext Examples/Monocular/semantic_monocular_ext.cc)
     target_link_libraries(semantic_monocular_ext 
         orb-slam2 
-        ${Boost_LIBRARIES})
+        Boost::filesystem)
 endif()
 
 # Build tools

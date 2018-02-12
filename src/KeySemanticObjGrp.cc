@@ -89,8 +89,8 @@ void KeySemanticObjGrp::SetSemanticObjGrpContent(traffic_sign_map_t const& Inter
 
 void KeySemanticObjGrp::add_sensor_info(sensor_info const &sensor_input)
 {
-	if(msensor_input.tsr)
+	if(sensor_input.tsr)
 		is_sensor_info = true;
-		mSemanticObjGrp = msensor_input.tsr.get().interested_object;
+		mSemanticObjGrp.insert(sensor_input.tsr.get().interested_object.begin(), sensor_input.tsr.get().interested_object.end());
 }
 } //namespace ORB_SLAM
