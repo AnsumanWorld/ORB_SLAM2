@@ -64,7 +64,7 @@ class KeySemanticObjGrp
 {
 	
 	traffic_sign_map_t mSemanticObjGrp;
-	sensor_info msensor_input;
+
    public:
 	KeySemanticObjGrp();	
 	bool GetSemanticObjects(std::vector<cv::Rect> &RoiList, long unsigned int frameid);

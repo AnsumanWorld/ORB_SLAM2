@@ -25,6 +25,7 @@
 #include <opencv2/highgui/highgui.hpp>
 
 #include<mutex>
+#include <iomanip>
 
 namespace ORB_SLAM2
 {
