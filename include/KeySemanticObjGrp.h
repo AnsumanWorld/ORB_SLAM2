@@ -39,7 +39,7 @@ namespace ORB_SLAM2
         float confidence;
         cv::Rect Roi;
     };
-    using traffic_sign_map_t = std::map<long unsigned int, std::vector<TrafficSign>>;
+    using traffic_sign_map_t = std::map<long unsigned int, std::vector<TrafficSign> >;
 	using time_point_t = double/*std::chrono::time_point<double>*/;
 	using image_t = cv::Mat;
 
@@ -60,24 +60,15 @@ namespace ORB_SLAM2
 		boost::optional<pos_info> pos;
 	};
 
-class KeySemanticObjGrp
-{
-	
-	traffic_sign_map_t mSemanticObjGrp;
-
-   public:
-	KeySemanticObjGrp();	
-	bool GetSemanticObjects(std::vector<cv::Rect> &RoiList, long unsigned int frameid);
-	void SetSemanticObjGrpContent(traffic_sign_map_t const &InterestedObject);
-	bool GetSemanticObjectList(std::vector<TrafficSign> &TraficsignList, long unsigned int frameid);
-	bool GetSemanticObjectClassid(int &ClassID, long unsigned int frameid,long unsigned int ObjectIndex);
-	KeySemanticObjGrp& GetSemanticObjGrp();
-	void add_sensor_info(sensor_info const &sensor_input);
-	bool isLoaded;
-	bool is_sensor_info;
-};
-
+#define GET_IMG(sensor_data) std::get<0>(sensor_data)
+#define GET_TIMESTAMP(sensor_data) std::get<1>(sensor_data)
+#define GET_SENSOR_INFO(sensor_data) std::get<2>(sensor_data)
+#define GET_TSR(sensor_data) std::get<2>(sensor_data).tsr.get()
+#define GET_POS(sensor_data) std::get<2>(sensor_data).pos.get()
+#define GET_TRAFICSIGN(sensor_data) std::get<2>(sensor_data).tsr.get().interested_object
+#define GET_TRAFICSIGN_ITERATOR(sensor_data,Frameid) std::get<2>(sensor_data).tsr.get().interested_object.find(Frameid)
+#define FIND_TRAFICSIGN(sensor_data,Frameid) ( std::get<2>(sensor_data).tsr.get().interested_object.find(Frameid) != std::get<2>(sensor_data).tsr.get().interested_object.end() )
 
 }// namespace ORB_SLAM
 
-#endif // SYSTEM_H
+#endif // KEYSEMANTICOBJGRP_H

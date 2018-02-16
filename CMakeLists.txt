@@ -45,28 +45,11 @@ ${Pangolin_INCLUDE_DIRS}
 add_subdirectory(Thirdparty/DBoW2)
 add_subdirectory(Thirdparty/g2o)
 
+file(GLOB_RECURSE source_list "src/*.cc" "src/*.cpp")
+file(GLOB_RECURSE include_list "include/*.h" "include/*.hpp")
 add_library(orb-slam2 ${ORBSLAM2_LIB_TYPE}
-src/System.cc
-src/Tracking.cc
-src/LocalMapping.cc
-src/LoopClosing.cc
-src/ORBextractor.cc
-src/ORBmatcher.cc
-src/FrameDrawer.cc
-src/Converter.cc
-src/MapPoint.cc
-src/KeyFrame.cc
-src/Map.cc
-src/MapDrawer.cc
-src/Optimizer.cc
-src/PnPsolver.cc
-src/Frame.cc
-src/KeyFrameDatabase.cc
-src/Sim3Solver.cc
-src/Initializer.cc
-src/Viewer.cc
-src/KeySemanticObjGrp.cc
-src/statistics.cc
+ ${source_list}
+ ${include_list}
 )
 
 if(CMAKE_COMPILER_IS_GNUCXX)
@@ -131,10 +114,6 @@ elseif(BUILD_EXAMPLES)
     add_executable(mono_video Examples/Monocular/mono_video.cc)
     target_link_libraries(mono_video orb-slam2)
 	
-    add_executable(semantic_monocular_ext Examples/Monocular/semantic_monocular_ext.cc)
-    target_link_libraries(semantic_monocular_ext 
-        orb-slam2 
-        Boost::filesystem)
 endif()
 
 # Build tools

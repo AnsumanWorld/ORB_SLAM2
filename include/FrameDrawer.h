@@ -53,7 +53,6 @@ public:
 
     // Draw last processed frame.
     cv::Mat DrawFrame();
-	void SetInterestingObject(std::vector<cv::Rect> &RoiList);
 protected:
 
     void DrawTextInfo(cv::Mat &im, int nState, FrameInfo frameInfo, cv::Mat &imText);

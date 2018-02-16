@@ -128,7 +128,7 @@ int run_slam_loop(int argc, char** argv)
 
         slam_object slam{args, app_monitor};
         if (ExtractSemanticObjGrp(args.path_to_json_file, traffic_signs)) {
-            slam.get().SetSemanticObjGrpContent(traffic_signs);
+            //slam.get().SetSemanticObjGrpContent(traffic_signs);
         }
 
         std::uint64_t time = 0;
@@ -141,9 +141,22 @@ int run_slam_loop(int argc, char** argv)
             if (image.empty()) {
                 throw std::runtime_error("Failed to load image!");
             }
-
+			ORB_SLAM2::traffic_sign_map_t::iterator it;
             // Pass the image to the SLAM system
-            slam.get().TrackMonocular(image, static_cast<double>(time));
+			it = traffic_signs.find(time);
+			if (it != traffic_signs.end())
+			{
+				ORB_SLAM2::tsr_info tsr;
+				tsr.interested_object.insert(std::make_pair(it->first, it->second));
+				ORB_SLAM2::sensor_info sensor_input;
+				sensor_input.tsr = tsr;
+				double timestamp = time;
+				//ORB_SLAM2::time_point_t timestamp(time);// (std::chrono::milliseconds(time));
+				//slam.get().add_sensor_info(sensor_input);
+				slam.get().TrackMonocular(std::make_tuple(image, timestamp, sensor_input));
+			}
+			else
+				slam.get().TrackMonocular(image, static_cast<double>(time));
             
             time++;
         }

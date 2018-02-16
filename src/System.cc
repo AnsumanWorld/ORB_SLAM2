@@ -250,8 +250,55 @@ cv::Mat System::TrackRGBD(const cv::Mat &im, const cv::Mat &depthmap, const doub
 cv::Mat System::TrackMonocular(std::tuple<image_t, time_point_t, sensor_info> slam_input)
 {
 	//const double &timestamp = std::get<1>(slam_input).time_since_epoch().count();
-	const double &timestamp = std::get<1>(slam_input);
-	return TrackMonocular(std::get<0>(slam_input), timestamp);
+	//const double &timestamp = std::get<1>(slam_input);
+	if (mSensor != MONOCULAR)
+	{
+		cerr << "ERROR: you called TrackMonocular but input sensor was not set to Monocular." << endl;
+		exit(-1);
+	}
+
+	// Check mode change
+	{
+		unique_lock<mutex> lock(mMutexMode);
+		if (mbActivateLocalizationMode)
+		{
+			mpLocalMapper->RequestStop();
+
+			// Wait until Local Mapping has effectively stopped
+			while (!mpLocalMapper->isStopped())
+			{
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			}
+
+			mpTracker->InformOnlyTracking(true);
+			mbActivateLocalizationMode = false;
+		}
+		if (mbDeactivateLocalizationMode)
+		{
+			mpTracker->InformOnlyTracking(false);
+			mpLocalMapper->Release();
+			mbDeactivateLocalizationMode = false;
+		}
+	}
+
+	// Check reset
+	{
+		unique_lock<mutex> lock(mMutexReset);
+		if (mbReset)
+		{
+			mpTracker->Reset();
+			mbReset = false;
+		}
+	}
+
+	cv::Mat Tcw = mpTracker->GrabImageMonocular(slam_input);
+
+	unique_lock<mutex> lock2(mMutexState);
+	mTrackingState = mpTracker->mState;
+	mTrackedMapPoints = mpTracker->mCurrentFrame.mvpMapPoints;
+	mTrackedKeyPointsUn = mpTracker->mCurrentFrame.mvKeysUn;
+
+	return Tcw;
 }
 cv::Mat System::TrackMonocular(const cv::Mat &im, const double &timestamp)
 {
@@ -530,20 +577,6 @@ vector<cv::KeyPoint> System::GetTrackedKeyPointsUn()
     return mTrackedKeyPointsUn;
 }
 
-KeySemanticObjGrp* System::GetSemanticObjGrp()
-{	
-	return &mSemanticObjGrp;
-}
-
-void System::SetSemanticObjGrpContent(traffic_sign_map_t const &InterestedObject)
-{
-	mSemanticObjGrp.SetSemanticObjGrpContent(InterestedObject);
-}
-
-void System::add_sensor_info(sensor_info const &sensor_input)
-{
-	mSemanticObjGrp.add_sensor_info(sensor_input);
-}
 
 bool System::Playing() const
 {
