@@ -4,7 +4,7 @@ project(orb-slam2)
 SET(ORBSLAM2_LIB_TYPE STATIC)
 option( BUILD_EXAMPLES "Build Examples" ON )
 
-LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
+#LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
 add_definitions("-DCOMPILEDWITHC11")
 IF(WIN32)
     add_definitions("-DNOMINMAX")
@@ -25,9 +25,9 @@ find_package(Eigen3 REQUIRED)
 
 find_package(Boost REQUIRED COMPONENTS filesystem)
 
-if("${EIGEN3_VERSION}" VERSION_LESS "3.1.0")
+if("${EIGEN3_VERSION_STRING}" VERSION_LESS "3.1.0")
 	message(FATAL_ERROR "Eigen3 > 3.1.0 not found.")
-   endif()
+endif()
 
 find_package(Pangolin REQUIRED)
 
