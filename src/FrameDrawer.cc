@@ -35,10 +35,7 @@ FrameDrawer::FrameDrawer(Map* pMap):mpMap(pMap)
     mState=Tracking::SYSTEM_NOT_READY;
     mIm = cv::Mat(480,640,CV_8UC3, cv::Scalar(0,0,0));
 }
-void FrameDrawer::SetInterestingObject(std::vector<cv::Rect> &RoiList)
-{
-	mRoiList.assign(RoiList.begin(), RoiList.end());
-}
+
 cv::Mat FrameDrawer::DrawFrame()
 {
     cv::Mat im;

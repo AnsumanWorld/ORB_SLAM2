@@ -36,7 +36,7 @@
 #include<iostream>
 
 #include<mutex>
-#include "KeySemanticObjGrp.h"
+
 
 using namespace std;
 
@@ -196,8 +196,7 @@ cv::Mat Tracking::GrabImageStereo(const cv::Mat &imRectLeft, const cv::Mat &imRe
         }
     }
 
-	KeySemanticObjGrp *pTraficsignGrp = mpSystem->GetSemanticObjGrp();
-    mCurrentFrame = Frame(mImGray,imGrayRight,timestamp,mpORBextractorLeft,mpORBextractorRight,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth,pTraficsignGrp);
+    mCurrentFrame = Frame(mImGray,imGrayRight,timestamp,mpORBextractorLeft,mpORBextractorRight,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
 
     Track();
 
@@ -227,9 +226,8 @@ cv::Mat Tracking::GrabImageRGBD(const cv::Mat &imRGB,const cv::Mat &imD, const d
 
     if((fabs(mDepthMapFactor-1.0f)>1e-5) || imDepth.type()!=CV_32F)
         imDepth.convertTo(imDepth,CV_32F,mDepthMapFactor);
-	
-	KeySemanticObjGrp* pTraficsignGrp = mpSystem->GetSemanticObjGrp();
-    mCurrentFrame = Frame(mImGray,imDepth,timestamp,mpORBextractorLeft,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth,pTraficsignGrp);
+
+    mCurrentFrame = Frame(mImGray,imDepth,timestamp,mpORBextractorLeft,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
 
     Track();
 
@@ -256,15 +254,43 @@ cv::Mat Tracking::GrabImageMonocular(const cv::Mat &im, const double &timestamp)
             cvtColor(mImGray,mImGray,CV_BGRA2GRAY);
     }
 
-	KeySemanticObjGrp* pTraficsignGrp = mpSystem->GetSemanticObjGrp();
-	
     if(mState==NOT_INITIALIZED || mState==NO_IMAGES_YET)
-        mCurrentFrame = Frame(mImGray,timestamp,mpIniORBextractor,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth,pTraficsignGrp);
+        mCurrentFrame = Frame(mImGray,timestamp,mpIniORBextractor,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
     else
-        mCurrentFrame = Frame(mImGray,timestamp,mpORBextractorLeft,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth,pTraficsignGrp);
-   Track();
+        mCurrentFrame = Frame(mImGray,timestamp,mpORBextractorLeft,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
+
+    Track();
 
     return mCurrentFrame.mTcw.clone();
+}
+
+cv::Mat Tracking::GrabImageMonocular(std::tuple<image_t, time_point_t, sensor_info> slam_input)
+{
+	mImGray = GET_IMG(slam_input);
+
+	if (mImGray.channels() == 3)
+	{
+		if (mbRGB)
+			cvtColor(mImGray, mImGray, CV_RGB2GRAY);
+		else
+			cvtColor(mImGray, mImGray, CV_BGR2GRAY);
+	}
+	else if (mImGray.channels() == 4)
+	{
+		if (mbRGB)
+			cvtColor(mImGray, mImGray, CV_RGBA2GRAY);
+		else
+			cvtColor(mImGray, mImGray, CV_BGRA2GRAY);
+	}
+	GET_IMG(slam_input) = mImGray;
+	if (mState == NOT_INITIALIZED || mState == NO_IMAGES_YET)
+		mCurrentFrame = Frame(slam_input, mpIniORBextractor, mpORBVocabulary, mK, mDistCoef, mbf, mThDepth);
+	else
+		mCurrentFrame = Frame(slam_input, mpORBextractorLeft, mpORBVocabulary, mK, mDistCoef, mbf, mThDepth);
+
+	Track();
+
+	return mCurrentFrame.mTcw.clone();
 }
 
 void Tracking::Track()
