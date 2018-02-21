@@ -19,8 +19,8 @@
 */
 
 
-#ifndef KEYSEMANTICOBJGRP_H
-#define KEYSEMANTICOBJGRP_H
+#ifndef SEMANTIC_INFO_H
+#define SEMANTIC_INFO_H
 
 #include<string>
 #include<opencv2/core/core.hpp>
@@ -33,13 +33,13 @@
 
 namespace ORB_SLAM2
 {
-    struct TrafficSign
+    struct traffic_sign
     {
         int classid;
         float confidence;
-        cv::Rect Roi;
+        cv::Rect roi;
     };
-    using traffic_sign_map_t = std::map<long unsigned int, std::vector<TrafficSign> >;
+    using traffic_sign_map_t = std::map<long unsigned int, std::vector<traffic_sign> >;
 	using time_point_t = double/*std::chrono::time_point<double>*/;
 	using image_t = cv::Mat;
 
@@ -71,4 +71,4 @@ namespace ORB_SLAM2
 
 }// namespace ORB_SLAM
 
-#endif // KEYSEMANTICOBJGRP_H
+#endif // SEMANTIC_INFO_H

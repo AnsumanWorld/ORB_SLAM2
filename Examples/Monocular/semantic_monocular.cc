@@ -43,13 +43,6 @@ namespace fs = boost::filesystem;
 
 using namespace std;
 using boost::property_tree::ptree;
-void show_interesting_object(std::map<long unsigned int, std::vector<ORB_SLAM2::TrafficSign> > &image_trafficsigns_map);
-bool ExtractSemanticObjGrp(std::string jsonFilename, std::map<long unsigned int, std::vector<ORB_SLAM2::TrafficSign> > &SemanticObjGrp);
-
-int gImgWidth = 1280;
-int gImgHeight = 720;
-int gMinRectWidth = 90;
-int gMinRectHeight = 90;
 
 struct input_args {
     std::string path_to_vocabulary;
@@ -110,11 +103,108 @@ public:
     }
 };
 
+class semantic_info {
+	bool semantic_info_status = false;
+	boost::property_tree::ptree pt;
+	ptree::iterator semantic_info_start;
+	ptree::iterator semantic_info_end;
+	const int img_width = 1280;
+	const int img_height = 720;
+	const int min_roi_width = 90;
+	const int min_roi_height = 90;	
+	
+	bool read_semantic_info(std::string jsonFilename)
+	{
+		bool read_status = false;
+		std::fstream jsonfile(jsonFilename);
+		if (false == jsonfile.is_open()) {
+			cout << "Unable to open json file" << endl;
+			return read_status;
+		}
+		boost::property_tree::read_json(jsonfile, pt);
+		jsonfile.close();
+		
+		semantic_info_start = pt.begin();
+		semantic_info_end = pt.end();
+		
+		if (semantic_info_start != semantic_info_end)
+			read_status = true;
+		return read_status;
+	}
+public:	
+    semantic_info(std::string jsonFilename)
+    {
+		semantic_info_status = read_semantic_info(jsonFilename);
+    }
+	
+	void transform_rect(std::vector<double> &rect_arr, cv::Rect& roi, bool is_absolute = false)
+	{
+		if (true == is_absolute) {
+			roi.x = rect_arr[0];
+			roi.y = rect_arr[1];
+			roi.width = rect_arr[2] - rect_arr[0];
+			roi.height = rect_arr[3] - rect_arr[1];
+		} else {
+			int ymin = int(rect_arr[0] * img_height);
+			int xmin = int(rect_arr[1] * img_width);
+			int ymax = int(rect_arr[2] * img_height);
+			int xmax = int(rect_arr[3] * img_width);
+			roi.x = xmin;
+			roi.y = ymin;
+			roi.width = xmax - xmin;
+			roi.height = ymax - ymin;
+		}
+	}
+	
+	bool get_next_semantic(std::uint64_t frameindex, std::vector<ORB_SLAM2::traffic_sign> &traffic_signs,bool search_from_first=false)
+	{
+		bool found_semantic = false;
+		
+		if(true == semantic_info_status)
+		{
+			if(true == search_from_first)
+			{
+				semantic_info_start = pt.begin();
+				semantic_info_end = pt.end();
+			}
+			if (semantic_info_start != semantic_info_end)
+			{
+				std::string image_name = semantic_info_start->first;
+				if (stoul(image_name) == frameindex)
+				{
+					found_semantic = true;
+					auto &traffic_sign_arr = semantic_info_start->second;
+					BOOST_FOREACH(boost::property_tree::ptree::value_type &node, traffic_sign_arr.get_child("traffic_signs"))
+					{
+						ORB_SLAM2::traffic_sign t;
+						t.classid = node.second.get<int>("class_id");
+						t.confidence = node.second.get<double>("confidence");
+						std::vector<double> r;
+						for (auto &temppt : node.second.get_child("rectangle")) {
+							r.push_back(temppt.second.get_value < double >());
+						}
+						
+						transform_rect(r, t.roi);
+						traffic_signs.push_back(t);
+					}
+					semantic_info_start++;
+					
+				}
+			}
+		}
+		return found_semantic;
+	}
+	
+    ~semantic_info()
+    {
+		semantic_info_status=false;
+    }
+};
+
 int run_slam_loop(int argc, char** argv)
 {
     try {
         auto args = parse_input_arguments(argc, argv);
-
         std::vector<fs::path> image_files;
         std::copy(fs::directory_iterator(args.path_to_image_folder), fs::directory_iterator(),
                   std::back_inserter(image_files));
@@ -127,37 +217,30 @@ int run_slam_loop(int argc, char** argv)
         ORB_SLAM2::ext::app_monitor_api* app_monitor = &app_monitor_inst;
 
         slam_object slam{args, app_monitor};
-        if (ExtractSemanticObjGrp(args.path_to_json_file, traffic_signs)) {
-            //slam.get().SetSemanticObjGrpContent(traffic_signs);
-        }
-
+		semantic_info semantic_info_obj{args.path_to_json_file};
         std::uint64_t time = 0;
 
         for (auto const& file : image_files) {
             app_monitor->request_wait();
 
             auto image = cv::imread(file.generic_string(), CV_LOAD_IMAGE_UNCHANGED);
-
+			double timestamp = static_cast<double>(time);
             if (image.empty()) {
                 throw std::runtime_error("Failed to load image!");
             }
-			ORB_SLAM2::traffic_sign_map_t::iterator it;
-            // Pass the image to the SLAM system
-			it = traffic_signs.find(time);
-			if (it != traffic_signs.end())
+			std::vector<ORB_SLAM2::traffic_sign> traffic_signs;
+			
+			if ( true == semantic_info_obj.get_next_semantic(time,traffic_signs) )
 			{
 				ORB_SLAM2::tsr_info tsr;
-				tsr.interested_object.insert(std::make_pair(it->first, it->second));
+				tsr.interested_object.insert(std::make_pair(time, traffic_signs));
 				ORB_SLAM2::sensor_info sensor_input;
 				sensor_input.tsr = tsr;
-				double timestamp = time;
 				//ORB_SLAM2::time_point_t timestamp(time);// (std::chrono::milliseconds(time));
-				//slam.get().add_sensor_info(sensor_input);
 				slam.get().TrackMonocular(std::make_tuple(image, timestamp, sensor_input));
 			}
 			else
-				slam.get().TrackMonocular(image, static_cast<double>(time));
-            
+				slam.get().TrackMonocular(image, timestamp);
             time++;
         }
     } catch (std::exception const& ex_) {
@@ -168,136 +251,6 @@ int run_slam_loop(int argc, char** argv)
     }
 
     return 0;
-}
-
-void LoadImages(const string &strFile, vector<string> &vstrImageFilenames, vector<double> &vTimestamps)
-{
-    ifstream f;
-    f.open(strFile.c_str());
-
-    // skip first three lines
-    string s0;
-
-    while (!f.eof()) {
-        string s;
-        getline(f, s);
-        if (!s.empty()) {
-            stringstream ss;
-            ss << s;
-            double t;
-            string sRGB;
-            ss >> t;
-            vTimestamps.push_back(t);
-            ss >> sRGB;
-            vstrImageFilenames.push_back(sRGB);
-        }
-    }
-}
-void TransformRect(std::vector<double> &RectArr, cv::Rect& Roi, bool IsAbsolute = false)
-{
-
-    if (true == IsAbsolute) {
-        Roi.x = RectArr[0];
-        Roi.y = RectArr[1];
-        Roi.width = RectArr[2] - RectArr[0];
-        Roi.height = RectArr[3] - RectArr[1];
-    } else {
-        int ymin = int(RectArr[0] * gImgHeight);
-        int xmin = int(RectArr[1] * gImgWidth);
-        int ymax = int(RectArr[2] * gImgHeight);
-        int xmax = int(RectArr[3] * gImgWidth);
-        Roi.x = xmin;
-        Roi.y = ymin;
-        Roi.width = xmax - xmin;
-        Roi.height = ymax - ymin;
-    }
-}
-
-void enlarge_rectangle(cv::Rect& rectangle)
-{
-    if (rectangle.width >= gMinRectWidth && rectangle.height >= gMinRectHeight) {
-        return;
-    }
-    if (rectangle.width < gMinRectWidth) {
-        int total_x_displacement = gMinRectWidth - rectangle.width;
-        int x_displacement = floor(total_x_displacement / 2);
-
-        if (((rectangle.x - x_displacement) >= 0) && ((rectangle.x + rectangle.width + x_displacement) < gImgWidth)) {
-            rectangle.x -= x_displacement;
-            rectangle.width = gMinRectWidth;
-        } else if ((rectangle.x + gMinRectWidth) <= gImgWidth)
-            rectangle.width = gMinRectWidth;
-    }
-    if (rectangle.height < gMinRectHeight) {
-        int total_y_displacement = gMinRectHeight - rectangle.height;
-        int y_displacement = floor(total_y_displacement / 2);
-        if (((rectangle.y - y_displacement) >= 0) && ((rectangle.y + rectangle.height + y_displacement) < gImgHeight)) {
-            rectangle.y -= y_displacement;
-            rectangle.height = gMinRectHeight;
-        } else if ((rectangle.y + gMinRectHeight) <= gImgHeight)
-            rectangle.height = gMinRectHeight;
-    }
-}
-bool ExtractSemanticObjGrp(std::string jsonFilename, std::map<long unsigned int, std::vector<ORB_SLAM2::TrafficSign> > &SemanticObjGrp)
-{
-    boost::property_tree::ptree pt;
-    std::fstream jsonfile(jsonFilename);
-    if (false == jsonfile.is_open()) {
-        cout << "Unable to open json file" << endl;
-        return false;
-    }
-
-    boost::property_tree::read_json(jsonfile, pt);
-    jsonfile.close();
-
-
-    for (ptree::iterator pt_iter = pt.begin(); pt_iter != pt.end(); pt_iter++) {
-        std::string image_name = pt_iter->first;
-        auto &traffic_sign_arr = pt_iter->second;
-        std::vector<ORB_SLAM2::TrafficSign> traffic_signs;
-        BOOST_FOREACH(boost::property_tree::ptree::value_type &node, traffic_sign_arr.get_child("traffic_signs"))
-        {
-            ORB_SLAM2::TrafficSign t;
-            t.classid = node.second.get<int>("class_id");
-            t.confidence = node.second.get<double>("confidence");
-            std::vector<double> r;
-            for (auto &temppt : node.second.get_child("rectangle")) {
-                r.push_back(temppt.second.get_value < double >());
-            }
-            TransformRect(r, t.Roi);
-
-            //enlarge_rectangle(t.Roi);
-
-            traffic_signs.push_back(t);
-
-        }
-
-        SemanticObjGrp.insert({stoul(image_name), traffic_signs});
-    }
-
-    return true;
-}
-
-void show_interesting_object(std::map<long unsigned int, std::vector<ORB_SLAM2::TrafficSign> > &image_trafficsigns_map)
-{
-
-    for (auto &map_item : image_trafficsigns_map) {
-
-        std::cout << "image- " << map_item.first << ":" << std::endl;
-        for (auto &vector_item : map_item.second) {
-            std::cout << "\ttraffic_signs: " << std::endl;
-            std::cout << "\t\tclass_id- " << vector_item.classid << std::endl;
-            std::cout << "\t\tconfidence- " << std::setprecision(16) << vector_item.confidence << std::endl;
-            std::cout << "\t\trectangle- [";
-
-            std::cout << vector_item.Roi.x << "  ";
-            std::cout << vector_item.Roi.y << "  ";
-            std::cout << vector_item.Roi.width << "  ";
-            std::cout << vector_item.Roi.height;
-            std::cout << "]" << std::endl;
-            std::cout << "----------------------------------------" << std::endl;
-        }
-    }
 }
 
 int main(int argc, char** argv)

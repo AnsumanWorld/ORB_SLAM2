@@ -23,7 +23,6 @@
 #include "ORBmatcher.h"
 #include "statistics.h"
 #include <thread>
-#include <System.h>
 
 #define MIN_ORB_IMG_WIDTH 90 
 #define MIN_ORB_IMG_HEIGHT 90
@@ -52,7 +51,8 @@ Frame::Frame(const Frame &frame)
      mpReferenceKF(frame.mpReferenceKF), mnScaleLevels(frame.mnScaleLevels),
      mfScaleFactor(frame.mfScaleFactor), mfLogScaleFactor(frame.mfLogScaleFactor),
      mvScaleFactors(frame.mvScaleFactors), mvInvScaleFactors(frame.mvInvScaleFactors),
-     mvLevelSigma2(frame.mvLevelSigma2), mvInvLevelSigma2(frame.mvInvLevelSigma2)
+     mvLevelSigma2(frame.mvLevelSigma2), mvInvLevelSigma2(frame.mvInvLevelSigma2),
+     msensor_input(frame.msensor_input)
 {
     for(int i=0;i<FRAME_GRID_COLS;i++)
         for(int j=0; j<FRAME_GRID_ROWS; j++)
@@ -234,63 +234,63 @@ Frame::Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extra
 
     AssignFeaturesToGrid();
 }
-
-Frame::Frame(std::tuple<image_t, time_point_t, sensor_info> slam_input, ORBextractor* extractor, ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth)
-	:msensor_input(slam_input),mpORBvocabulary(voc), mpORBextractorLeft(extractor), mpORBextractorRight(static_cast<ORBextractor*>(NULL)),
-	mTimeStamp(GET_TIMESTAMP(slam_input)), mK(K.clone()), mDistCoef(distCoef.clone()), mbf(bf), mThDepth(thDepth)
+//constructor for monocular with semantic info
+Frame::Frame(const cv::Mat &imGray, ORBextractor* extractor, ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth,const std::tuple<image_t, time_point_t, sensor_info> slam_input)
+	:mpORBvocabulary(voc), mpORBextractorLeft(extractor), mpORBextractorRight(static_cast<ORBextractor*>(NULL)),
+	mTimeStamp(GET_TIMESTAMP(slam_input)), mK(K.clone()), mDistCoef(distCoef.clone()), mbf(bf), mThDepth(thDepth),msensor_input(slam_input)
 {
-	// Frame ID
-	mnId = nNextId++;
-	statistics::get().update_frame_count(1);
-	cv::Mat imGray = GET_IMG(slam_input);
-	// Scale Level Info
-	mnScaleLevels = mpORBextractorLeft->GetLevels();
-	mfScaleFactor = mpORBextractorLeft->GetScaleFactor();
-	mfLogScaleFactor = log(mfScaleFactor);
-	mvScaleFactors = mpORBextractorLeft->GetScaleFactors();
-	mvInvScaleFactors = mpORBextractorLeft->GetInverseScaleFactors();
-	mvLevelSigma2 = mpORBextractorLeft->GetScaleSigmaSquares();
-	mvInvLevelSigma2 = mpORBextractorLeft->GetInverseScaleSigmaSquares();
+    // Frame ID
+    mnId=nNextId++;
+    statistics::get().update_frame_count(1);
+    
+    // Scale Level Info
+    mnScaleLevels = mpORBextractorLeft->GetLevels();
+    mfScaleFactor = mpORBextractorLeft->GetScaleFactor();
+    mfLogScaleFactor = log(mfScaleFactor);
+    mvScaleFactors = mpORBextractorLeft->GetScaleFactors();
+    mvInvScaleFactors = mpORBextractorLeft->GetInverseScaleFactors();
+    mvLevelSigma2 = mpORBextractorLeft->GetScaleSigmaSquares();
+    mvInvLevelSigma2 = mpORBextractorLeft->GetInverseScaleSigmaSquares();
 	mpORBextractorSub = NULL;
-	// ORB extraction
-	ExtractORB(0, imGray);
+    // ORB extraction
+    ExtractORB(0,imGray);
 
-	N = mvKeys.size();
+    N = mvKeys.size();
 
-	if (mvKeys.empty())
-		return;
+    if(mvKeys.empty())
+        return;
 
-	statistics::get().update_frame_keypoint_stats(mvKeys);
-	UndistortKeyPoints();
+    statistics::get().update_frame_keypoint_stats(mvKeys);
+    UndistortKeyPoints();
 
-	// Set no stereo information
-	mvuRight = vector<float>(N, -1);
-	mvDepth = vector<float>(N, -1);
+    // Set no stereo information
+    mvuRight = vector<float>(N,-1);
+    mvDepth = vector<float>(N,-1);
 
-	mvpMapPoints = vector<MapPoint*>(N, static_cast<MapPoint*>(NULL));
-	mvbOutlier = vector<bool>(N, false);
+    mvpMapPoints = vector<MapPoint*>(N,static_cast<MapPoint*>(NULL));
+    mvbOutlier = vector<bool>(N,false);
 
-	// This is done only for the first Frame (or after a change in the calibration)
-	if (mbInitialComputations)
-	{
-		ComputeImageBounds(imGray);
+    // This is done only for the first Frame (or after a change in the calibration)
+    if(mbInitialComputations)
+    {
+        ComputeImageBounds(imGray);
 
-		mfGridElementWidthInv = static_cast<float>(FRAME_GRID_COLS) / static_cast<float>(mnMaxX - mnMinX);
-		mfGridElementHeightInv = static_cast<float>(FRAME_GRID_ROWS) / static_cast<float>(mnMaxY - mnMinY);
+        mfGridElementWidthInv=static_cast<float>(FRAME_GRID_COLS)/static_cast<float>(mnMaxX-mnMinX);
+        mfGridElementHeightInv=static_cast<float>(FRAME_GRID_ROWS)/static_cast<float>(mnMaxY-mnMinY);
 
-		fx = K.at<float>(0, 0);
-		fy = K.at<float>(1, 1);
-		cx = K.at<float>(0, 2);
-		cy = K.at<float>(1, 2);
-		invfx = 1.0f / fx;
-		invfy = 1.0f / fy;
+        fx = K.at<float>(0,0);
+        fy = K.at<float>(1,1);
+        cx = K.at<float>(0,2);
+        cy = K.at<float>(1,2);
+        invfx = 1.0f/fx;
+        invfy = 1.0f/fy;
 
-		mbInitialComputations = false;
-	}
+        mbInitialComputations=false;
+    }
 
-	mb = mbf / fx;
+    mb = mbf/fx;
 
-	AssignFeaturesToGrid();
+    AssignFeaturesToGrid();
 }
 
 void Frame::AssignFeaturesToGrid()
@@ -338,15 +338,15 @@ void Frame::AssignFeaturesToGrid()
  {
 	if (GET_SENSOR_INFO(msensor_input).tsr)
 	{
-		std::vector<TrafficSign> ts_data;
+		std::vector<traffic_sign> ts_data;
 		ts_data = GET_TRAFICSIGN_ITERATOR(msensor_input, mTimeStamp)->second;
 		for(int SubImageIndex = 0;SubImageIndex < ts_data.size();SubImageIndex++)
 		{
 			for(int Index = 0;Index<vKeys.size();Index++)
 			{
-				if( (vKeys[Index].pt.x >= ts_data[SubImageIndex].Roi.x) && (vKeys[Index].pt.x < (ts_data[SubImageIndex].Roi.x + ts_data[SubImageIndex].Roi.width)))
+				if( (vKeys[Index].pt.x >= ts_data[SubImageIndex].roi.x) && (vKeys[Index].pt.x < (ts_data[SubImageIndex].roi.x + ts_data[SubImageIndex].roi.width)))
 				{
-					if( (vKeys[Index].pt.y >= ts_data[SubImageIndex].Roi.y) && (vKeys[Index].pt.y < (ts_data[SubImageIndex].Roi.y + ts_data[SubImageIndex].Roi.height)))
+					if( (vKeys[Index].pt.y >= ts_data[SubImageIndex].roi.y) && (vKeys[Index].pt.y < (ts_data[SubImageIndex].roi.y + ts_data[SubImageIndex].roi.height)))
 					{
 						vKeys[Index].class_id = ClassId;
 					}
@@ -364,7 +364,7 @@ void Frame::ExtractORBInSubImage(const cv::Mat &im,std::vector<cv::KeyPoint> &Al
 
 	if (GET_SENSOR_INFO(msensor_input).tsr)
 	{
-		std::vector<TrafficSign> ts_data;
+		std::vector<traffic_sign> ts_data;
 		ts_data = GET_TRAFICSIGN_ITERATOR(msensor_input, mTimeStamp)->second;
 		if(!mpORBextractorSub)
 			mpORBextractorSub = new ORBextractor(mpORBextractorLeft->Getfeatures(),mfScaleFactor,mnScaleLevels,mpORBextractorLeft->GetiniThFAST(),mpORBextractorLeft->GetminThFAST());	
@@ -374,11 +374,11 @@ void Frame::ExtractORBInSubImage(const cv::Mat &im,std::vector<cv::KeyPoint> &Al
 		int SubImageIndex = 0;
 		for (int SubImageIndex = 0; SubImageIndex < ts_data.size(); SubImageIndex++)
 		{
-			mRoiList.push_back(ts_data[SubImageIndex].Roi);
+			mRoiList.push_back(ts_data[SubImageIndex].roi);
 			std::vector<cv::KeyPoint> SubImageKeypoints;
 			cv::Mat SubImageDescriptors;
 			//width should be highier than height which is need for DistributeOctTree()
-			cv::Mat subimage(im(ts_data[SubImageIndex].Roi));
+			cv::Mat subimage(im(ts_data[SubImageIndex].roi));
 			cv::Mat scaleUpImg;
 			ScaleX = 1;
 			ScaleY = 1;
@@ -391,7 +391,7 @@ void Frame::ExtractORBInSubImage(const cv::Mat &im,std::vector<cv::KeyPoint> &Al
 			if (SubImageKeypoints.size())
 			{
 				ScaleBack(SubImageKeypoints,ScaleX,ScaleY);
-				LinearTransform(SubImageKeypoints, ts_data[SubImageIndex].Roi, ts_data[SubImageIndex].classid);
+				LinearTransform(SubImageKeypoints, ts_data[SubImageIndex].roi, ts_data[SubImageIndex].classid);
                 SubImageInfo subImageInfo;
                 subImageInfo.mnSemanticKPs = SubImageKeypoints.size();
                 subImageInfo.mnEffectiveSemanticKPs = 0;
@@ -416,7 +416,9 @@ void Frame::ExtractORB(int flag, const cv::Mat &im)
 		{	
 			std::vector<cv::KeyPoint> SubImageKeypoints;
 			cv::Mat SubDescriptors;
+					
 			ExtractORBInSubImage(im,SubImageKeypoints,SubDescriptors);
+
 			if(SubImageKeypoints.size())
 			{
 				cv::Mat OrgDescriptors;
