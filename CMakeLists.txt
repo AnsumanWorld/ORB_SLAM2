@@ -78,13 +78,13 @@ ${Pangolin_LIBRARIES}
     g2o
 )
 target_include_directories(orb-slam2 INTERFACE $<INSTALL_INTERFACE:include>)
-install(TARGETS orb-slam2 EXPORT orb-slam2Config    
+install(TARGETS orb-slam2 EXPORT orb-slam2  
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
 )
-install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION include/orbslam2)
-install(EXPORT orb-slam2Config DESTINATION share/orb-slam2)
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION include/orb-slam2)
+install(EXPORT orb-slam2 FILE orb-slam2Config.cmake DESTINATION share/orb-slam2)
 # Build examples
 if(BUILD_ALL_EXAMPLES)
     add_executable(rgbd_tum Examples/RGB-D/rgbd_tum.cc) 

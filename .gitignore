@@ -33,3 +33,4 @@ products/
 /.vs/ProjectSettings.json
 /.vs/slnx.sqlite*
 data/
+/install

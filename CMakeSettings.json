@@ -2,54 +2,6 @@
     // See https://go.microsoft.com//fwlink//?linkid=834763 for more information about this file.
     "configurations": [
         {
-            "name": "x86-Debug",
-            "generator": "Ninja",
-            "configurationType": "Debug",
-            "inheritEnvironments": [ "msvc_x86" ],
-            "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
-            "cmakeCommandArgs": "",
-            "buildCommandArgs": "-v -j4",
-            "ctestCommandArgs": "",
-            "variables": [
-                {
-                    "name": "BUILD_EXAMPLES",
-                    "value": "ON"
-                },
-                {
-                    "name": "VCPKG_TARGET_TRIPLET",
-                    "value": "x86-windows"
-                },
-                {
-                    "name": "CMAKE_TOOLCHAIN_FILE",
-                    "value": "${env.USERPROFILE}\\.vcpkg\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake"
-                }
-            ]
-        },
-        {
-            "name": "x86-Release",
-            "generator": "Ninja",
-            "configurationType": "RelWithDebInfo",
-            "inheritEnvironments": [ "msvc_x86" ],
-            "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
-            "cmakeCommandArgs": "",
-            "buildCommandArgs": "-v -j4",
-            "ctestCommandArgs": "",
-            "variables": [
-                {
-                    "name": "BUILD_EXAMPLES",
-                    "value": "ON"
-                },
-                {
-                    "name": "VCPKG_TARGET_TRIPLET",
-                    "value": "x86-windows"
-                },
-                {
-                    "name": "CMAKE_TOOLCHAIN_FILE",
-                    "value": "${env.USERPROFILE}\\.vcpkg\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake"
-                }
-            ]
-        },
-        {
             "name": "x64-Debug",
             "generator": "Ninja",
             "configurationType": "Debug",
@@ -70,6 +22,10 @@
                 {
                     "name": "CMAKE_TOOLCHAIN_FILE",
                     "value": "${env.USERPROFILE}\\.vcpkg\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake"
+                },
+                {
+                    "name": "CMAKE_INSTALL_PREFIX",
+                    "value": "${workspaceRoot}\\install"
                 }
             ]
         },

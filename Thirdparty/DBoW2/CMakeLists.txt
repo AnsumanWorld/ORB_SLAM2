@@ -35,10 +35,10 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 add_library(DBoW2 ${DBOW2_LIB_TYPE} ${SRCS_DBOW2} ${SRCS_DUTILS})
 target_link_libraries(DBoW2 ${OpenCV_LIBS})
 
-install(DIRECTORY ${PROJECT_SOURCE_DIR}/DBoW2/ DESTINATION include/orbslam2/Thirdparty/DBoW2/DBoW2)
-install(DIRECTORY ${PROJECT_SOURCE_DIR}/DUtils/ DESTINATION include/orbslam2/Thirdparty/DBoW2/DUtils)
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/DBoW2/ DESTINATION include/orb-slam2/Thirdparty/DBoW2/DBoW2)
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/DUtils/ DESTINATION include/orb-slam2/Thirdparty/DBoW2/DUtils)
 
-install(TARGETS DBoW2 EXPORT orb-slam2Config    
+install(TARGETS DBoW2 EXPORT orb-slam2    
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
