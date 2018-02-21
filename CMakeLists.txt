@@ -26,7 +26,7 @@ if("${OpenCV_VERSION}" VERSION_LESS "2.4.3")
 endif()
 
 find_package(Eigen3 REQUIRED)
-
+set(Boost_USE_STATIC_LIBS ON)
 find_package(Boost REQUIRED COMPONENTS filesystem)
 
 if("${EIGEN3_VERSION_STRING}" VERSION_LESS "3.1.0")
@@ -113,7 +113,6 @@ elseif(BUILD_EXAMPLES)
 
     add_executable(mono_video Examples/Monocular/mono_video.cc)
     target_link_libraries(mono_video orb-slam2)
-	
 endif()
 
 # Build tools

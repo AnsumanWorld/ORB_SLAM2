@@ -264,7 +264,7 @@ cv::Mat Tracking::GrabImageMonocular(const cv::Mat &im, const double &timestamp)
     return mCurrentFrame.mTcw.clone();
 }
 
-cv::Mat Tracking::GrabImageMonocular(std::tuple<image_t, time_point_t, sensor_info> slam_input)
+cv::Mat Tracking::GrabImageMonocular(const std::tuple<image_t, time_point_t, sensor_info> slam_input)
 {
 	mImGray = GET_IMG(slam_input);
 
@@ -282,11 +282,11 @@ cv::Mat Tracking::GrabImageMonocular(std::tuple<image_t, time_point_t, sensor_in
 		else
 			cvtColor(mImGray, mImGray, CV_BGRA2GRAY);
 	}
-	GET_IMG(slam_input) = mImGray;
+
 	if (mState == NOT_INITIALIZED || mState == NO_IMAGES_YET)
-		mCurrentFrame = Frame(slam_input, mpIniORBextractor, mpORBVocabulary, mK, mDistCoef, mbf, mThDepth);
+		mCurrentFrame = Frame(mImGray, mpIniORBextractor, mpORBVocabulary, mK, mDistCoef, mbf, mThDepth,slam_input);
 	else
-		mCurrentFrame = Frame(slam_input, mpORBextractorLeft, mpORBVocabulary, mK, mDistCoef, mbf, mThDepth);
+		mCurrentFrame = Frame(mImGray,mpORBextractorLeft, mpORBVocabulary, mK, mDistCoef, mbf, mThDepth,slam_input);
 
 	Track();
 

@@ -32,7 +32,7 @@
 #include "ORBextractor.h"
 
 #include <opencv2/opencv.hpp>
-#include "KeySemanticObjGrp.h"
+#include "SemanticInfo.h"
 
 namespace ORB_SLAM2
 {
@@ -65,7 +65,7 @@ public:
     // Constructor for Monocular cameras.
     Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extractor,ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth);
 	// Constructor for Monocular cameras with sensor support
-	Frame(std::tuple<image_t, time_point_t, sensor_info>, ORBextractor* extractor, ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth);
+	Frame(const cv::Mat &imGray, ORBextractor* extractor, ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth,const std::tuple<image_t, time_point_t, sensor_info> slam_input);
 
     // Extract ORB on the image. 0 for left image and 1 for right image.
     void ExtractORB(int flag, const cv::Mat &im);
