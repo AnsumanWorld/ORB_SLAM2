@@ -101,7 +101,7 @@ if(BUILD_ALL_EXAMPLES)
     add_executable(semantic_monocular_video Examples/Monocular/semantic_monocular_video.cpp)
     target_link_libraries(semantic_monocular_video orb-slam2 filesystem)
 elseif(BUILD_EXAMPLES)
-    add_executable(semantic_monocular Examples/Monocular/semantic_monocular.cc)
+    add_executable(semantic_monocular Examples/Monocular/semantic_monocular.cc Examples/Monocular/semantic_monocular.hpp)
     target_link_libraries(semantic_monocular 
         orb-slam2 
         Boost::filesystem)

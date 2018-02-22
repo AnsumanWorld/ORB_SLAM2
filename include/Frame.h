@@ -32,7 +32,7 @@
 #include "ORBextractor.h"
 
 #include <opencv2/opencv.hpp>
-#include "SemanticInfo.h"
+#include "ext/SemanticInfo.h"
 
 namespace ORB_SLAM2
 {

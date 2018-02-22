@@ -38,11 +38,8 @@
 #include <vector>
 #include <cinttypes>
 #include <stdexcept>
+#include "semantic_monocular.hpp"
 
-namespace fs = boost::filesystem;
-
-using namespace std;
-using boost::property_tree::ptree;
 
 struct input_args {
     std::string path_to_vocabulary;
@@ -103,103 +100,6 @@ public:
     }
 };
 
-class semantic_info {
-	bool semantic_info_status = false;
-	boost::property_tree::ptree pt;
-	ptree::iterator semantic_info_start;
-	ptree::iterator semantic_info_end;
-	const int img_width = 1280;
-	const int img_height = 720;
-	const int min_roi_width = 90;
-	const int min_roi_height = 90;	
-	
-	bool read_semantic_info(std::string jsonFilename)
-	{
-		bool read_status = false;
-		std::fstream jsonfile(jsonFilename);
-		if (false == jsonfile.is_open()) {
-			cout << "Unable to open json file" << endl;
-			return read_status;
-		}
-		boost::property_tree::read_json(jsonfile, pt);
-		jsonfile.close();
-		
-		semantic_info_start = pt.begin();
-		semantic_info_end = pt.end();
-		
-		if (semantic_info_start != semantic_info_end)
-			read_status = true;
-		return read_status;
-	}
-public:	
-    semantic_info(std::string jsonFilename)
-    {
-		semantic_info_status = read_semantic_info(jsonFilename);
-    }
-	
-	void transform_rect(std::vector<double> &rect_arr, cv::Rect& roi, bool is_absolute = false)
-	{
-		if (true == is_absolute) {
-			roi.x = rect_arr[0];
-			roi.y = rect_arr[1];
-			roi.width = rect_arr[2] - rect_arr[0];
-			roi.height = rect_arr[3] - rect_arr[1];
-		} else {
-			int ymin = int(rect_arr[0] * img_height);
-			int xmin = int(rect_arr[1] * img_width);
-			int ymax = int(rect_arr[2] * img_height);
-			int xmax = int(rect_arr[3] * img_width);
-			roi.x = xmin;
-			roi.y = ymin;
-			roi.width = xmax - xmin;
-			roi.height = ymax - ymin;
-		}
-	}
-	
-	bool get_next_semantic(std::uint64_t frameindex, std::vector<ORB_SLAM2::traffic_sign> &traffic_signs,bool search_from_first=false)
-	{
-		bool found_semantic = false;
-		
-		if(true == semantic_info_status)
-		{
-			if(true == search_from_first)
-			{
-				semantic_info_start = pt.begin();
-				semantic_info_end = pt.end();
-			}
-			if (semantic_info_start != semantic_info_end)
-			{
-				std::string image_name = semantic_info_start->first;
-				if (stoul(image_name) == frameindex)
-				{
-					found_semantic = true;
-					auto &traffic_sign_arr = semantic_info_start->second;
-					BOOST_FOREACH(boost::property_tree::ptree::value_type &node, traffic_sign_arr.get_child("traffic_signs"))
-					{
-						ORB_SLAM2::traffic_sign t;
-						t.classid = node.second.get<int>("class_id");
-						t.confidence = node.second.get<double>("confidence");
-						std::vector<double> r;
-						for (auto &temppt : node.second.get_child("rectangle")) {
-							r.push_back(temppt.second.get_value < double >());
-						}
-						
-						transform_rect(r, t.roi);
-						traffic_signs.push_back(t);
-					}
-					semantic_info_start++;
-					
-				}
-			}
-		}
-		return found_semantic;
-	}
-	
-    ~semantic_info()
-    {
-		semantic_info_status=false;
-    }
-};
 
 int run_slam_loop(int argc, char** argv)
 {
@@ -217,9 +117,11 @@ int run_slam_loop(int argc, char** argv)
         ORB_SLAM2::ext::app_monitor_api* app_monitor = &app_monitor_inst;
 
         slam_object slam{args, app_monitor};
-		semantic_info semantic_info_obj{args.path_to_json_file};
-        std::uint64_t time = 0;
-
+		auto slam_data_source = data_source< ORB_SLAM2::traffic_sign_map_t, std::string>::make_data_source(data_source_type::semantic, args.path_to_json_file);
+		std::uint64_t time = 0;
+		auto it = slam_data_source->get_data_source_iter();
+		auto traffic_signs_map = it->next();
+	
         for (auto const& file : image_files) {
             app_monitor->request_wait();
 
@@ -228,16 +130,15 @@ int run_slam_loop(int argc, char** argv)
             if (image.empty()) {
                 throw std::runtime_error("Failed to load image!");
             }
-			std::vector<ORB_SLAM2::traffic_sign> traffic_signs;
-			
-			if ( true == semantic_info_obj.get_next_semantic(time,traffic_signs) )
+			if ((false == traffic_signs_map.empty()) && traffic_signs_map.end() != traffic_signs_map.find(time) )
 			{
 				ORB_SLAM2::tsr_info tsr;
-				tsr.interested_object.insert(std::make_pair(time, traffic_signs));
+				tsr.interested_object = traffic_signs_map;
 				ORB_SLAM2::sensor_info sensor_input;
 				sensor_input.tsr = tsr;
 				//ORB_SLAM2::time_point_t timestamp(time);// (std::chrono::milliseconds(time));
 				slam.get().TrackMonocular(std::make_tuple(image, timestamp, sensor_input));
+				traffic_signs_map = it->next();
 			}
 			else
 				slam.get().TrackMonocular(image, timestamp);
