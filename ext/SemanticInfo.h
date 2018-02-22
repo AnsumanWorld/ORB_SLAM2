@@ -40,6 +40,7 @@ namespace ORB_SLAM2
         cv::Rect roi;
     };
     using traffic_sign_map_t = std::map<long unsigned int, std::vector<traffic_sign> >;
+	using traffic_sign_vec_t = std::vector<traffic_sign>;
 	using time_point_t = double/*std::chrono::time_point<double>*/;
 	using image_t = cv::Mat;
 
