@@ -69,7 +69,7 @@ input_args parse_input_arguments(int argc, char** argv)
         argv[1],
         argv[2],
         argv[3],
-        argv[4],
+        argv[4]
     };
 }
 

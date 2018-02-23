@@ -1,25 +1,28 @@
 {
-  "version": "0.2.1",
-  "defaults": {},
-  "configurations": [
-    {
-      "type": "default",
-      "project": "CMakeLists.txt",
-      "projectTarget": "semantic_monocular.exe",
-      "name": "semantic_monocular.exe",
-      "args": [
-        "${projectDir}\\Vocabulary\\ORBvoc.bin",
-        "${projectDir}\\Examples\\Monocular\\Garching-Test-Drive.yaml"
-      ]
-    },
-    {
-        "type": "default",
-        "project": "Examples\\Monocular\\mono_grabbing.exe",
-        "name": "mono_grabbing.exe",
-        "args": [
-            "${projectDir}\\Vocabulary\\ORBvoc.bin",
-            "${projectDir}\\Examples\\Monocular\\Garching-Test-Drive.yaml"
-        ]
-    }
-  ]
+    "version": "0.2.1",
+    "defaults": {},
+    "configurations": [
+        {
+            "type": "default",
+            "project": "CMakeLists.txt",
+            "projectTarget": "semantic_monocular.exe",
+            "name": "semantic_monocular.exe",
+            "args": [
+                "${projectDir}\\Vocabulary\\ORBvoc.bin",
+                "${projectDir}\\Examples\\Monocular\\Garching-Test-Drive.yaml",
+                "${projectDir}\\data\\Garching_LoopClosure-3-images",
+                "${projectDir}\\data\\Garching_LoopClosure-3-features.json"
+            ]
+        },
+        {
+            "type": "default",
+            "project": "CMakeLists.txt",
+            "name": "mono_grabbing.exe",
+            "projectTarget": "mono_grabbing.exe",
+            "args": [
+                "${projectDir}\\Vocabulary\\ORBvoc.bin",
+                "${projectDir}\\Examples\\Monocular\\Garching-Test-Drive.yaml"
+            ]
+        }
+    ]
 }
