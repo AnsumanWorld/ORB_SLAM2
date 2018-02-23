@@ -237,7 +237,7 @@ Frame::Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extra
 //constructor for monocular with semantic info
 Frame::Frame(const cv::Mat &imGray, ORBextractor* extractor, ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth,const std::tuple<image_t, time_point_t, sensor_info> slam_input)
 	:mpORBvocabulary(voc), mpORBextractorLeft(extractor), mpORBextractorRight(static_cast<ORBextractor*>(NULL)),
-	mTimeStamp(GET_TIMESTAMP(slam_input)), mK(K.clone()), mDistCoef(distCoef.clone()), mbf(bf), mThDepth(thDepth),msensor_input(slam_input)
+	mTimeStamp(std::get<time_point_t>(slam_input)), mK(K.clone()), mDistCoef(distCoef.clone()), mbf(bf), mThDepth(thDepth),msensor_input(slam_input)
 {
     // Frame ID
     mnId=nNextId++;
@@ -336,10 +336,11 @@ void Frame::AssignFeaturesToGrid()
  
  void Frame::UpdateOrgSemanticClassid(std::vector<cv::KeyPoint> &vKeys,int ClassId)
  {
-	if (GET_SENSOR_INFO(msensor_input).tsr)
+	 
+	if (std::get<sensor_info>(msensor_input).tsr)
 	{
 		std::vector<traffic_sign> ts_data;
-		ts_data = GET_TRAFICSIGN_ITERATOR(msensor_input, mTimeStamp)->second;
+		ts_data = std::get<sensor_info>(msensor_input).tsr.get().get_traffic_sign(mTimeStamp);
 		for(int SubImageIndex = 0;SubImageIndex < ts_data.size();SubImageIndex++)
 		{
 			for(int Index = 0;Index<vKeys.size();Index++)
@@ -362,10 +363,10 @@ void Frame::ExtractORBInSubImage(const cv::Mat &im,std::vector<cv::KeyPoint> &Al
 	double ScaleX = 1;
 	double ScaleY = 1;
 
-	if (GET_SENSOR_INFO(msensor_input).tsr)
+	if (std::get<sensor_info>(msensor_input).tsr)
 	{
 		std::vector<traffic_sign> ts_data;
-		ts_data = GET_TRAFICSIGN_ITERATOR(msensor_input, mTimeStamp)->second;
+		ts_data = std::get<sensor_info>(msensor_input).tsr.get().get_traffic_sign(mTimeStamp);
 		if(!mpORBextractorSub)
 			mpORBextractorSub = new ORBextractor(mpORBextractorLeft->Getfeatures(),mfScaleFactor,mnScaleLevels,mpORBextractorLeft->GetiniThFAST(),mpORBextractorLeft->GetminThFAST());	
 
@@ -412,7 +413,7 @@ void Frame::ExtractORB(int flag, const cv::Mat &im)
 {
     if(flag==0)
 	{
-		if (GET_SENSOR_INFO(msensor_input).tsr && FIND_TRAFICSIGN(msensor_input, mTimeStamp))
+		if (std::get<sensor_info>(msensor_input).tsr && std::get<sensor_info>(msensor_input).tsr.get().find_trafficsign(mTimeStamp))
 		{	
 			std::vector<cv::KeyPoint> SubImageKeypoints;
 			cv::Mat SubDescriptors;
@@ -437,7 +438,7 @@ void Frame::ExtractORB(int flag, const cv::Mat &im)
 	}
     else
 	{	
-		if (GET_SENSOR_INFO(msensor_input).tsr && FIND_TRAFICSIGN(msensor_input, mTimeStamp))
+		if (std::get<sensor_info>(msensor_input).tsr && std::get<sensor_info>(msensor_input).tsr.get().find_trafficsign(mTimeStamp))
 		{	
 			std::vector<cv::KeyPoint> SubImageKeypoints;
 			cv::Mat SubDescriptors;

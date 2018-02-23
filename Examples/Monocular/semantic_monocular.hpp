@@ -1,22 +1,4 @@
-/**
-* This file is part of ORB-SLAM2.
-*
-* Copyright (C) 2014-2016 Raúl Mur-Artal <raulmur at unizar dot es> (University of Zaragoza)
-* For more information see <https://github.com/raulmur/ORB_SLAM2>
-*
-* ORB-SLAM2 is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* ORB-SLAM2 is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
-*/
+#pragma once
 
 #include "ext/SemanticInfo.h"
 #include <boost/property_tree/ptree.hpp>
@@ -34,16 +16,11 @@
 #include <cinttypes>
 #include <stdexcept>
 # include <boost/iterator/iterator_adaptor.hpp>
-
-# ifndef BOOST_NO_SFINAE
-#  include <boost/type_traits/is_convertible.hpp>
-#  include <boost/utility/enable_if.hpp>
-# endif
+#include <type_traits>
 
 namespace fs = boost::filesystem;
 using namespace std;
 using boost::property_tree::ptree;
-//using semantic_data_source_t = data_source<ORB_SLAM2::traffic_sign_map_t, std::string>;
 
 template <class Value>
 class data_source_iter
@@ -71,24 +48,15 @@ public:
 	template <class OtherValue>
 	data_source_iter(
 		data_source_iter<OtherValue> const& other
-# ifndef BOOST_NO_SFINAE
-		, typename boost::enable_if<
-		boost::is_convertible<OtherValue*, Value*>
-		, enabler
-		>::type = enabler()
-# endif 
+		, typename std::enable_if<std::is_convertible<OtherValue*, Value*>::value, enabler>::type = enabler()
 	)
 		: super_t(other.base()) {}
 
-# if !BOOST_WORKAROUND(__GNUC__, == 2)
 private: // GCC2 can't grant friendship to template member functions    
-	friend class boost::iterator_core_access;
-# endif     
+	friend class boost::iterator_core_access;  
 	void increment() { this->base_reference() = this->base()->next(); }
 };
 
-//typedef data_source_iter< data_source<ORB_SLAM2::traffic_sign_map_t, std::string> > data_source_iterator;
-//typedef data_source_iter< data_source<ORB_SLAM2::traffic_sign_map_t, std::string>  > data_source_const_iterator;
 enum class data_source_type { semantic = 0, gps = 1 };
 class semantic_data_source;
 template <class output_t, class input_t>

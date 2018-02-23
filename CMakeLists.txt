@@ -132,7 +132,8 @@ endif()
 add_custom_target(orb-slam2-ext SOURCES
     ext/app_monitor.h
     ext/app_monitor_api.h
-    ext/app_monitor_api_impl.h)
+    ext/app_monitor_api_impl.h
+	ext/SemanticInfo.h)
 
 add_custom_target(orb-slam2-scripts SOURCES
     appveyor.yml
