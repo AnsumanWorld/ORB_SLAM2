@@ -266,7 +266,7 @@ cv::Mat Tracking::GrabImageMonocular(const cv::Mat &im, const double &timestamp)
 
 cv::Mat Tracking::GrabImageMonocular(const std::tuple<image_t, time_point_t, sensor_info> slam_input)
 {
-	mImGray = GET_IMG(slam_input);
+	mImGray = std::get <image_t>(slam_input);
 
 	if (mImGray.channels() == 3)
 	{
