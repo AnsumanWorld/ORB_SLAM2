@@ -5,16 +5,6 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/foreach.hpp>
 #include<iostream>
-#include<algorithm>
-#include<fstream>
-#include<chrono>
-#include<thread>
-#include <vector>
-#include <map>
-#include <boost/filesystem.hpp>
-#include <vector>
-#include <cinttypes>
-#include <stdexcept>
 # include <boost/iterator/iterator_adaptor.hpp>
 #include <type_traits>
 
