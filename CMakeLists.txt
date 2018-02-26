@@ -45,6 +45,34 @@ ${Pangolin_INCLUDE_DIRS}
 add_subdirectory(Thirdparty/DBoW2)
 add_subdirectory(Thirdparty/g2o)
 
+# INTERFACE targets seems to be broken for "Visual Studio" generators. 
+# I want to see these files in the generated solutions, hence the hack with
+# a static library.
+add_library(orb-slam2-ext STATIC
+    ext/app_monitor.h
+    ext/app_monitor_api.h
+    ext/app_monitor_api_impl.h
+    ext/SemanticInfo.h
+    ext/functionless-sentinel.cpp)
+
+target_include_directories(orb-slam2-ext PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:include>)
+
+target_link_libraries(orb-slam2-ext PUBLIC 
+    ${Boost_LIBRARIES}
+    ${OpenCV_LIBS})
+
+install(TARGETS orb-slam2-ext EXPORT orb-slam2
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib)
+
+install(
+    DIRECTORY ${PROJECT_SOURCE_DIR}/ext/ 
+    DESTINATION include/orb-slam2/ext 
+    FILES_MATCHING PATTERN *.h)
+
 file(GLOB_RECURSE source_list "src/*.cc" "src/*.cpp")
 file(GLOB_RECURSE include_list "include/*.h" "include/*.hpp")
 add_library(orb-slam2 ${ORBSLAM2_LIB_TYPE}
@@ -58,9 +86,10 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 endif()
 
 target_link_libraries(orb-slam2
-${OpenCV_LIBS}
-${EIGEN3_LIBS}
-${Pangolin_LIBRARIES}
+    orb-slam2-ext
+    ${OpenCV_LIBS}
+    ${EIGEN3_LIBS}
+    ${Pangolin_LIBRARIES}
     DBoW2
     g2o
 )
@@ -72,12 +101,6 @@ install(TARGETS orb-slam2 EXPORT orb-slam2
 )
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION include/orb-slam2)
 install(EXPORT orb-slam2 FILE orb-slam2Config.cmake DESTINATION share/orb-slam2)
-
-add_custom_target(orb-slam2-ext SOURCES
-    ext/app_monitor.h
-    ext/app_monitor_api.h
-    ext/app_monitor_api_impl.h
-    ext/sensor_info.h)
 
 # Build examples
 if(BUILD_ALL_EXAMPLES)
@@ -111,7 +134,6 @@ elseif(BUILD_EXAMPLES)
     add_executable(semantic_monocular Examples/Monocular/semantic_monocular.cc Examples/Monocular/semantic_monocular.hpp)
     target_link_libraries(semantic_monocular 
         orb-slam2
-        
         ${Boost_LIBRARIES})
 
     add_executable(mono_grabbing Examples/Monocular/mono_grabbing.cc)
@@ -142,6 +164,7 @@ if(BUILD_EXPERIMENTS)
         ${Boost_LIBRARIES})
 endif()
 
+# Scripts and utilities as target
 add_custom_target(orb-slam2-scripts SOURCES
     appveyor.yml
     .travis.yml

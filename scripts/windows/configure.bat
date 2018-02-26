@@ -16,11 +16,15 @@ if "%Platform%"=="x64" (
 )
 
 set "BuildDir=%~dp0..\..\products\cmake.msbuild.windows.%Platform%.%Toolset%"
+set "InstallDir=%~dp0..\..\install\windows.%Platform%.%Toolset%"
 
 if not exist "%BuildDir%" mkdir "%BuildDir%"
 pushd "%BuildDir%"
 
-call cmake.exe -G "%CMakeGeneratorName%" -DBUILD_EXAMPLES=ON -DVCPKG_TARGET_TRIPLET=%VcPkgTriplet% -DCMAKE_TOOLCHAIN_FILE="%VcPkgDir%\scripts\buildsystems\vcpkg.cmake" "%~dp0..\.."
+rem
+rem CMAKE_INSTALL_PREFIX=%BuildDir% for testing reasons
+rem
+call cmake.exe -G "%CMakeGeneratorName%" -DCMAKE_INSTALL_PREFIX="%InstallDir%" -DBUILD_EXAMPLES=ON -DVCPKG_TARGET_TRIPLET=%VcPkgTriplet% -DCMAKE_TOOLCHAIN_FILE="%VcPkgDir%\scripts\buildsystems\vcpkg.cmake" "%~dp0..\.."
 
 popd
 endlocal & set "BuildDir=%BuildDir%" & set "BuildType=%BuildType%"
