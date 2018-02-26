@@ -117,7 +117,7 @@ public:
 				BOOST_FOREACH(boost::property_tree::ptree::value_type &node, traffic_sign_arr.get_child("traffic_signs"))
 				{
 					ORB_SLAM2::ext::traffic_sign t;
-					t.classid = node.second.get<int>("class_id");
+					t.class_id = node.second.get<int>("class_id");
 					t.confidence = node.second.get<double>("confidence");
 					std::vector<double> r;
 					for (auto &temppt : node.second.get_child("rectangle")) {

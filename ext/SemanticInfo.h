@@ -12,7 +12,7 @@
 namespace ORB_SLAM2 {
     namespace ext {
         struct traffic_sign {
-            int classid;
+            int class_id;
             float confidence;
             cv::Rect roi;
         };
@@ -23,18 +23,18 @@ namespace ORB_SLAM2 {
 
         // the equivalent of the JSON object we use today...
         struct tsr_info {
-            traffic_sign_map_t interested_object;
+            traffic_sign_map_t detected_object;
 
-            bool find_trafficsign(double frameid)
+            bool find_traffic_sign(double frameid)
             {
-                return interested_object.find(frameid) != interested_object.end();
+                return detected_object.find(frameid) != detected_object.end();
             }
 
             traffic_sign_vec_t get_traffic_sign(double frameid)
             {
                 traffic_sign_vec_t ts;
-                if (find_trafficsign(frameid))
-                    ts = interested_object.find(frameid)->second;
+                if (find_traffic_sign(frameid))
+                    ts = detected_object.find(frameid)->second;
                 return ts;
             }
         };

@@ -402,11 +402,11 @@ void Frame::ExtractORBInSubImage(const cv::Mat &im,std::vector<cv::KeyPoint> &Al
 			if (SubImageKeypoints.size())
 			{
 				ScaleBack(SubImageKeypoints,ScaleX,ScaleY);
-				LinearTransform(SubImageKeypoints, ts_data[SubImageIndex].roi, ts_data[SubImageIndex].classid);
+				LinearTransform(SubImageKeypoints, ts_data[SubImageIndex].roi, ts_data[SubImageIndex].class_id);
                 SubImageInfo subImageInfo;
                 subImageInfo.mnSemanticKPs = SubImageKeypoints.size();
                 subImageInfo.mnEffectiveSemanticKPs = 0;
-                mKPsPerSubImage.insert({ ts_data[SubImageIndex].classid,subImageInfo});
+                mKPsPerSubImage.insert({ ts_data[SubImageIndex].class_id,subImageInfo});
 				AllSubImageKeypoints.insert(AllSubImageKeypoints.end(), SubImageKeypoints.begin(), SubImageKeypoints.end());
 				AllImageDescriptorList[DescriptorIndex++] = SubImageDescriptors;
 			}
@@ -423,7 +423,7 @@ void Frame::ExtractORB(int flag, const cv::Mat &im)
 {
     if(flag==0)
 	{
-		if (std::get<ext::sensor_info>(_sensor_input).tsr && std::get<ext::sensor_info>(_sensor_input).tsr.get().find_trafficsign(mTimeStamp))
+		if (std::get<ext::sensor_info>(_sensor_input).tsr && std::get<ext::sensor_info>(_sensor_input).tsr.get().find_traffic_sign(mTimeStamp))
 		{	
 			std::vector<cv::KeyPoint> SubImageKeypoints;
 			cv::Mat SubDescriptors;
@@ -448,7 +448,7 @@ void Frame::ExtractORB(int flag, const cv::Mat &im)
 	}
     else
 	{	
-		if (std::get<ext::sensor_info>(_sensor_input).tsr && std::get<ext::sensor_info>(_sensor_input).tsr.get().find_trafficsign(mTimeStamp))
+		if (std::get<ext::sensor_info>(_sensor_input).tsr && std::get<ext::sensor_info>(_sensor_input).tsr.get().find_traffic_sign(mTimeStamp))
 		{	
 			std::vector<cv::KeyPoint> SubImageKeypoints;
 			cv::Mat SubDescriptors;
