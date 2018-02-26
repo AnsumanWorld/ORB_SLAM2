@@ -91,38 +91,37 @@ int run_slam_loop(int argc, char** argv)
                   std::back_inserter(image_files));
         std::sort(image_files.begin(), image_files.end());
 
-        ORB_SLAM2::traffic_sign_map_t traffic_signs;
+        ORB_SLAM2::ext::traffic_sign_map_t traffic_signs;
         // Create SLAM system. It initializes all system threads and gets ready to process frames.
 
         ORB_SLAM2::ext::app_monitor_impl app_monitor_inst;
         ORB_SLAM2::ext::app_monitor_api* app_monitor = &app_monitor_inst;
 
         slam_object slam{args, app_monitor};
-		auto slam_data_source = data_source< ORB_SLAM2::traffic_sign_map_t, std::string>::make_data_source(data_source_type::semantic, args.path_to_json_file);
-		std::uint64_t time = 0;
-		auto it = slam_data_source->get_data_source_iter();
-		auto traffic_signs_map = it->next();
-	
+        auto slam_data_source =
+            data_source< ORB_SLAM2::ext::traffic_sign_map_t, std::string>::make_data_source(data_source_type::semantic, args.path_to_json_file);
+        std::uint64_t time = 0;
+        auto it = slam_data_source->get_data_source_iter();
+        auto traffic_signs_map = it->next();
+
         for (auto const& file : image_files) {
             app_monitor->request_wait();
 
             auto image = cv::imread(file.generic_string(), CV_LOAD_IMAGE_UNCHANGED);
-			double timestamp = static_cast<double>(time);
+            double timestamp = static_cast<double>(time);
             if (image.empty()) {
                 throw std::runtime_error("Failed to load image!");
             }
-			if ((false == traffic_signs_map.empty()) && traffic_signs_map.end() != traffic_signs_map.find(time) )
-			{
-				ORB_SLAM2::tsr_info tsr;
-				tsr.interested_object = traffic_signs_map;
-				ORB_SLAM2::sensor_info sensor_input;
-				sensor_input.tsr = tsr;
-				//ORB_SLAM2::time_point_t timestamp(time);// (std::chrono::milliseconds(time));
-				slam.get().TrackMonocular(std::make_tuple(image, timestamp, sensor_input));
-				traffic_signs_map = it->next();
-			}
-			else
-				slam.get().TrackMonocular(image, timestamp);
+            if ((false == traffic_signs_map.empty()) && traffic_signs_map.end() != traffic_signs_map.find(time)) {
+                ORB_SLAM2::ext::tsr_info tsr;
+                tsr.interested_object = traffic_signs_map;
+                ORB_SLAM2::ext::sensor_info sensor_input;
+                sensor_input.tsr = tsr;
+                //ORB_SLAM2::time_point_t timestamp(time);// (std::chrono::milliseconds(time));
+                slam.get().TrackMonocular(std::make_tuple(image, timestamp, sensor_input));
+                traffic_signs_map = it->next();
+            } else
+                slam.get().TrackMonocular(image, timestamp);
             time++;
         }
     } catch (std::exception const& ex_) {

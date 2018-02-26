@@ -64,8 +64,16 @@ public:
 
     // Constructor for Monocular cameras.
     Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extractor,ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth);
-	// Constructor for Monocular cameras with sensor support
-	Frame(const cv::Mat &imGray, ORBextractor* extractor, ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth,const std::tuple<image_t, time_point_t, sensor_info> slam_input);
+
+    // Constructor for Monocular cameras with 
+    Frame(const cv::Mat &imGray, 
+        ORBextractor* extractor, 
+        ORBVocabulary* voc, 
+        cv::Mat &K, 
+        cv::Mat &distCoef, 
+        const float &bf, 
+        const float &thDepth, 
+        std::tuple<ext::image_t, ext::time_point_t, ext::sensor_info> const& slam_input_);
 
     // Extract ORB on the image. 0 for left image and 1 for right image.
     void ExtractORB(int flag, const cv::Mat &im);
@@ -199,9 +207,10 @@ public:
     static float mnMaxY;
 
     static bool mbInitialComputations;
-	std::vector<cv::Rect> mRoiList;
+    
+    std::vector<cv::Rect> mRoiList;
     std::map<int,SubImageInfo> mKPsPerSubImage;
-	std::tuple<image_t, time_point_t, sensor_info> msensor_input;
+    std::tuple<ext::image_t, ext::time_point_t, ext::sensor_info> _sensor_input;
 private:
 
     // Undistort keypoints given OpenCV distortion parameters.
