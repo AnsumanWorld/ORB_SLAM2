@@ -264,33 +264,30 @@ cv::Mat Tracking::GrabImageMonocular(const cv::Mat &im, const double &timestamp)
     return mCurrentFrame.mTcw.clone();
 }
 
-cv::Mat Tracking::GrabImageMonocular(const std::tuple<image_t, time_point_t, sensor_info> slam_input)
+cv::Mat Tracking::GrabImageMonocular(std::tuple<ext::image_t, ext::time_point_t, ext::sensor_info> const& slam_input)
 {
-	mImGray = std::get <image_t>(slam_input);
+    mImGray = std::get<ext::image_t>(slam_input);
 
-	if (mImGray.channels() == 3)
-	{
-		if (mbRGB)
-			cvtColor(mImGray, mImGray, CV_RGB2GRAY);
-		else
-			cvtColor(mImGray, mImGray, CV_BGR2GRAY);
-	}
-	else if (mImGray.channels() == 4)
-	{
-		if (mbRGB)
-			cvtColor(mImGray, mImGray, CV_RGBA2GRAY);
-		else
-			cvtColor(mImGray, mImGray, CV_BGRA2GRAY);
-	}
+    if (mImGray.channels() == 3) {
+        if (mbRGB)
+            cvtColor(mImGray, mImGray, CV_RGB2GRAY);
+        else
+            cvtColor(mImGray, mImGray, CV_BGR2GRAY);
+    } else if (mImGray.channels() == 4) {
+        if (mbRGB)
+            cvtColor(mImGray, mImGray, CV_RGBA2GRAY);
+        else
+            cvtColor(mImGray, mImGray, CV_BGRA2GRAY);
+    }
 
-	if (mState == NOT_INITIALIZED || mState == NO_IMAGES_YET)
-		mCurrentFrame = Frame(mImGray, mpIniORBextractor, mpORBVocabulary, mK, mDistCoef, mbf, mThDepth,slam_input);
-	else
-		mCurrentFrame = Frame(mImGray,mpORBextractorLeft, mpORBVocabulary, mK, mDistCoef, mbf, mThDepth,slam_input);
+    if (mState == NOT_INITIALIZED || mState == NO_IMAGES_YET)
+        mCurrentFrame = Frame(mImGray, mpIniORBextractor, mpORBVocabulary, mK, mDistCoef, mbf, mThDepth, slam_input);
+    else
+        mCurrentFrame = Frame(mImGray, mpORBextractorLeft, mpORBVocabulary, mK, mDistCoef, mbf, mThDepth, slam_input);
 
-	Track();
+    Track();
 
-	return mCurrentFrame.mTcw.clone();
+    return mCurrentFrame.mTcw.clone();
 }
 
 void Tracking::Track()

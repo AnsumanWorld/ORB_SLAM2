@@ -74,7 +74,7 @@ public:
 	virtual ~data_source() {}
 };
 
-class semantic_data_source :public data_source< ORB_SLAM2::traffic_sign_map_t, std::string> {
+class semantic_data_source :public data_source< ORB_SLAM2::ext::traffic_sign_map_t, std::string> {
 	bool semantic_info_status = false;
 	boost::property_tree::ptree pt;
 	ptree::iterator semantic_info_start;
@@ -103,20 +103,20 @@ class semantic_data_source :public data_source< ORB_SLAM2::traffic_sign_map_t, s
 		return read_status;
 	}
 public:
-	virtual ORB_SLAM2::traffic_sign_map_t next()
+	virtual ORB_SLAM2::ext::traffic_sign_map_t next()
 	{
 		bool found_semantic = false;
-		ORB_SLAM2::traffic_sign_map_t SemanticObjGrp;
+		ORB_SLAM2::ext::traffic_sign_map_t SemanticObjGrp;
 		if (true == semantic_info_status)
 		{
 			if (semantic_info_start != semantic_info_end)
 			{
 				std::string image_name = semantic_info_start->first;
 				auto &traffic_sign_arr = semantic_info_start->second;
-				std::vector<ORB_SLAM2::traffic_sign> traffic_signs;
+				std::vector<ORB_SLAM2::ext::traffic_sign> traffic_signs;
 				BOOST_FOREACH(boost::property_tree::ptree::value_type &node, traffic_sign_arr.get_child("traffic_signs"))
 				{
-					ORB_SLAM2::traffic_sign t;
+					ORB_SLAM2::ext::traffic_sign t;
 					t.classid = node.second.get<int>("class_id");
 					t.confidence = node.second.get<double>("confidence");
 					std::vector<double> r;

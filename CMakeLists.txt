@@ -31,7 +31,7 @@ find_package(Boost REQUIRED COMPONENTS filesystem)
 
 if("${EIGEN3_VERSION_STRING}" VERSION_LESS "3.1.0")
 	message(FATAL_ERROR "Eigen3 > 3.1.0 not found.")
-endif()
+   endif()
 
 find_package(Pangolin REQUIRED)
 
@@ -72,6 +72,13 @@ install(TARGETS orb-slam2 EXPORT orb-slam2
 )
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION include/orb-slam2)
 install(EXPORT orb-slam2 FILE orb-slam2Config.cmake DESTINATION share/orb-slam2)
+
+add_custom_target(orb-slam2-ext SOURCES
+    ext/app_monitor.h
+    ext/app_monitor_api.h
+    ext/app_monitor_api_impl.h
+    ext/sensor_info.h)
+
 # Build examples
 if(BUILD_ALL_EXAMPLES)
     add_executable(rgbd_tum Examples/RGB-D/rgbd_tum.cc) 
@@ -99,11 +106,12 @@ if(BUILD_ALL_EXAMPLES)
     target_link_libraries(semantic_monocular orb-slam2 filesystem)
 
     add_executable(semantic_monocular_video Examples/Monocular/semantic_monocular_video.cpp)
-    target_link_libraries(semantic_monocular_video orb-slam2 filesystem)
+    target_link_libraries(semantic_monocular_video orb-slam2 ${Boost_LIBRARIES})
 elseif(BUILD_EXAMPLES)
     add_executable(semantic_monocular Examples/Monocular/semantic_monocular.cc Examples/Monocular/semantic_monocular.hpp)
     target_link_libraries(semantic_monocular 
-        orb-slam2 
+        orb-slam2
+        
         ${Boost_LIBRARIES})
 
     add_executable(mono_grabbing Examples/Monocular/mono_grabbing.cc)
@@ -133,12 +141,6 @@ if(BUILD_EXPERIMENTS)
         orb-slam2 
         ${Boost_LIBRARIES})
 endif()
-
-add_custom_target(orb-slam2-ext SOURCES
-    ext/app_monitor.h
-    ext/app_monitor_api.h
-    ext/app_monitor_api_impl.h
-	ext/SemanticInfo.h)
 
 add_custom_target(orb-slam2-scripts SOURCES
     appveyor.yml
