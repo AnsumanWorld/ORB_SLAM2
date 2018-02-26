@@ -114,7 +114,7 @@ int run_slam_loop(int argc, char** argv)
             }
             if ((false == traffic_signs_map.empty()) && traffic_signs_map.end() != traffic_signs_map.find(time)) {
                 ORB_SLAM2::ext::tsr_info tsr;
-                tsr.interested_object = traffic_signs_map;
+                tsr.detected_object = traffic_signs_map;
                 ORB_SLAM2::ext::sensor_info sensor_input;
                 sensor_input.tsr = tsr;
                 //ORB_SLAM2::time_point_t timestamp(time);// (std::chrono::milliseconds(time));
