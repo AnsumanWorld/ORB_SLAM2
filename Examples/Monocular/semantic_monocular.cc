@@ -91,7 +91,6 @@ int run_slam_loop(int argc, char** argv)
                   std::back_inserter(image_files));
         std::sort(image_files.begin(), image_files.end());
 
-        ORB_SLAM2::ext::traffic_sign_map_t traffic_signs;
         // Create SLAM system. It initializes all system threads and gets ready to process frames.
 
         ORB_SLAM2::ext::app_monitor_impl app_monitor_inst;
@@ -113,10 +112,8 @@ int run_slam_loop(int argc, char** argv)
                 throw std::runtime_error("Failed to load image!");
             }
             if ((false == traffic_signs_map.empty()) && traffic_signs_map.end() != traffic_signs_map.find(time)) {
-                ORB_SLAM2::ext::tsr_info tsr;
-                tsr.detected_object = traffic_signs_map;
                 ORB_SLAM2::ext::sensor_info sensor_input;
-                sensor_input.tsr = tsr;
+                sensor_input.tsr = traffic_signs_map[time];
                 //ORB_SLAM2::time_point_t timestamp(time);// (std::chrono::milliseconds(time));
                 slam.get().TrackMonocular(std::make_tuple(image, timestamp, sensor_input));
                 traffic_signs_map = it->next();
