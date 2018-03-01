@@ -243,7 +243,7 @@ Frame::Frame(
     cv::Mat &distCoef, 
     const float &bf, 
     const float &thDepth,
-    const std::tuple<ext::image_t, ext::time_point_t, ext::sensor_info>& slam_input_)
+    const std::tuple<ext::image_t, ext::time_point_t, ext::tsr_info_opt_t, ext::pos_info_opt_t>& slam_input_)
     : mpORBvocabulary(voc)
     , mpORBextractorLeft(extractor)
     , mpORBextractorRight(static_cast<ORBextractor*>(NULL))
@@ -351,9 +351,9 @@ void Frame::AssignFeaturesToGrid()
  
  void Frame::UpdateOrgSemanticClassid(std::vector<cv::KeyPoint> &vKeys,int ClassId)
  {
-     if (std::get<ext::sensor_info>(_sensor_input).tsr) {
+     if (std::get<ext::tsr_info_opt_t>(_sensor_input)) {
          std::vector<ext::traffic_sign> ts_data;
-         ts_data = std::get<ext::sensor_info>(_sensor_input).tsr.get();
+         ts_data = std::get<ext::tsr_info_opt_t>(_sensor_input).get();
          for (int SubImageIndex = 0; SubImageIndex < ts_data.size(); SubImageIndex++) {
              for (int Index = 0; Index < vKeys.size(); Index++) {
                  if ((vKeys[Index].pt.x >= ts_data[SubImageIndex].roi.x) && (vKeys[Index].pt.x < (ts_data[SubImageIndex].roi.x + ts_data[SubImageIndex].roi.width))) {
@@ -373,10 +373,10 @@ void Frame::ExtractORBInSubImage(const cv::Mat &im,std::vector<cv::KeyPoint> &Al
 	double ScaleX = 1;
 	double ScaleY = 1;
 
-	if (std::get<ext::sensor_info>(_sensor_input).tsr)
+	if (std::get<ext::tsr_info_opt_t>(_sensor_input))
 	{
 		std::vector<ext::traffic_sign> ts_data;
-		ts_data = std::get<ext::sensor_info>(_sensor_input).tsr.get();
+		ts_data = std::get<ext::tsr_info_opt_t>(_sensor_input).get();
 		if(!mpORBextractorSub)
 			mpORBextractorSub = new ORBextractor(mpORBextractorLeft->Getfeatures(),mfScaleFactor,mnScaleLevels,mpORBextractorLeft->GetiniThFAST(),mpORBextractorLeft->GetminThFAST());	
 
@@ -423,7 +423,7 @@ void Frame::ExtractORB(int flag, const cv::Mat &im)
 {
     if(flag==0)
 	{
-		if (std::get<ext::sensor_info>(_sensor_input).tsr)
+		if (std::get<ext::tsr_info_opt_t>(_sensor_input))
 		{	
 			std::vector<cv::KeyPoint> SubImageKeypoints;
 			cv::Mat SubDescriptors;
@@ -448,7 +448,7 @@ void Frame::ExtractORB(int flag, const cv::Mat &im)
 	}
     else
 	{	
-		if (std::get<ext::sensor_info>(_sensor_input).tsr)
+		if (std::get<ext::tsr_info_opt_t>(_sensor_input))
 		{	
 			std::vector<cv::KeyPoint> SubImageKeypoints;
 			cv::Mat SubDescriptors;

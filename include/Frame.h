@@ -73,7 +73,7 @@ public:
         cv::Mat &distCoef, 
         const float &bf, 
         const float &thDepth, 
-        std::tuple<ext::image_t, ext::time_point_t, ext::sensor_info> const& slam_input_);
+        std::tuple<ext::image_t, ext::time_point_t, ext::tsr_info_opt_t, ext::pos_info_opt_t> const& slam_input_);
 
     // Extract ORB on the image. 0 for left image and 1 for right image.
     void ExtractORB(int flag, const cv::Mat &im);
@@ -210,7 +210,7 @@ public:
     
     std::vector<cv::Rect> mRoiList;
     std::map<int,SubImageInfo> mKPsPerSubImage;
-    std::tuple<ext::image_t, ext::time_point_t, ext::sensor_info> _sensor_input;
+    std::tuple<ext::image_t, ext::time_point_t, ext::tsr_info_opt_t, ext::pos_info_opt_t> _sensor_input;
 private:
 
     // Undistort keypoints given OpenCV distortion parameters.

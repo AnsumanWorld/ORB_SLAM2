@@ -61,7 +61,7 @@ public:
     cv::Mat GrabImageStereo(const cv::Mat &imRectLeft,const cv::Mat &imRectRight, const double &timestamp);
     cv::Mat GrabImageRGBD(const cv::Mat &imRGB,const cv::Mat &imD, const double &timestamp);
     cv::Mat GrabImageMonocular(const cv::Mat &im, const double &timestamp);
-    cv::Mat GrabImageMonocular(std::tuple<ext::image_t, ext::time_point_t, ext::sensor_info> const& slam_input);
+    cv::Mat GrabImageMonocular(std::tuple<ext::image_t, ext::time_point_t, ext::tsr_info_opt_t, ext::pos_info_opt_t> const& slam_input);
     void SetLocalMapper(LocalMapping* pLocalMapper);
     void SetLoopClosing(LoopClosing* pLoopClosing);
     void SetViewer(Viewer* pViewer);
