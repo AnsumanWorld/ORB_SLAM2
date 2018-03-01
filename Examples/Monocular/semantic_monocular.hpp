@@ -1,11 +1,11 @@
 #pragma once
 
-#include "ext/SemanticInfo.h"
+#include "ext/messages.h"
+#include <boost/iterator/iterator_adaptor.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/foreach.hpp>
-#include<iostream>
-# include <boost/iterator/iterator_adaptor.hpp>
+#include <iostream>
 #include <type_traits>
 
 namespace fs = boost::filesystem;
@@ -124,7 +124,7 @@ public:
 						r.push_back(temppt.second.get_value < double >());
 					}
 
-					transform_rect(r, t.roi);
+					transform_rect(r, t.box);
 					traffic_signs.push_back(t);
 					semantic_info_start++;
 				}
@@ -139,23 +139,23 @@ public:
 		semantic_info_status = read_semantic_info(jsonFilename);
 	}
 
-	void transform_rect(std::vector<double> &rect_arr, cv::Rect& roi, bool is_absolute = false)
+	void transform_rect(std::vector<double> &rect_arr, cv::Rect& box, bool is_absolute = false)
 	{
 		if (true == is_absolute) {
-			roi.x = rect_arr[0];
-			roi.y = rect_arr[1];
-			roi.width = rect_arr[2] - rect_arr[0];
-			roi.height = rect_arr[3] - rect_arr[1];
+			box.x = rect_arr[0];
+			box.y = rect_arr[1];
+			box.width = rect_arr[2] - rect_arr[0];
+			box.height = rect_arr[3] - rect_arr[1];
 		}
 		else {
 			int ymin = int(rect_arr[0] * img_height);
 			int xmin = int(rect_arr[1] * img_width);
 			int ymax = int(rect_arr[2] * img_height);
 			int xmax = int(rect_arr[3] * img_width);
-			roi.x = xmin;
-			roi.y = ymin;
-			roi.width = xmax - xmin;
-			roi.height = ymax - ymin;
+			box.x = xmin;
+			box.y = ymin;
+			box.width = xmax - xmin;
+			box.height = ymax - ymin;
 		}
 	}
 
