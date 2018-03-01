@@ -14,7 +14,7 @@ namespace ORB_SLAM2 {
         struct traffic_sign {
             int class_id;
             float confidence;
-            cv::Rect roi;
+            cv::Rect box;
         };
 
         // vector, matrix are aliases to Eigen types

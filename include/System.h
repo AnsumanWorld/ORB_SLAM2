@@ -37,7 +37,7 @@
 #include "ORBVocabulary.h"
 #include "Viewer.h"
 #include "ext/app_monitor_api.h"
-#include "ext/SemanticInfo.h"
+#include "ext/messages.h"
 
 namespace ORB_SLAM2
 {
