@@ -16,28 +16,6 @@ namespace ORB_SLAM2 {
             float confidence;
             cv::Rect roi;
         };
-        using traffic_sign_map_t = std::map<long unsigned int, std::vector<traffic_sign> >;
-        using traffic_sign_vec_t = std::vector<traffic_sign>;
-        using time_point_t = double/*std::chrono::time_point<double>*/;
-        using image_t = cv::Mat;
-
-        // the equivalent of the JSON object we use today...
-        struct tsr_info {
-            traffic_sign_map_t detected_object;
-
-            bool find_traffic_sign(double frameid)
-            {
-                return detected_object.find(frameid) != detected_object.end();
-            }
-
-            traffic_sign_vec_t get_traffic_sign(double frameid)
-            {
-                traffic_sign_vec_t ts;
-                if (find_traffic_sign(frameid))
-                    ts = detected_object.find(frameid)->second;
-                return ts;
-            }
-        };
 
         // vector, matrix are aliases to Eigen types
         struct pos_info {
@@ -46,9 +24,16 @@ namespace ORB_SLAM2 {
             //symmetric_matrix<3, 3> covariance;
         };
 
+        using traffic_sign_map_t = std::map<long unsigned int, std::vector<traffic_sign> >;
+        using traffic_sign_vec_t = std::vector<traffic_sign>;
+        using time_point_t = double/*std::chrono::time_point<double>*/;
+        using image_t = cv::Mat;
+        using tsr_info_opt_t = boost::optional<std::vector<traffic_sign>>;
+        using pos_info_opt_t = boost::optional<pos_info>;
+
         struct sensor_info {
-            boost::optional<tsr_info> tsr;
-            boost::optional<pos_info> pos;
+            tsr_info_opt_t tsr;
+            pos_info_opt_t pos;
 
         };
     }

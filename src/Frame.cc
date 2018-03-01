@@ -353,7 +353,7 @@ void Frame::AssignFeaturesToGrid()
  {
      if (std::get<ext::sensor_info>(_sensor_input).tsr) {
          std::vector<ext::traffic_sign> ts_data;
-         ts_data = std::get<ext::sensor_info>(_sensor_input).tsr.get().get_traffic_sign(mTimeStamp);
+         ts_data = std::get<ext::sensor_info>(_sensor_input).tsr.get();
          for (int SubImageIndex = 0; SubImageIndex < ts_data.size(); SubImageIndex++) {
              for (int Index = 0; Index < vKeys.size(); Index++) {
                  if ((vKeys[Index].pt.x >= ts_data[SubImageIndex].roi.x) && (vKeys[Index].pt.x < (ts_data[SubImageIndex].roi.x + ts_data[SubImageIndex].roi.width))) {
@@ -376,7 +376,7 @@ void Frame::ExtractORBInSubImage(const cv::Mat &im,std::vector<cv::KeyPoint> &Al
 	if (std::get<ext::sensor_info>(_sensor_input).tsr)
 	{
 		std::vector<ext::traffic_sign> ts_data;
-		ts_data = std::get<ext::sensor_info>(_sensor_input).tsr.get().get_traffic_sign(mTimeStamp);
+		ts_data = std::get<ext::sensor_info>(_sensor_input).tsr.get();
 		if(!mpORBextractorSub)
 			mpORBextractorSub = new ORBextractor(mpORBextractorLeft->Getfeatures(),mfScaleFactor,mnScaleLevels,mpORBextractorLeft->GetiniThFAST(),mpORBextractorLeft->GetminThFAST());	
 
@@ -423,7 +423,7 @@ void Frame::ExtractORB(int flag, const cv::Mat &im)
 {
     if(flag==0)
 	{
-		if (std::get<ext::sensor_info>(_sensor_input).tsr && std::get<ext::sensor_info>(_sensor_input).tsr.get().find_traffic_sign(mTimeStamp))
+		if (std::get<ext::sensor_info>(_sensor_input).tsr)
 		{	
 			std::vector<cv::KeyPoint> SubImageKeypoints;
 			cv::Mat SubDescriptors;
@@ -448,7 +448,7 @@ void Frame::ExtractORB(int flag, const cv::Mat &im)
 	}
     else
 	{	
-		if (std::get<ext::sensor_info>(_sensor_input).tsr && std::get<ext::sensor_info>(_sensor_input).tsr.get().find_traffic_sign(mTimeStamp))
+		if (std::get<ext::sensor_info>(_sensor_input).tsr)
 		{	
 			std::vector<cv::KeyPoint> SubImageKeypoints;
 			cv::Mat SubDescriptors;
