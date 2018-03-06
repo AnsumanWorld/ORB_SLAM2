@@ -52,7 +52,7 @@ add_library(orb-slam2-ext STATIC
     ext/app_monitor.h
     ext/app_monitor_api.h
     ext/app_monitor_api_impl.h
-    ext/SemanticInfo.h
+    ext/messages.h
     ext/functionless-sentinel.cpp)
 
 target_include_directories(orb-slam2-ext PUBLIC
@@ -133,11 +133,6 @@ if(BUILD_ALL_EXAMPLES)
 elseif(BUILD_EXAMPLES)
     add_executable(semantic_monocular Examples/Monocular/semantic_monocular.cc Examples/Monocular/semantic_monocular.hpp)
     target_link_libraries(semantic_monocular 
-        orb-slam2
-        ${Boost_LIBRARIES})
-
-    add_executable(mono_grabbing Examples/Monocular/mono_grabbing.cc)
-    target_link_libraries(mono_grabbing 
         orb-slam2
         ${Boost_LIBRARIES})
 
