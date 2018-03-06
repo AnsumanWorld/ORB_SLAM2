@@ -247,7 +247,7 @@ cv::Mat System::TrackRGBD(const cv::Mat &im, const cv::Mat &depthmap, const doub
     return Tcw;
 }
 
-cv::Mat System::TrackMonocular(std::tuple<ext::image_t, ext::time_point_t, ext::tsr_info_opt_t,ext::pos_info_opt_t> const& slam_input)
+cv::Mat System::TrackMonocular(ext::slam_input_t const& slam_input)
 {
     //const double &timestamp = std::get<1>(slam_input).time_since_epoch().count();
     //const double &timestamp = std::get<1>(slam_input);
