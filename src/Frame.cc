@@ -243,7 +243,7 @@ Frame::Frame(
     cv::Mat &distCoef, 
     const float &bf, 
     const float &thDepth,
-    const std::tuple<ext::image_t, ext::time_point_t, ext::tsr_info_opt_t, ext::pos_info_opt_t>& slam_input_)
+    const ext::slam_input_t & slam_input_)
     : mpORBvocabulary(voc)
     , mpORBextractorLeft(extractor)
     , mpORBextractorRight(static_cast<ORBextractor*>(NULL))
