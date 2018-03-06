@@ -97,12 +97,10 @@ int run_slam_loop(int argc, char** argv)
         ORB_SLAM2::ext::app_monitor_api* app_monitor = &app_monitor_inst;
 
         slam_object slam{args, app_monitor};
-        auto slam_data_source =
-            data_source< ORB_SLAM2::ext::traffic_sign_map_t, std::string>::make_data_source(data_source_type::semantic, args.path_to_json_file);
         std::uint64_t time = 0;
-        auto it = slam_data_source->get_data_source_iter();
-        auto traffic_signs_map = it->next();
-
+        data_source_container <ORB_SLAM2::ext::slam_input_t,std::string> slam_data_source;
+        slam_data_source.add_data_source(data_source_type::semantic, args.path_to_json_file);
+        ORB_SLAM2::ext::slam_input_t slam_input = slam_data_source.get_next();
         for (auto const& file : image_files) {
             app_monitor->request_wait();
 
@@ -111,9 +109,10 @@ int run_slam_loop(int argc, char** argv)
             if (image.empty()) {
                 throw std::runtime_error("Failed to load image!");
             }
-            if ((false == traffic_signs_map.empty()) && traffic_signs_map.end() != traffic_signs_map.find(time)) {
-                slam.get().TrackMonocular(std::make_tuple(timestamp,image,traffic_signs_map[time],boost::none));
-                traffic_signs_map = it->next();
+            if (std::get<ORB_SLAM2::ext::time_point_t>(slam_input) == time) {
+                std::get<ORB_SLAM2::ext::image_t>(slam_input) = image;
+                slam.get().TrackMonocular(slam_input);
+                slam_input = slam_data_source.get_next();
             } else
                 slam.get().TrackMonocular(image, timestamp);
             time++;

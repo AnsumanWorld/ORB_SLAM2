@@ -1,80 +1,36 @@
 #pragma once
 
 #include "ext/messages.h"
-#include <boost/iterator/iterator_adaptor.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/foreach.hpp>
 #include <iostream>
-#include <type_traits>
 
 namespace fs = boost::filesystem;
 using namespace std;
 using boost::property_tree::ptree;
 
-template <class Value>
-class data_source_iter
-	: public boost::iterator_adaptor<
-	data_source_iter<Value>                // Derived
-	, Value*                          // Base
-	, boost::use_default              // Value
-	, boost::forward_traversal_tag    // CategoryOrTraversal
-	>
-{
-private:
-	struct enabler {};  // a private type avoids misuse
-
-	typedef boost::iterator_adaptor<
-		data_source_iter<Value>, Value*, boost::use_default, boost::forward_traversal_tag
-	> super_t;
-
-public:
-	data_source_iter()
-		: super_t(0) {}
-
-	explicit data_source_iter(Value* p)
-		: super_t(p) {}
-
-	template <class OtherValue>
-	data_source_iter(
-		data_source_iter<OtherValue> const& other
-		, typename std::enable_if<std::is_convertible<OtherValue*, Value*>::value, enabler>::type = enabler()
-	)
-		: super_t(other.base()) {}
-
-private: // GCC2 can't grant friendship to template member functions    
-	friend class boost::iterator_core_access;  
-	void increment() { this->base_reference() = this->base()->next(); }
-};
-
 enum class data_source_type { semantic = 0, gps = 1 };
 class semantic_data_source;
 template <class output_t, class input_t>
 class data_source {
-public:
-	
-	virtual output_t next() = 0;
-	static std::unique_ptr<data_source> make_data_source(data_source_type choice, input_t input_data)
+public:	
+	virtual void get_next(output_t &) = 0;
+	static data_source* make_data_source(data_source_type choice, input_t input_data)
 	{
 		switch (choice)
 		{
 		case data_source_type::semantic:
-			return std::make_unique<semantic_data_source>(input_data);
+			return new semantic_data_source(input_data);
 			break;
 		default:
 			return nullptr;
 		}
-
-	}
-
-	data_source_iter< data_source > get_data_source_iter()
-	{
-		return data_source_iter< data_source >(this);
 	}
 	virtual ~data_source() {}
 };
 
-class semantic_data_source :public data_source< ORB_SLAM2::ext::traffic_sign_map_t, std::string> {
+class semantic_data_source :public data_source< ORB_SLAM2::ext::slam_input_t, std::string> {
 	bool semantic_info_status = false;
 	boost::property_tree::ptree pt;
 	ptree::iterator semantic_info_start;
@@ -103,10 +59,9 @@ class semantic_data_source :public data_source< ORB_SLAM2::ext::traffic_sign_map
 		return read_status;
 	}
 public:
-	virtual ORB_SLAM2::ext::traffic_sign_map_t next()
+	virtual void get_next(ORB_SLAM2::ext::slam_input_t &slam_input)
 	{
 		bool found_semantic = false;
-		ORB_SLAM2::ext::traffic_sign_map_t SemanticObjGrp;
 		if (true == semantic_info_status)
 		{
 			if (semantic_info_start != semantic_info_end)
@@ -128,12 +83,11 @@ public:
 					traffic_signs.push_back(t);
 					semantic_info_start++;
 				}
-				SemanticObjGrp.insert({ stoul(image_name), traffic_signs });
+				std::get<ORB_SLAM2::ext::time_point_t>(slam_input)= stoul(image_name);
+				std::get<ORB_SLAM2::ext::tsr_info_opt_t>(slam_input)= traffic_signs;
 			}
 		}
-		return SemanticObjGrp;
 	}
-
 	semantic_data_source(std::string jsonFilename)
 	{
 		semantic_info_status = read_semantic_info(jsonFilename);
@@ -164,6 +118,34 @@ public:
 		semantic_info_status = false;
 	}
 };
+
+template <class output_t, class input_t>
+class data_source_container{
+	//std::tuple<ext::image_t, ext::time_point_t, ext::tsr_info_opt_t, ext::pos_info_opt_t> slam_input;
+	output_t slam_input;
+	vector< data_source<output_t, input_t>* > data_source_list;
+	public:
+
+	void add_data_source(data_source_type choice, input_t input_data){
+		data_source_list.push_back(data_source<output_t, input_t>::make_data_source(choice,input_data));
+	}
+
+	output_t& get_next()
+	{
+		for(auto data_src_obj : data_source_list){
+			data_src_obj->get_next(slam_input);
+		}
+		return slam_input;
+	}
+	~data_source_container()
+	{
+		for(auto data_src_obj : data_source_list)
+			delete data_src_obj;
+	}
+
+};
+
+
 
 
 
