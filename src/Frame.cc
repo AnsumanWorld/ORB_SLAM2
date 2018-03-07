@@ -243,7 +243,7 @@ Frame::Frame(
     cv::Mat &distCoef, 
     const float &bf, 
     const float &thDepth,
-    const ext::slam_input_t & slam_input_)
+    const std::tuple<ext::time_point_t, ext::image_t, ext::tsr_info_opt_t, ext::pos_info_opt_t>& slam_input_)
     : mpORBvocabulary(voc)
     , mpORBextractorLeft(extractor)
     , mpORBextractorRight(static_cast<ORBextractor*>(NULL))
@@ -352,8 +352,7 @@ void Frame::AssignFeaturesToGrid()
  void Frame::UpdateOrgSemanticClassid(std::vector<cv::KeyPoint> &vKeys,int ClassId)
  {
      if (std::get<ext::tsr_info_opt_t>(_sensor_input)) {
-         std::vector<ext::traffic_sign> ts_data;
-         ts_data = std::get<ext::tsr_info_opt_t>(_sensor_input).get();
+         auto ts_data = std::get<ext::tsr_info_opt_t>(_sensor_input).get();
          for (int SubImageIndex = 0; SubImageIndex < ts_data.size(); SubImageIndex++) {
              for (int Index = 0; Index < vKeys.size(); Index++) {
                  if ((vKeys[Index].pt.x >= ts_data[SubImageIndex].box.x) && (vKeys[Index].pt.x < (ts_data[SubImageIndex].box.x + ts_data[SubImageIndex].box.width))) {
@@ -375,8 +374,7 @@ void Frame::ExtractORBInSubImage(const cv::Mat &im,std::vector<cv::KeyPoint> &Al
 
 	if (std::get<ext::tsr_info_opt_t>(_sensor_input))
 	{
-		std::vector<ext::traffic_sign> ts_data;
-		ts_data = std::get<ext::tsr_info_opt_t>(_sensor_input).get();
+        auto ts_data = std::get<ext::tsr_info_opt_t>(_sensor_input).get();
 		if(!mpORBextractorSub)
 			mpORBextractorSub = new ORBextractor(mpORBextractorLeft->Getfeatures(),mfScaleFactor,mnScaleLevels,mpORBextractorLeft->GetiniThFAST(),mpORBextractorLeft->GetminThFAST());	
 
@@ -423,49 +421,39 @@ void Frame::ExtractORB(int flag, const cv::Mat &im)
 {
     if(flag==0)
 	{
-		if (std::get<ext::tsr_info_opt_t>(_sensor_input))
-		{	
-			std::vector<cv::KeyPoint> SubImageKeypoints;
-			cv::Mat SubDescriptors;
+		std::vector<cv::KeyPoint> SubImageKeypoints;
+		cv::Mat SubDescriptors;
 					
-			ExtractORBInSubImage(im,SubImageKeypoints,SubDescriptors);
+		ExtractORBInSubImage(im,SubImageKeypoints,SubDescriptors);
 
-			if(SubImageKeypoints.size())
-			{
-				cv::Mat OrgDescriptors;
-				(*mpORBextractorLeft)(im,cv::Mat(),mvKeys,OrgDescriptors);
+		if(SubImageKeypoints.size())
+		{
+			cv::Mat OrgDescriptors;
+			(*mpORBextractorLeft)(im,cv::Mat(),mvKeys,OrgDescriptors);
 
-				UpdateOrgSemanticClassid(mvKeys,255);
-				mvKeys.insert(mvKeys.end(), SubImageKeypoints.begin(), SubImageKeypoints.end());
-				cv::vconcat(OrgDescriptors, SubDescriptors, mDescriptors);	
-			}
-			else
-				(*mpORBextractorLeft)(im,cv::Mat(),mvKeys,mDescriptors);
+			UpdateOrgSemanticClassid(mvKeys,255);
+			mvKeys.insert(mvKeys.end(), SubImageKeypoints.begin(), SubImageKeypoints.end());
+			cv::vconcat(OrgDescriptors, SubDescriptors, mDescriptors);	
 		}
-		else		
+		else
 			(*mpORBextractorLeft)(im,cv::Mat(),mvKeys,mDescriptors);	
 		 
 	}
     else
-	{	
-		if (std::get<ext::tsr_info_opt_t>(_sensor_input))
-		{	
-			std::vector<cv::KeyPoint> SubImageKeypoints;
-			cv::Mat SubDescriptors;
+	{
+		std::vector<cv::KeyPoint> SubImageKeypoints;
+		cv::Mat SubDescriptors;
 					
-			ExtractORBInSubImage(im,SubImageKeypoints,SubDescriptors);
-			if(SubImageKeypoints.size())
-			{	
-				cv::Mat OrgDescriptors;
-				(*mpORBextractorRight)(im,cv::Mat(),mvKeysRight,OrgDescriptors);
-				UpdateOrgSemanticClassid(mvKeysRight,255);
-				mvKeysRight.insert(mvKeysRight.end(), SubImageKeypoints.begin(), SubImageKeypoints.end());
-				cv::vconcat(OrgDescriptors, SubDescriptors, mDescriptorsRight);	
-			}
-			else
-				(*mpORBextractorRight)(im,cv::Mat(),mvKeysRight,mDescriptorsRight);
+		ExtractORBInSubImage(im,SubImageKeypoints,SubDescriptors);
+		if(SubImageKeypoints.size())
+		{	
+			cv::Mat OrgDescriptors;
+			(*mpORBextractorRight)(im,cv::Mat(),mvKeysRight,OrgDescriptors);
+			UpdateOrgSemanticClassid(mvKeysRight,255);
+			mvKeysRight.insert(mvKeysRight.end(), SubImageKeypoints.begin(), SubImageKeypoints.end());
+			cv::vconcat(OrgDescriptors, SubDescriptors, mDescriptorsRight);	
 		}
-		else		
+		else
 			(*mpORBextractorRight)(im,cv::Mat(),mvKeysRight,mDescriptorsRight);
 	}
 }

@@ -264,7 +264,7 @@ cv::Mat Tracking::GrabImageMonocular(const cv::Mat &im, const double &timestamp)
     return mCurrentFrame.mTcw.clone();
 }
 
-cv::Mat Tracking::GrabImageMonocular(ext::slam_input_t const& slam_input)
+cv::Mat Tracking::GrabImageMonocular(std::tuple<ext::time_point_t, ext::image_t, ext::tsr_info_opt_t, ext::pos_info_opt_t> const& slam_input)
 {
     mImGray = std::get<ext::image_t>(slam_input);
 
