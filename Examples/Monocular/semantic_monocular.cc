@@ -112,7 +112,7 @@ int run_slam_loop(int argc, char** argv)
                 throw std::runtime_error("Failed to load image!");
             }
             if ((false == traffic_signs_map.empty()) && traffic_signs_map.end() != traffic_signs_map.find(time)) {
-                slam.get().TrackMonocular(std::make_tuple(timestamp,image,traffic_signs_map[time],boost::none));
+                slam.get().TrackMonocular(std::make_tuple(timestamp,image,traffic_signs_map[time],ORB_SLAM2::ext::pos_info_opt_t() ));
                 traffic_signs_map = it->next();
             } else
                 slam.get().TrackMonocular(image, timestamp);

@@ -298,7 +298,7 @@ cv::Mat System::TrackMonocular(std::tuple<ext::time_point_t, ext::image_t, ext::
 
 cv::Mat System::TrackMonocular(const cv::Mat &im, const double &timestamp)
 {
-    return TrackMonocular(std::make_tuple(static_cast<double>(timestamp),im,boost::none,boost::none));
+    return TrackMonocular( std::make_tuple(static_cast<double>(timestamp),im,ext::tsr_info_opt_t(),ext::pos_info_opt_t() ));
 }
 
 void System::ActivateLocalizationMode()
