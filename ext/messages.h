@@ -30,7 +30,6 @@ namespace ORB_SLAM2 {
         using image_t = cv::Mat;
         using tsr_info_opt_t = boost::optional<std::vector<traffic_sign>>;
         using pos_info_opt_t = boost::optional<pos_info>;
-        using slam_input_t = std::tuple<time_point_t,image_t,tsr_info_opt_t, pos_info_opt_t>;
     }
 } // namespace ORB_SLAM
 
