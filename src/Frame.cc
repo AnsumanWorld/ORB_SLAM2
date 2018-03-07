@@ -351,13 +351,12 @@ void Frame::AssignFeaturesToGrid()
  
  void Frame::UpdateOrgSemanticClassid(std::vector<cv::KeyPoint> &vKeys,int ClassId)
  {
-     if (std::get<ext::tsr_info_opt_t>(_sensor_input)) {
-         auto ts_data = std::get<ext::tsr_info_opt_t>(_sensor_input).get();
-         for (int SubImageIndex = 0; SubImageIndex < ts_data.size(); SubImageIndex++) {
+     if (auto ts_data = std::get<ext::tsr_info_opt_t>(_sensor_input)) {
+         for (int SubImageIndex = 0; SubImageIndex < (*ts_data).size(); SubImageIndex++) {
              for (int Index = 0; Index < vKeys.size(); Index++) {
-                 if ((vKeys[Index].pt.x >= ts_data[SubImageIndex].box.x) && (vKeys[Index].pt.x < (ts_data[SubImageIndex].box.x + ts_data[SubImageIndex].box.width))) {
-                     if ((vKeys[Index].pt.y >= ts_data[SubImageIndex].box.y) && 
-                         (vKeys[Index].pt.y < (ts_data[SubImageIndex].box.y + ts_data[SubImageIndex].box.height))) {
+                 if ((vKeys[Index].pt.x >= (*ts_data)[SubImageIndex].box.x) && (vKeys[Index].pt.x < ((*ts_data)[SubImageIndex].box.x + (*ts_data)[SubImageIndex].box.width))) {
+                     if ((vKeys[Index].pt.y >= (*ts_data)[SubImageIndex].box.y) && 
+                         (vKeys[Index].pt.y < ((*ts_data)[SubImageIndex].box.y + (*ts_data)[SubImageIndex].box.height))) {
                          vKeys[Index].class_id = ClassId;
                      }
                  }
@@ -372,22 +371,21 @@ void Frame::ExtractORBInSubImage(const cv::Mat &im,std::vector<cv::KeyPoint> &Al
 	double ScaleX = 1;
 	double ScaleY = 1;
 
-	if (std::get<ext::tsr_info_opt_t>(_sensor_input))
+	if (auto ts_data = std::get<ext::tsr_info_opt_t>(_sensor_input))
 	{
-        auto ts_data = std::get<ext::tsr_info_opt_t>(_sensor_input).get();
 		if(!mpORBextractorSub)
 			mpORBextractorSub = new ORBextractor(mpORBextractorLeft->Getfeatures(),mfScaleFactor,mnScaleLevels,mpORBextractorLeft->GetiniThFAST(),mpORBextractorLeft->GetminThFAST());	
 
 		cv::Mat AllImageDescriptorList[50];
 		int DescriptorIndex = 0;
 		int SubImageIndex = 0;
-		for (int SubImageIndex = 0; SubImageIndex < ts_data.size(); SubImageIndex++)
+		for (int SubImageIndex = 0; SubImageIndex < (*ts_data).size(); SubImageIndex++)
 		{
-			mRoiList.push_back(ts_data[SubImageIndex].box);
+			mRoiList.push_back((*ts_data)[SubImageIndex].box);
 			std::vector<cv::KeyPoint> SubImageKeypoints;
 			cv::Mat SubImageDescriptors;
 			//width should be higher than height which is a requirement for DistributeOctTree()
-			cv::Mat subimage(im(ts_data[SubImageIndex].box));
+			cv::Mat subimage(im((*ts_data)[SubImageIndex].box));
 			cv::Mat scaleUpImg;
 			ScaleX = 1;
 			ScaleY = 1;
@@ -400,11 +398,11 @@ void Frame::ExtractORBInSubImage(const cv::Mat &im,std::vector<cv::KeyPoint> &Al
 			if (SubImageKeypoints.size())
 			{
 				ScaleBack(SubImageKeypoints,ScaleX,ScaleY);
-				LinearTransform(SubImageKeypoints, ts_data[SubImageIndex].box, ts_data[SubImageIndex].class_id);
+				LinearTransform(SubImageKeypoints, (*ts_data)[SubImageIndex].box, (*ts_data)[SubImageIndex].class_id);
                 SubImageInfo subImageInfo;
                 subImageInfo.mnSemanticKPs = SubImageKeypoints.size();
                 subImageInfo.mnEffectiveSemanticKPs = 0;
-                mKPsPerSubImage.insert({ ts_data[SubImageIndex].class_id,subImageInfo});
+                mKPsPerSubImage.insert({ (*ts_data)[SubImageIndex].class_id,subImageInfo});
 				AllSubImageKeypoints.insert(AllSubImageKeypoints.end(), SubImageKeypoints.begin(), SubImageKeypoints.end());
 				AllImageDescriptorList[DescriptorIndex++] = SubImageDescriptors;
 			}
