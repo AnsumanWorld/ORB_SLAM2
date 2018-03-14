@@ -298,7 +298,11 @@ cv::Mat System::TrackMonocular(std::tuple<ext::time_point_t, ext::image_t, ext::
 
 cv::Mat System::TrackMonocular(const cv::Mat &im, const double &timestamp)
 {
-    return TrackMonocular( std::make_tuple(static_cast<double>(timestamp),im,ext::tsr_info_opt_t(),ext::pos_info_opt_t() ));
+    return TrackMonocular(std::make_tuple(
+        timestamp, 
+        im, 
+        boost::none, 
+        boost::none));
 }
 
 void System::ActivateLocalizationMode()
@@ -344,10 +348,9 @@ void System::Shutdown()
     }
 
     // Wait until all thread have effectively stopped
-    while(!mpLocalMapper->isFinished() || !mpLoopCloser->isFinished() || mpLoopCloser->isRunningGBA())
-    {
-		std::this_thread::sleep_for(std::chrono::milliseconds(5));
-	}
+    while (!mpLocalMapper->isFinished() || !mpLoopCloser->isFinished() || mpLoopCloser->isRunningGBA()) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    }
 
     if(mpViewer)
         pangolin::BindToContext("ORB-SLAM2: Map Viewer");
