@@ -187,6 +187,7 @@ add_custom_target(orb-slam2-scripts SOURCES
     scripts/windows/configure.bat
     scripts/windows/build.bat
     scripts/windows/run_slam_on_garching_test_drive.bat
+    scripts/windows/run_semantic_monocular.bat
     scripts/linux/bootstrap.sh
     scripts/linux/build.sh
     scripts/linux/run_slam_on_garching_test_drive.sh
