@@ -61,7 +61,7 @@ void LocalMapping::Run()
             ProcessNewKeyFrame();
 
             // Check recent MapPoints
-            MapPointCulling();
+            //MapPointCulling();
 
             // Triangulate new MapPoints
             CreateNewMapPoints();
