@@ -22,7 +22,7 @@
 #include "LoopClosing.h"
 #include "ORBmatcher.h"
 #include "Optimizer.h"
-#include "statistics.h"
+#include "ext/statistics.h"
 #include<mutex>
 
 namespace ORB_SLAM2
@@ -61,7 +61,7 @@ void LocalMapping::Run()
             ProcessNewKeyFrame();
 
             // Check recent MapPoints
-            //MapPointCulling();
+            MapPointCulling();
 
             // Triangulate new MapPoints
             CreateNewMapPoints();

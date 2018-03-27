@@ -187,7 +187,8 @@ public:
     // Current and Next Frame id.
     static long unsigned int nNextId;
     long unsigned int mnId;
-
+	// to find whether keyframe is created from this frame or not
+	bool mbKfcreated;
     // Reference Keyframe.
     KeyFrame* mpReferenceKF;
 

@@ -27,7 +27,7 @@ endif()
 
 find_package(Eigen3 REQUIRED)
 
-find_package(Boost REQUIRED COMPONENTS filesystem)
+find_package(Boost REQUIRED COMPONENTS filesystem log)
 
 if("${EIGEN3_VERSION_STRING}" VERSION_LESS "3.1.0")
 	message(FATAL_ERROR "Eigen3 > 3.1.0 not found.")
@@ -40,6 +40,7 @@ ${PROJECT_SOURCE_DIR}
 ${PROJECT_SOURCE_DIR}/include
 ${EIGEN3_INCLUDE_DIR}
 ${Pangolin_INCLUDE_DIRS}
+${Boost_INCLUDE_DIR}
 )
 
 add_subdirectory(Thirdparty/DBoW2)
@@ -53,6 +54,8 @@ add_library(orb-slam2-ext STATIC
     ext/app_monitor_api.h
     ext/app_monitor_api_impl.h
     ext/messages.h
+	ext/statistics.h
+	ext/statistics.cc
     ext/functionless-sentinel.cpp)
 
 target_include_directories(orb-slam2-ext PUBLIC
@@ -93,7 +96,6 @@ src/KeyFrameDatabase.cc
 src/Sim3Solver.cc
 src/Initializer.cc
 src/Viewer.cc
-src/statistics.cc
 )
 
 if(CMAKE_COMPILER_IS_GNUCXX)

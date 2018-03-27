@@ -22,7 +22,7 @@
 #include "ext/app_monitor_api.h"
 #include "System.h"
 #include "Converter.h"
-#include "statistics.h"
+#include "ext/statistics.h"
 #include <thread>
 #include <pangolin/pangolin.h>
 #include <iomanip>
@@ -292,6 +292,19 @@ cv::Mat System::TrackMonocular(std::tuple<ext::time_point_t, ext::image_t, ext::
     mTrackingState = mpTracker->mState;
     mTrackedMapPoints = mpTracker->mCurrentFrame.mvpMapPoints;
     mTrackedKeyPointsUn = mpTracker->mCurrentFrame.mvKeysUn;
+	string TrackingStateStr[] = {"SYSTEM_NOT_READY" ,"NO_IMAGES_YET","NOT_INITIALIZED","OK","LOST"};
+	vector<KeyFrame*> vpKFs = mpMap->GetAllKeyFrames();
+	vector<MapPoint*> vpMP = mpMap->GetAllMapPoints();
+
+	ext::statistics::get().update_tracking_status(mpTracker->mCurrentFrame.mnId,
+												TrackingStateStr[mTrackingState+1],
+												mTrackedKeyPointsUn.size(),
+												mpTracker->mCurrentFrame.mvKeys.size(),
+												mTrackedMapPoints.size(), 
+												vpKFs.size(), 
+												vpMP.size(),
+												mpTracker->mCurrentFrame.mbKfcreated);
+
 
     return Tcw;
 }
@@ -355,8 +368,6 @@ void System::Shutdown()
     if(mpViewer)
         pangolin::BindToContext("ORB-SLAM2: Map Viewer");
 
-    statistics::get().update_map_stats(mpMap);
-    statistics::get().print_stats();
 }
 
 void System::SaveTrajectoryTUM(const string &filename)
@@ -425,7 +436,16 @@ void System::SaveKeyFrameTrajectoryTUM(const string &filename)
     cout << endl << "Saving keyframe trajectory to " << filename << " ..." << endl;
 
     vector<KeyFrame*> vpKFs = mpMap->GetAllKeyFrames();
+	vector<MapPoint*> vpMP = mpMap->GetAllMapPoints();
     sort(vpKFs.begin(),vpKFs.end(),KeyFrame::lId);
+
+	string slam_info;
+	for (size_t i = 0; i < vpKFs.size(); i++)
+	{
+		KeyFrame* pKF = vpKFs[i]; 
+		slam_info += "frame[" + std::to_string(pKF->mnFrameId) + "] => " + "keyframe[" + std::to_string(pKF->mnId) + "] => " + "map points = " + std::to_string((pKF->GetMapPoints()).size()) + " => trackable map points = " + std::to_string(pKF->TrackedMapPoints(2)) +  " => connected keyframes = " + std::to_string((pKF->GetConnectedKeyFrames()).size()) + " => covisibility keyframes = " + std::to_string((pKF->GetVectorCovisibleKeyFrames()).size()) + "\n";
+	}
+	ext::statistics::get().update_orbslam_status(vpKFs.size(), vpMP.size(), slam_info);
 
     // Transform all keyframes so that the first keyframe is at the origin.
     // After a loop closure the first keyframe might not be at the origin.

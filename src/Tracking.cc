@@ -29,7 +29,7 @@
 #include"Converter.h"
 #include"Map.h"
 #include"Initializer.h"
-#include "statistics.h"
+#include "ext/statistics.h"
 #include"Optimizer.h"
 #include"PnPsolver.h"
 
@@ -528,7 +528,6 @@ void Tracking::Track()
         mlFrameTimes.push_back(mlFrameTimes.back());
         mlbLost.push_back(mState==LOST);
     }
-
 }
 
 
