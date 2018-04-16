@@ -1,5 +1,5 @@
 @echo off
-
+setlocal
 set "Platform=x64"
 set "Toolset=v141"
 set "BuildType=Release"
@@ -11,7 +11,7 @@ if NOT "%~3"=="" set "BuildType=%~3"
 rem ----------------------------------
 rem Locate vcpkg using environment variables
 rem ----------------------------------
-set "VcPkgDir=%~d0\Software\vcpkg\vcpkg"
+set "VcPkgDir=%USERPROFILE%\.vcpkg\vcpkg"
 set "VcPkgTriplet=%Platform%-windows"
 if defined VCPKG_ROOT_DIR if /i not "%VCPKG_ROOT_DIR%"=="" set "VcPkgDir=%VCPKG_ROOT_DIR%"
 if defined VCPKG_DEFAULT_TRIPLET if /i not "%VCPKG_DEFAULT_TRIPLET%"=="" set "VcPkgTriplet=%VCPKG_DEFAULT_TRIPLET%"
@@ -27,31 +27,61 @@ if not exist "%VcPkgDir%" set "VcPkgDir=%USERPROFILE%\.vcpkg\vcpkg"
 if not exist "%VcPkgDir%" (
     echo vcpkg not found, installing at %VcPkgDir%...
     git clone --recursive https://github.com/Microsoft/vcpkg.git "%VcPkgDir%"
-    call "%VcPkgDir%\bootstrap-vcpkg.bat"
 ) 
     
 echo vcpkg at %VcPkgDir%...
 
 rem
 rem Check whether we have a difference in the toolsrc folder. If non empty, %errorlevel% should be 0  
-rem git diff --name-only origin/HEAD remotes/origin/HEAD | find "toolsrc/" > NUL & echo %errorlevel%
-rem Put this to local function or better script...
-rem
-
-pushd "%VcPkgDir%"
-git fetch origin 51e8b5da7cd8fd1273a99dac953de1aa193e7ac9
-git checkout FETCH_HEAD
-rem git pull --all --prune
-popd
-
-rem
-rem only invoke when changes to "toolsrc/" were made
+rem git --no-pager diff --name-only origin/HEAD remotes/origin/HEAD | find "toolsrc/" > NUL & echo %errorlevel%
+rem Check whether changes was made between local commit an remotes/origin/HEAD in toolsrc\VERSION.txt
 rem 
-rem call "%VcPkgDir%\bootstrap-vcpkg.bat"
+rem git --no-pager diff --name-only 15e4f46b45c432a41ee6a962609039bc2497ec19 remotes/origin/HEAD -- toolsrc\VERSION.txt
+
+rem ----------------------------------
+rem Using version 0.0.108 (toolsrc/VERSION.txt)
+rem ----------------------------------
+set "VcPkgCommit=15e4f46b45c432a41ee6a962609039bc2497ec19"
+set "VcPkgCommitLock=bootstrap-vcpkg-%VcPkgCommit%"
+call
+pushd "%VcPkgDir%"
+git fetch origin %VcPkgCommit%
+git checkout FETCH_HEAD
+popd
 
 rem ==============================
 rem Upgrade and Install packages.
 rem ==============================
-set "VcPkgDeps=boost-filesystem eigen3 opencv pangolin"
+set "VcPkgDeps=boost-filesystem boost-property-tree eigen3 opencv[ffmpeg] pangolin"
+call :BootstrapVcPkgExe
 call "%VcPkgDir%\vcpkg.exe" upgrade %VcPkgDeps% --no-dry-run --triplet %VcPkgTriplet%
 call "%VcPkgDir%\vcpkg.exe" install %VcPkgDeps% --triplet %VcPkgTriplet%
+endlocal & ^
+set "VcPkgDir=%VcPkgDir%" & ^
+set "VcPkgTriplet=%VcPkgTriplet%" & ^
+set "Platform=%Platform%" & ^
+set "Toolset=%Toolset%" & ^
+set "Platform=%Platform%"
+
+goto :eof
+
+:BootstrapVcPkgExe
+    call :RemoveBootstrappingLocks
+    if not exist "%VcPkgDir%\%VcPkgCommitLock%.lock" (
+        call "%VcPkgDir%\bootstrap-vcpkg.bat" & echo %VcPkgCommit% > "%VcPkgDir%\%VcPkgCommitLock%.lock"
+    )
+
+goto :eof
+
+rem ---------------------------------- 
+rem Remove all bootstrap lock files NOT matching current commit tag:
+rem ----------------------------------
+:RemoveBootstrappingLocks
+    rem powershell.exe -NoProfile -ExecutionPolicy Bypass -command "Remove-Item ^"%VcPkgDir%^" -Include *.tag.txt -Exclude *%VcPkgCommit%.tag.txt"
+    for /f "tokens=*" %%F in ('dir /b /s ^"%VcPkgDir%\*.lock^"') do (
+        if /i not "%%~nF%%~xF"=="%VcPkgCommitLock%.lock" (
+            del /q "%%F"
+        )
+    )
+
+goto :eof
