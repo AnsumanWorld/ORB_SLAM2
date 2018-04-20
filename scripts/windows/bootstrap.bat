@@ -61,7 +61,8 @@ set "VcPkgDir=%VcPkgDir%" & ^
 set "VcPkgTriplet=%VcPkgTriplet%" & ^
 set "Platform=%Platform%" & ^
 set "Toolset=%Toolset%" & ^
-set "Platform=%Platform%"
+set "Platform=%Platform%" & ^
+set "BuildType=%BuildType%"
 
 goto :eof
 

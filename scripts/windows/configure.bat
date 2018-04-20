@@ -24,7 +24,7 @@ pushd "%BuildDir%"
 rem
 rem CMAKE_INSTALL_PREFIX=%BuildDir% for testing reasons
 rem
-call cmake.exe -G "%CMakeGeneratorName%" ^ 
+call cmake.exe -G "%CMakeGeneratorName%" ^
 -DCMAKE_INSTALL_PREFIX="%InstallDir%" ^
 -DVCPKG_TARGET_TRIPLET=%VcPkgTriplet% ^
 -DCMAKE_TOOLCHAIN_FILE="%VcPkgDir%\scripts\buildsystems\vcpkg.cmake" ^

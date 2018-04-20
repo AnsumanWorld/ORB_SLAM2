@@ -1,10 +1,10 @@
 @echo off
 
 setlocal
-set "VcpkgBinDir=%~d0\Software\vcpkg\vcpkg\installed\x86-windows-v141\bin"
+set "VcpkgBinDir=%USERPROFILE%\.vcpkg\vcpkg\installed\x64-windows\bin"
 set "ProjectDir=%~dp0..\.."
 set "Path=%Path%;%VcpkgBinDir%;C:\Program Files\7-Zip"
-set "OrbSlam2ProductsDir=%ProjectDir%\products\cmake.msbuild.windows.x86.v141"
+set "OrbSlam2ProductsDir=%ProjectDir%\products\cmake.msbuild.windows.x64.v141"
 
 cd %ProjectDir%
 
@@ -22,4 +22,3 @@ set SettingsFile="%ProjectDir%\Examples\Monocular\Garching-Test-Drive.yaml"
 %MonoVideoApp% %VideoFile% %VocabularyFile% %SettingsFile%
 
 endlocal
-
