@@ -36,6 +36,9 @@ namespace ORB_SLAM2
 class Tracking;
 class LoopClosing;
 class Map;
+namespace ext {
+	class keyframe_constraint;
+}
 
 class LocalMapping
 {
@@ -71,7 +74,10 @@ public:
         unique_lock<std::mutex> lock(mMutexNewKFs);
         return mlNewKeyFrames.size();
     }
-
+	bool check_local_maping_status();
+	
+	friend class ext::keyframe_constraint;
+	void ext_run(ext::keyframe_constraint* _kf_constraint);
 protected:
 
     bool CheckNewKeyFrames();

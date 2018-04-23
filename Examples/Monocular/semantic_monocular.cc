@@ -1,7 +1,7 @@
 
 #include "System.h"
 #include "ext/app_monitor_api_impl.h"
-
+#include "ext/orb_constraint.h"
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/foreach.hpp>
@@ -66,13 +66,14 @@ public:
         return _slam;
     }
 
-    slam_object(input_args const& args_, ORB_SLAM2::ext::app_monitor_api* monitor_)
+    slam_object(input_args const& args_, ORB_SLAM2::ext::app_monitor_api* monitor_, ORB_SLAM2::ext::keyframe_constraint* kf_constraint_)
         : _slam{
             args_.path_to_vocabulary,
             args_.path_to_camera_settings,
-            ORB_SLAM2::System::MONOCULAR,
-            monitor_,
-            true}
+            ORB_SLAM2::System::MONOCULAR,            
+            true,
+			monitor_,
+			kf_constraint_ }
     {}
 
     ~slam_object()
@@ -96,7 +97,10 @@ int run_slam_loop(int argc, char** argv)
         ORB_SLAM2::ext::app_monitor_impl app_monitor_inst;
         ORB_SLAM2::ext::app_monitor_api* app_monitor = &app_monitor_inst;
 
-        slam_object slam{args, app_monitor};
+		ORB_SLAM2::ext::keyframe_constraint kf_constraint_inst(args.path_to_camera_settings);
+		ORB_SLAM2::ext::keyframe_constraint* p_kf_constraint = &kf_constraint_inst;
+
+        slam_object slam{args, app_monitor,p_kf_constraint };
         auto slam_data_source =
             data_source< ORB_SLAM2::ext::traffic_sign_map_t, std::string>::make_data_source(data_source_type::semantic, args.path_to_json_file);
         std::uint64_t time = 0;

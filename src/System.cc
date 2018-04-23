@@ -36,9 +36,10 @@ bool has_suffix(const std::string &str, const std::string &suffix)
     return (index != std::string::npos);
 }
 
-System::System(const string &strVocFile, const string &strSettingsFile, const eSensor sensor, 
-    ext::app_monitor_api* monitor_,
-    const bool bUseViewer)
+System::System(const string &strVocFile, const string &strSettingsFile, const eSensor sensor,     
+    const bool bUseViewer,
+	ext::app_monitor_api* monitor_,
+	ext::keyframe_constraint* kf_constraint_)
     : mSensor(sensor)
     , mpViewer(static_cast<Viewer*>(NULL))
     , mbReset(false)
@@ -120,7 +121,10 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
 
     //Initialize the Local Mapping thread and launch
     mpLocalMapper = new LocalMapping(mpMap, mSensor==MONOCULAR);
-    mptLocalMapping = new thread(&ORB_SLAM2::LocalMapping::Run,mpLocalMapper);
+	if(kf_constraint_)
+		mptLocalMapping = new thread(&ORB_SLAM2::LocalMapping::ext_run,mpLocalMapper, kf_constraint_);
+	else
+		mptLocalMapping = new thread(&ORB_SLAM2::LocalMapping::Run, mpLocalMapper);
 
     //Initialize the Loop Closing thread and launch
     mpLoopCloser = new LoopClosing(mpMap, mpKeyFrameDatabase, mpVocabulary, mSensor!=MONOCULAR);
@@ -292,19 +296,6 @@ cv::Mat System::TrackMonocular(std::tuple<ext::time_point_t, ext::image_t, ext::
     mTrackingState = mpTracker->mState;
     mTrackedMapPoints = mpTracker->mCurrentFrame.mvpMapPoints;
     mTrackedKeyPointsUn = mpTracker->mCurrentFrame.mvKeysUn;
-	string TrackingStateStr[] = {"SYSTEM_NOT_READY" ,"NO_IMAGES_YET","NOT_INITIALIZED","OK","LOST"};
-	vector<KeyFrame*> vpKFs = mpMap->GetAllKeyFrames();
-	vector<MapPoint*> vpMP = mpMap->GetAllMapPoints();
-
-	ext::statistics::get().update_tracking_status(mpTracker->mCurrentFrame.mnId,
-												TrackingStateStr[mTrackingState+1],
-												mTrackedKeyPointsUn.size(),
-												mpTracker->mCurrentFrame.mvKeys.size(),
-												mTrackedMapPoints.size(), 
-												vpKFs.size(), 
-												vpMP.size(),
-												mpTracker->mCurrentFrame.mbKfcreated);
-
 
     return Tcw;
 }
@@ -436,17 +427,19 @@ void System::SaveKeyFrameTrajectoryTUM(const string &filename)
     cout << endl << "Saving keyframe trajectory to " << filename << " ..." << endl;
 
     vector<KeyFrame*> vpKFs = mpMap->GetAllKeyFrames();
-	vector<MapPoint*> vpMP = mpMap->GetAllMapPoints();
     sort(vpKFs.begin(),vpKFs.end(),KeyFrame::lId);
 
-	string slam_info;
-	for (size_t i = 0; i < vpKFs.size(); i++)
+	vector<MapPoint*> vpMP = mpMap->GetAllMapPoints();
+	int total_semantic_mappoints = 0;
+	for (auto p_map_point : vpMP)
 	{
-		KeyFrame* pKF = vpKFs[i]; 
-		slam_info += "frame[" + std::to_string(pKF->mnFrameId) + "] => " + "keyframe[" + std::to_string(pKF->mnId) + "] => " + "map points = " + std::to_string((pKF->GetMapPoints()).size()) + " => trackable map points = " + std::to_string(pKF->TrackedMapPoints(2)) +  " => connected keyframes = " + std::to_string((pKF->GetConnectedKeyFrames()).size()) + " => covisibility keyframes = " + std::to_string((pKF->GetVectorCovisibleKeyFrames()).size()) + "\n";
+		if (p_map_point)
+		{
+			if (p_map_point->is_semantic())
+				total_semantic_mappoints++;
+		}
 	}
-	ext::statistics::get().update_orbslam_status(vpKFs.size(), vpMP.size(), slam_info);
-
+	ext::statistics::get().update_orbslam_status(mpTracker->mCurrentFrame.nNextId,vpKFs.size(), vpMP.size(), total_semantic_mappoints);
     // Transform all keyframes so that the first keyframe is at the origin.
     // After a loop closure the first keyframe might not be at the origin.
     //cv::Mat Two = vpKFs[0]->GetPoseInverse();

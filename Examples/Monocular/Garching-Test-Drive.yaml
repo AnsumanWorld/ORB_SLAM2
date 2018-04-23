@@ -57,3 +57,10 @@ Viewer.ViewpointY: -0.7
 Viewer.ViewpointZ: -1.8
 Viewer.ViewpointF: 500
 
+#--------------------------------------------------------------------------------------------
+# key frame constaints
+#--------------------------------------------------------------------------------------------
+
+# keyframe.localba_interval: after 3 key frames converted to map points local bundle adjustment should perform. 
+keyframe.localba_interval: 3
+keyframe.semantic: 0

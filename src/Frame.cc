@@ -21,7 +21,6 @@
 #include "Frame.h"
 #include "Converter.h"
 #include "ORBmatcher.h"
-#include "ext/statistics.h"
 #include <thread>
 
 #define MIN_ORB_IMG_WIDTH 90 
@@ -52,7 +51,7 @@ Frame::Frame(const Frame &frame)
      mfScaleFactor(frame.mfScaleFactor), mfLogScaleFactor(frame.mfLogScaleFactor),
      mvScaleFactors(frame.mvScaleFactors), mvInvScaleFactors(frame.mvInvScaleFactors),
      mvLevelSigma2(frame.mvLevelSigma2), mvInvLevelSigma2(frame.mvInvLevelSigma2),
-     _sensor_input(frame._sensor_input), mbKfcreated(frame.mbKfcreated)
+     _sensor_input(frame._sensor_input)
 {
     for(int i=0;i<FRAME_GRID_COLS;i++)
         for(int j=0; j<FRAME_GRID_ROWS; j++)
@@ -179,7 +178,7 @@ Frame::Frame(const cv::Mat &imGray, const cv::Mat &imDepth, const double &timeSt
 // Constructor for Monocular cameras.
 Frame::Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extractor, ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth)
     :mpORBvocabulary(voc), mpORBextractorLeft(extractor), mpORBextractorRight(static_cast<ORBextractor*>(NULL)),
-    mTimeStamp(timeStamp), mK(K.clone()), mDistCoef(distCoef.clone()), mbf(bf), mThDepth(thDepth), mbKfcreated(false)
+    mTimeStamp(timeStamp), mK(K.clone()), mDistCoef(distCoef.clone()), mbf(bf), mThDepth(thDepth)
 {
     // Frame ID
     mnId=nNextId++;
@@ -251,7 +250,6 @@ Frame::Frame(
     , mbf(bf)
     , mThDepth(thDepth)
     , _sensor_input(slam_input_)
-	,mbKfcreated(false)
 {
     // Frame ID
     mnId=nNextId++;

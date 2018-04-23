@@ -1,6 +1,7 @@
 #include "System.h"
 
 #include <opencv2/highgui/highgui.hpp>
+#include <opencv2/videoio.hpp>
 
 #include <chrono>
 #include <iostream>

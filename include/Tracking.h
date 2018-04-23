@@ -114,7 +114,7 @@ public:
     bool mbOnlyTracking;
 
     void Reset();
-
+	void print_kf_selection_stats(bool c1a, bool c1b, bool c2, bool bLocalMappingIdle);
 protected:
 
     // Main tracking function. It is independent of the input sensor.

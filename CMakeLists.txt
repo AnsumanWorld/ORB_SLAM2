@@ -54,8 +54,10 @@ add_library(orb-slam2-ext STATIC
     ext/app_monitor_api.h
     ext/app_monitor_api_impl.h
     ext/messages.h
-	ext/statistics.h
-	ext/statistics.cc
+    ext/statistics.h	
+    ext/statistics.cc
+    ext/orb_constraint.h
+    ext/orb_constraint.cc
     ext/functionless-sentinel.cpp)
 
 target_include_directories(orb-slam2-ext PUBLIC
@@ -143,8 +145,8 @@ if(BUILD_ALL_EXAMPLES)
     add_executable(mono_video Examples/Monocular/mono_video.cc) 
     target_link_libraries(mono_video orb-slam2)
 
-    add_executable(semantic_monocular Examples/Monocular/semantic_monocular.cc)
-    target_link_libraries(semantic_monocular orb-slam2 filesystem)
+    add_executable(semantic_monocular Examples/Monocular/semantic_monocular.cc Examples/Monocular/semantic_monocular.hpp)
+    target_link_libraries(semantic_monocular orb-slam2 ${Boost_LIBRARIES})
 
     add_executable(semantic_monocular_video Examples/Monocular/semantic_monocular_video.cpp)
     target_link_libraries(semantic_monocular_video orb-slam2 ${Boost_LIBRARIES})

@@ -998,6 +998,23 @@ bool Tracking::TrackLocalMap()
         return true;
 }
 
+//states number of frame rejected because of local mapping busy
+void Tracking::print_kf_selection_stats(bool c1a, bool c1b, bool c2, bool bLocalMappingIdle)
+{
+	if (c2)
+	{
+		if (false == c1a)
+		{
+			if (!(mCurrentFrame.mnId >= mnLastKeyFrameId + mMinFrames))
+			{
+				if (false == bLocalMappingIdle)
+				{
+					ext::statistics::get().reject_frame_to_keyframe(true);
+				}
+			}
+		}
+	}
+}
 
 bool Tracking::NeedNewKeyFrame()
 {
@@ -1069,6 +1086,7 @@ bool Tracking::NeedNewKeyFrame()
         }
         else
         {
+			ext::statistics::get().reject_frame_to_keyframe(true);
             mpLocalMapper->InterruptBA();
             if(mSensor!=System::MONOCULAR)
             {
@@ -1081,8 +1099,11 @@ bool Tracking::NeedNewKeyFrame()
                 return false;
         }
     }
-    else
+	else
+	{
+		print_kf_selection_stats(c1a, c1b,c2,bLocalMappingIdle);
         return false;
+	}
 }
 
 void Tracking::CreateNewKeyFrame()
