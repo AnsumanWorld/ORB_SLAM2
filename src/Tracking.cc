@@ -480,8 +480,17 @@ void Tracking::Track()
             mlpTemporalPoints.clear();
 
             // Check if we need to insert a new keyframe
-            if(NeedNewKeyFrame())
-                CreateNewKeyFrame();
+			if (NeedNewKeyFrame())
+			{
+				CreateNewKeyFrame();
+				ext::statistics::get().total_kf_by_tracking();				
+			}                
+			else
+			{
+				//states number of frame rejected because of tracking
+				ext::statistics::get().reject_kf_by_tracking();
+			}
+
 
             // We allow points with high innovation (considererd outliers by the Huber Function)
             // pass to the new keyframe, so that bundle adjustment will finally decide
@@ -1071,7 +1080,7 @@ bool Tracking::NeedNewKeyFrame()
         else
         {
 			//states number of frame rejected because of local mapping busy
-			ext::statistics::get().reject_frame_to_keyframe(true);
+			ext::statistics::get().reject_kf_by_tracking_for_busy();
             mpLocalMapper->InterruptBA();
             if(mSensor!=System::MONOCULAR)
             {
@@ -1084,6 +1093,8 @@ bool Tracking::NeedNewKeyFrame()
                 return false;
         }
     }
+	else
+		return false;
 }
 
 void Tracking::CreateNewKeyFrame()

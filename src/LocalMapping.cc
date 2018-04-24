@@ -694,8 +694,12 @@ void LocalMapping::KeyFrameCulling()
             }
         }  
 
-        if(nRedundantObservations>0.9*nMPs)
-            pKF->SetBadFlag();
+		if (nRedundantObservations > 0.9*nMPs)
+		{
+			pKF->SetBadFlag();
+			ext::statistics::get().reject_kf_by_keyframeculling();
+		}
+            
     }
 }
 

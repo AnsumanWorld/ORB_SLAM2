@@ -34,8 +34,14 @@ namespace ORB_SLAM2
 			statistics();
 			void update_orbslam_status(int total_frames, int total_keyframes, int total_mappoints, int total_semantic_mappoints);
 			float cal_percent(int sub_amount, int total_amount);
-			void reject_frame_to_keyframe(bool is_localmapping_busy);
-			int reject_frame_for_local_mapping_busy;
+			void reject_kf_by_tracking_for_busy();
+			void reject_kf_by_tracking();
+			void reject_kf_by_keyframeculling();
+			void total_kf_by_tracking();
+			int reject_kf_by_tracking_for_busy_count;
+			int reject_kf_by_tracking_count;
+			int reject_kf_by_keyframeculling_count;
+			int total_kf_by_tracking_count;
 		};
 	}
 } //namespace ORB_SLAM2
