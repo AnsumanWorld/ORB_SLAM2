@@ -27,20 +27,22 @@ struct input_args {
     std::string path_to_camera_settings;
     std::string path_to_image_folder;
     std::string path_to_json_file;
+	std::string org_local_mapping_support;
 };
 
 input_args parse_input_arguments(int argc, char** argv)
 {
-    if (argc < 4) {
+    if (argc < 5) {
         throw std::runtime_error(
-            "Usage: ./semantic_monocular path_to_vocabulary path_to_camera_settings path_to_image_folder path_to_jsonfile");
+            "Usage: ./semantic_monocular path_to_vocabulary path_to_camera_settings path_to_image_folder path_to_jsonfile <org_local_mapping=ON/OFF>");
     }
 
     return input_args{
         argv[1],
         argv[2],
         argv[3],
-        argv[4]
+        argv[4],
+		argv[5],
     };
 }
 
@@ -66,14 +68,14 @@ public:
         return _slam;
     }
 
-    slam_object(input_args const& args_, ORB_SLAM2::ext::app_monitor_api* monitor_, ORB_SLAM2::ext::keyframe_constraint* kf_constraint_)
+    slam_object(input_args const& args_, ORB_SLAM2::ext::app_monitor_api* monitor_)
         : _slam{
             args_.path_to_vocabulary,
             args_.path_to_camera_settings,
             ORB_SLAM2::System::MONOCULAR,            
             true,
 			monitor_,
-			kf_constraint_ }
+			!args_.org_local_mapping_support.compare("ON") }
     {}
 
     ~slam_object()
@@ -97,10 +99,7 @@ int run_slam_loop(int argc, char** argv)
         ORB_SLAM2::ext::app_monitor_impl app_monitor_inst;
         ORB_SLAM2::ext::app_monitor_api* app_monitor = &app_monitor_inst;
 
-		ORB_SLAM2::ext::keyframe_constraint kf_constraint_inst(args.path_to_camera_settings);
-		ORB_SLAM2::ext::keyframe_constraint* p_kf_constraint = &kf_constraint_inst;
-
-        slam_object slam{args, app_monitor,p_kf_constraint };
+        slam_object slam{args, app_monitor };
         auto slam_data_source =
             data_source< ORB_SLAM2::ext::traffic_sign_map_t, std::string>::make_data_source(data_source_type::semantic, args.path_to_json_file);
         std::uint64_t time = 0;

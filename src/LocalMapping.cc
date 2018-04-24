@@ -45,64 +45,6 @@ void LocalMapping::SetTracker(Tracking *pTracker)
     mpTracker=pTracker;
 }
 
-bool LocalMapping::check_local_maping_status()
-{
-	bool status = true;
-	if (Stop())
-	{
-		// Safe area to stop
-		while (isStopped() && !CheckFinish())
-		{
-			// usleep(3000);
-			std::this_thread::sleep_for(std::chrono::milliseconds(3));
-		}
-		if (CheckFinish())
-			status = false;
-	}
-	ResetIfRequested();
-
-	if (CheckFinish())
-		status = false;
-	return status;
-}
-void LocalMapping::ext_run(ext::keyframe_constraint* _kf_constraint)
-{
-	mbFinished = false;
-	bool start_local_ba = false;
-	while (1)
-	{
-		if (_kf_constraint->keyframe_filter(*this, start_local_ba))
-		{
-			// Check recent MapPoints
-			MapPointCulling();
-
-			// Triangulate new MapPoints
-			CreateNewMapPoints();
-
-			// Find more matches in neighbor keyframes and fuse point duplications
-			if(start_local_ba)
-				SearchInNeighbors();
-
-			mbAbortBA = false;
-
-			if (start_local_ba && !stopRequested())
-			{
-				// Local BA
-				if (mpMap->KeyFramesInMap()>2)
-					Optimizer::LocalBundleAdjustment(mpCurrentKeyFrame, &mbAbortBA, mpMap);
-
-				// Check redundant local Keyframes
-				KeyFrameCulling();
-			}
-
-			mpLoopCloser->InsertKeyFrame(mpCurrentKeyFrame);
-			if (false == check_local_maping_status())
-				break;
-		}
-	}
-	SetFinish();
-}
-
 void LocalMapping::Run()
 {
 

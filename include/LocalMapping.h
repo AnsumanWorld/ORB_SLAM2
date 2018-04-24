@@ -37,7 +37,7 @@ class Tracking;
 class LoopClosing;
 class Map;
 namespace ext {
-	class keyframe_constraint;
+	class ext_local_mapping;
 }
 
 class LocalMapping
@@ -76,8 +76,7 @@ public:
     }
 	bool check_local_maping_status();
 	
-	friend class ext::keyframe_constraint;
-	void ext_run(ext::keyframe_constraint* _kf_constraint);
+	friend class ext::ext_local_mapping;
 protected:
 
     bool CheckNewKeyFrames();

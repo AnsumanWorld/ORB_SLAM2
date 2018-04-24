@@ -39,7 +39,7 @@ bool has_suffix(const std::string &str, const std::string &suffix)
 System::System(const string &strVocFile, const string &strSettingsFile, const eSensor sensor,     
     const bool bUseViewer,
 	ext::app_monitor_api* monitor_,
-	ext::keyframe_constraint* kf_constraint_)
+	bool use_org_local_mapping)
     : mSensor(sensor)
     , mpViewer(static_cast<Viewer*>(NULL))
     , mbReset(false)
@@ -121,10 +121,13 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
 
     //Initialize the Local Mapping thread and launch
     mpLocalMapper = new LocalMapping(mpMap, mSensor==MONOCULAR);
-	if(kf_constraint_)
-		mptLocalMapping = new thread(&ORB_SLAM2::LocalMapping::ext_run,mpLocalMapper, kf_constraint_);
+	if(true == use_org_local_mapping)
+		mptLocalMapping = new thread(&ORB_SLAM2::LocalMapping::Run, mpLocalMapper);		
 	else
-		mptLocalMapping = new thread(&ORB_SLAM2::LocalMapping::Run, mpLocalMapper);
+	{
+		_ext_local_map = new ext::ext_local_mapping(mpLocalMapper, strSettingsFile);
+		mptLocalMapping = new thread(&ext::ext_local_mapping::ext_run, _ext_local_map);
+	}		
 
     //Initialize the Loop Closing thread and launch
     mpLoopCloser = new LoopClosing(mpMap, mpKeyFrameDatabase, mpVocabulary, mSensor!=MONOCULAR);

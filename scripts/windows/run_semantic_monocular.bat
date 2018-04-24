@@ -21,8 +21,8 @@ set "OrbSlam2_Vocabulary=Vocabulary\ORBvoc.bin"
 set "OrbSlam2_Settings=Examples\Monocular\Garching-Test-Drive.yaml"
 set "OrbSlam2_Images=data\Garching_LoopClosure-3-images"
 set "OrbSlam2_SensorReadings=data\Garching_LoopClosure-3-features.json"
-
-call "%OrbSlam2_App%" "%OrbSlam2_Vocabulary%" "%OrbSlam2_Settings%" "%OrbSlam2_Images%" "%OrbSlam2_SensorReadings%"
+set "OrbSlam2_Use_org_local_maaping=OFF"
+call "%OrbSlam2_App%" "%OrbSlam2_Vocabulary%" "%OrbSlam2_Settings%" "%OrbSlam2_Images%" "%OrbSlam2_SensorReadings%"  "%OrbSlam2_Use_org_local_maaping%"
 
 popd
 
