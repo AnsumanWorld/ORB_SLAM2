@@ -36,9 +36,8 @@ bool has_suffix(const std::string &str, const std::string &suffix)
     return (index != std::string::npos);
 }
 
-System::System(const string &strVocFile, const string &strSettingsFile, const eSensor sensor, 
-    ext::app_monitor_api* monitor_,
-    const bool bUseViewer)
+System::System(const string &strVocFile, const string &strSettingsFile, const eSensor sensor,
+    const bool bUseViewer, ext::app_monitor_api* monitor_)
     : mSensor(sensor)
     , mpViewer(static_cast<Viewer*>(NULL))
     , mbReset(false)

@@ -4,27 +4,27 @@ ScriptDir=$(realpath $(dirname $0))
 ProjectDir=$(realpath ${ScriptDir}/../..)
 cd ${ProjectDir}
 
-OrbSlamPlatform=`uname -m`
-OrbSlamToolset=gcc.`gcc -dumpversion`
-OrbSlamBuildtype=Release
+Platform=`uname -m`
+Toolset=gcc.`gcc -dumpversion`
+Buildtype=Release
 cores=$(nproc)
 
 if [ ! -z "$1" ] 
 then
-    OrbSlamPlatform="$1"
+    Platform="$1"
 fi
 
 if [ ! -z "$2" ] 
 then
-    OrbSlamToolset="$2"
+    Toolset="$2"
 fi
 
 if [ ! -z "$3" ] 
 then
-    OrbSlamBuildtype="$3"
+    Buildtype="$3"
 fi
 
-BuildDir="products/cmake.make.linux.${OrbSlamPlatform}.${OrbSlamToolset}.${OrbSlamBuildtype}"
+BuildDir="products/cmake.make.linux.${Platform}.${Toolset}.${Buildtype}"
 
 mkdir -p "${BuildDir}"
 

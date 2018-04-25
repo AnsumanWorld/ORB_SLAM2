@@ -19,6 +19,7 @@ set "BuildDir=%~dp0..\..\products\cmake.msbuild.windows.%Platform%.%Toolset%"
 set "InstallDir=%~dp0..\..\install\windows.%Platform%.%Toolset%"
 
 if not exist "%BuildDir%" mkdir "%BuildDir%"
+if errorlevel 1 echo unable to create "%BuildDir%", bailing out & exit /b 1
 pushd "%BuildDir%"
 
 rem

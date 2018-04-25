@@ -71,8 +71,8 @@ public:
             args_.path_to_vocabulary,
             args_.path_to_camera_settings,
             ORB_SLAM2::System::MONOCULAR,
-            monitor_,
-            true}
+            true,
+            monitor_}
     {}
 
     ~slam_object()

@@ -142,10 +142,11 @@ if(BUILD_ALL_EXAMPLES)
     target_link_libraries(mono_video orb-slam2)
 
     add_executable(semantic_monocular Examples/Monocular/semantic_monocular.cc)
-    target_link_libraries(semantic_monocular orb-slam2 filesystem)
+    target_link_libraries(semantic_monocular orb-slam2 ${Boost_LIBRARIES})
 
-    add_executable(semantic_monocular_video Examples/Monocular/semantic_monocular_video.cpp)
-    target_link_libraries(semantic_monocular_video orb-slam2 ${Boost_LIBRARIES})
+    # semantic_monocular_video is not using messages.h's types correctly and causing build issue, hence disabling
+    # add_executable(semantic_monocular_video Examples/Monocular/semantic_monocular_video.cpp)
+    # target_link_libraries(semantic_monocular_video orb-slam2 ${Boost_LIBRARIES})
 elseif(BUILD_EXAMPLES)
     add_executable(semantic_monocular Examples/Monocular/semantic_monocular.cc Examples/Monocular/semantic_monocular.hpp)
     target_link_libraries(semantic_monocular 
