@@ -66,16 +66,23 @@ namespace ORB_SLAM2
 				BOOST_LOG(glog) << "local key frame created by tracking = " << total_kf_by_tracking_count << "(" << cal_percent(total_kf_by_tracking_count, total_frames) << "%)";
 				BOOST_LOG(glog) << "=========================================================================================================================================";
 
-				BOOST_LOG(glog) << "reject keyframe by tracking -:";
-				BOOST_LOG(glog) << "   rejected key frame percentage by tracking = " << reject_kf_by_tracking_count << "(" << cal_percent((reject_kf_by_tracking_count), total_frames) << "%)";
-				BOOST_LOG(glog) << "   rejected key frame percentage for local mapping busy(in tracking) = " << reject_kf_by_tracking_for_busy_count <<"("<<cal_percent(reject_kf_by_tracking_for_busy_count, total_frames)<<"%)";
-				BOOST_LOG(glog) << "   rejected key frame percentage by tracking except local mapping busy case= " << reject_kf_by_tracking_count- reject_kf_by_tracking_for_busy_count << "(" << cal_percent((reject_kf_by_tracking_count- reject_kf_by_tracking_for_busy_count), total_frames) << "%)";
+				BOOST_LOG(glog) << "reject keyframe by tracking(NeedNewKeyFrame()) -:";
+				BOOST_LOG(glog) << "   rejected key frame by tracking = " << "rejected key frame for local mapping busy" << " + " << "rejected key frame by tracking except local mapping busy case";
+				BOOST_LOG(glog) << "   rejected key frame by tracking = " << reject_kf_by_tracking_count << "(" << cal_percent((reject_kf_by_tracking_count), total_frames) << "%)";
+				BOOST_LOG(glog) << "     rejected key frame for local mapping busy = " << reject_kf_by_tracking_for_busy_count <<"("<<cal_percent(reject_kf_by_tracking_for_busy_count, total_frames)<<"%)";
+				BOOST_LOG(glog) << "     rejected key frame by tracking except local mapping busy case= " << reject_kf_by_tracking_count- reject_kf_by_tracking_for_busy_count << "(" << cal_percent((reject_kf_by_tracking_count- reject_kf_by_tracking_for_busy_count), total_frames) << "%)";
 				BOOST_LOG(glog) << "=========================================================================================================================================";
-				BOOST_LOG(glog) << "reject keyframe by localmapping -:";
-				BOOST_LOG(glog) << "   rejected key frame percentage by keyframe culling = " << reject_kf_by_keyframeculling_count << "(" << cal_percent(reject_kf_by_keyframeculling_count, total_frames) << "%)";
+				BOOST_LOG(glog) << "reject keyframe by localmapping(KeyFrameCulling()) -:";
+				BOOST_LOG(glog) << "   rejected key frame by keyframe culling(extra 2 which autocreated by slam in initialization) = " << reject_kf_by_keyframeculling_count << "(" << cal_percent(reject_kf_by_keyframeculling_count, total_frames) << "%)";
 				BOOST_LOG(glog) << "=========================================================================================================================================";
+				int reject_kf_by_monocular_initialization = (total_frames - reject_kf_by_tracking_count - reject_kf_by_keyframeculling_count - total_keyframes);
 				BOOST_LOG(glog) << "reject keyframe by other factor -:";
-				BOOST_LOG(glog) << "   rejected key frame percentage by other factor = " << (total_frames - reject_kf_by_tracking_count - reject_kf_by_keyframeculling_count) << "("<<cal_percent((total_frames - reject_kf_by_tracking_count - reject_kf_by_keyframeculling_count), total_frames) <<"%)";
+				BOOST_LOG(glog) << "   rejected key frame by initialization = " << reject_kf_by_monocular_initialization << "("<<cal_percent(reject_kf_by_monocular_initialization, total_frames) <<"%)";
+				BOOST_LOG(glog) << "=========================================================================================================================================";
+				BOOST_LOG(glog) << "reject keyframe(aggr) -:";
+				int rejected_keyframe = reject_kf_by_tracking_count + reject_kf_by_keyframeculling_count + reject_kf_by_monocular_initialization;
+				BOOST_LOG(glog) << "   rejected key frame("<< rejected_keyframe <<") = " << "rejected key frame by tracking ("<< reject_kf_by_tracking_count <<")" << " + " << "rejected key frame by keyframe culling("<< reject_kf_by_keyframeculling_count<<")" <<" + "<< "rejected key frame by initialization("<< reject_kf_by_monocular_initialization<<")";
+
 				BOOST_LOG(glog) << "=========================================================================================================================================";
 				BOOST_LOG(glog) << "***Map-points***";
 				BOOST_LOG(glog) << "Total optimized Map-points = " << std::to_string(total_mappoints) << " Total optimized semantic Map-points = " << std::to_string(total_semantic_mappoints) << " selection percentage = " << cal_percent(total_semantic_mappoints, total_mappoints) << "%";
