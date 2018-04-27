@@ -102,7 +102,6 @@ src/Viewer.cc
 )
 
 target_link_libraries(orb-slam2
-    orb-slam2-ext
     ${OpenCV_LIBS}
     ${EIGEN3_LIBS}
     ${Pangolin_LIBRARIES}
@@ -118,6 +117,33 @@ install(TARGETS orb-slam2 EXPORT orb-slam2
 )
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION include/orb-slam2)
 install(EXPORT orb-slam2 FILE orb-slam2Config.cmake DESTINATION share/orb-slam2)
+
+# INTERFACE targets seems to be broken for "Visual Studio" generators. 
+# I want to see these files in the generated solutions, hence the hack with
+# a static library.
+add_library(orb-slam2-ext STATIC
+    ext/app_monitor.h
+    ext/app_monitor_api.h
+    ext/app_monitor_api_impl.h
+    ext/messages.h
+    ext/functionless-sentinel.cpp)
+
+target_include_directories(orb-slam2-ext PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:include>)
+
+target_link_libraries(orb-slam2-ext
+    Boost::boost)
+
+install(TARGETS orb-slam2-ext EXPORT orb-slam2
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib)
+
+install(
+    DIRECTORY ${PROJECT_SOURCE_DIR}/ext/ 
+    DESTINATION include/orb-slam2/ext 
+    FILES_MATCHING PATTERN *.h)
 
 # Build examples
 if(BUILD_ALL_EXAMPLES)
@@ -143,24 +169,32 @@ if(BUILD_ALL_EXAMPLES)
     target_link_libraries(mono_video orb-slam2)
 
     add_executable(semantic_monocular Examples/Monocular/semantic_monocular.cc)
-    target_link_libraries(semantic_monocular orb-slam2 ${Boost_LIBRARIES})
+    target_link_libraries(semantic_monocular orb-slam2)
 
     # semantic_monocular_video is not using messages.h's types correctly and causing build issue, hence disabling
     # add_executable(semantic_monocular_video Examples/Monocular/semantic_monocular_video.cpp)
-    # target_link_libraries(semantic_monocular_video orb-slam2 ${Boost_LIBRARIES})
+    # target_link_libraries(semantic_monocular_video orb-slam2 filesystem)
 elseif(BUILD_EXAMPLES)
     add_executable(semantic_monocular Examples/Monocular/semantic_monocular.cc Examples/Monocular/semantic_monocular.hpp)
     target_link_libraries(semantic_monocular 
         orb-slam2
-        ${Boost_LIBRARIES})
+        orb-slam2-ext
+        Boost::filesystem)
 
     add_executable(mono_grabbing Examples/Monocular/mono_grabbing.cc)
     target_link_libraries(mono_grabbing 
         orb-slam2
-        ${Boost_LIBRARIES})
+        orb-slam2-ext
+        Boost::filesystem)
 
     add_executable(mono_video Examples/Monocular/mono_video.cc)
-    target_link_libraries(mono_video orb-slam2)
+    target_link_libraries(mono_video
+        orb-slam2
+        orb-slam2-ext
+        Boost::filesystem)
+    add_custom_command(TARGET mono_video POST_BUILD
+                   COMMAND ${CMAKE_SOURCE_DIR}/products/copy_ffmpeg$<$<CONFIG:Debug>:d>.bat $<TARGET_FILE_DIR:mono_video>)
+
 endif()
 
 # Build tools

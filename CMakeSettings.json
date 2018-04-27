@@ -50,6 +50,10 @@
                 {
                     "name": "CMAKE_TOOLCHAIN_FILE",
                     "value": "${env.USERPROFILE}\\.vcpkg\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake"
+                },
+                {
+                    "name": "CMAKE_INSTALL_PREFIX",
+                    "value": "${workspaceRoot}\\install"
                 }
             ]
         }

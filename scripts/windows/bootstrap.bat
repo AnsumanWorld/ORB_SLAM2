@@ -57,6 +57,14 @@ call :BootstrapVcPkgExe
 call "%VcPkgDir%\vcpkg.exe" upgrade %VcPkgDeps% --no-dry-run --triplet %VcPkgTriplet%
 call "%VcPkgDir%\vcpkg.exe" install %VcPkgDeps% --triplet %VcPkgTriplet%
 call "%VcPkgDir%\vcpkg.exe" install g2o --triplet %VcPkgTriplet% --head
+
+rem ==============================
+rem temporary hack to copy opencv_ffmpeg dlls until this is solved in vcpkg
+rem ==============================
+if not exist "%~dp0..\..\products" mkdir "%~dp0..\..\products"
+echo xcopy "%VcPkgDir%\installed\%VcPkgTriplet%\bin\opencv_ffmpeg*.dll" "%%~1/" /y /f > "%~dp0..\..\products\copy_ffmpeg.bat"
+echo xcopy "%VcPkgDir%\installed\%VcPkgTriplet%\debug\bin\opencv_ffmpeg*.dll" "%%~1/" /y /f > "%~dp0..\..\products\copy_ffmpegd.bat"
+
 endlocal & ^
 set "VcPkgDir=%VcPkgDir%" & ^
 set "VcPkgTriplet=%VcPkgTriplet%" & ^
