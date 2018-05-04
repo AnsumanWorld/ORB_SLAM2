@@ -8,7 +8,11 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(ORBSLAM2_LIB_TYPE STATIC)
 option(BUILD_EXAMPLES "Build Examples" ON )
 
-list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
+if (CMAKE_SYSTEM_NAME MATCHES Windows AND CMAKE_VERSION LESS 3.11)
+    # FindBoost for treatment of Boost imported targets
+    LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules/FindBoost)
+endif()
+
 add_definitions("-DCOMPILEDWITHC11")
 if(WIN32)
     add_definitions("-DNOMINMAX")
@@ -192,9 +196,10 @@ elseif(BUILD_EXAMPLES)
         orb-slam2
         orb-slam2-ext
         Boost::filesystem)
+if(CMAKE_SYSTEM_NAME MATCHES Windows) 
     add_custom_command(TARGET mono_video POST_BUILD
-                   COMMAND ${CMAKE_SOURCE_DIR}/products/copy_ffmpeg$<$<CONFIG:Debug>:d>.bat $<TARGET_FILE_DIR:mono_video>)
-
+                   COMMAND ${CMAKE_SOURCE_DIR}/products/copy_ffmpeg$<$<CONFIG:Debug>:d>.bat "$<TARGET_FILE_DIR:mono_video>")
+endif()
 endif()
 
 # Build tools
