@@ -2,8 +2,8 @@
 
 image: Visual Studio 2017
 environment:
-  VCPKG_ROOT_DIR: C:\.vcpkg
-  VCPKG_DEFAULT_TRIPLET: x64-windows
+  - VCPKG_ROOT_DIR: C:\.vcpkg
+  - VCPKG_DEFAULT_TRIPLET: x64-windows
 shallow_clone: true
 build_script:
   - scripts\windows\build.bat x64 v141 Release
