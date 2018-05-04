@@ -13,9 +13,8 @@ Each application will run orb-slam2 using a specified data source. Currently sup
 The folder `scripts/windows` contains accordingly named scripts to run the orb-slam2 application. The scripts will attempt to configure and build the application if necessary.  
 
 ### Run kitti
-* `run_ds_kitti.bat <path-to-settings-file> <path-to-image-folder> <path-to-timestamp-file>`
-* download Kitti dataset with GPS support http://kitti.is.tue.mpg.de/kitti/raw_data/2011_09_30_drive_0027/2011_09_30_drive_0027_sync.zip and unzip into a folder `kitti_data_dir`.
-To run the data set `04`, invoke script as follows: `run_ds_kitti.bat <path-to-setting-file> D:\HAD\orb_slam2_world\slam_data\data_odometry_gray\dataset\sequences\04\image_0 D:\HAD\orb_slam2_world\slam_data\data_odometry_gray\dataset\sequences\04\times.txt`
+* `run_ds_kitti.bat <path-to-image-folder> <path-to-oxts-folder> <path-to-settings-file>`
+* download Kitti dataset with GPS support http://kitti.is.tue.mpg.de/kitti/raw_data/2011_09_26_drive_0009/2011_09_26_drive_0009_sync.zip and unzip into a folder `kitti_data_dir`. To run the data set `00` invoke script as follows: `run_ds_kitti.bat kitti_data_dir\image_00\data kitti_data_dir\oxts\data`
 
 ### Run kitti with gps
 * `run_ds_kitti.bat <path-to-settings-file> <path-to-image-folder> <path-to-timestamp-file> <path-to-gps-folder> `
