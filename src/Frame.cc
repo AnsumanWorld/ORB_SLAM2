@@ -21,7 +21,6 @@
 #include "Frame.h"
 #include "Converter.h"
 #include "ORBmatcher.h"
-#include "statistics.h"
 #include <thread>
 
 #define MIN_ORB_IMG_WIDTH 90 
@@ -183,7 +182,6 @@ Frame::Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extra
 {
     // Frame ID
     mnId=nNextId++;
-    statistics::get().update_frame_count(1);
     
     // Scale Level Info
     mnScaleLevels = mpORBextractorLeft->GetLevels();
@@ -202,7 +200,6 @@ Frame::Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extra
     if(mvKeys.empty())
         return;
 
-    statistics::get().update_frame_keypoint_stats(mvKeys);
     UndistortKeyPoints();
 
     // Set no stereo information
@@ -256,7 +253,6 @@ Frame::Frame(
 {
     // Frame ID
     mnId=nNextId++;
-    statistics::get().update_frame_count(1);
     
     // Scale Level Info
     mnScaleLevels = mpORBextractorLeft->GetLevels();
@@ -275,7 +271,6 @@ Frame::Frame(
     if(mvKeys.empty())
         return;
 
-    statistics::get().update_frame_keypoint_stats(mvKeys);
     UndistortKeyPoints();
 
     // Set no stereo information

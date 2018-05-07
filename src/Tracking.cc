@@ -29,7 +29,7 @@
 #include"Converter.h"
 #include"Map.h"
 #include"Initializer.h"
-#include "statistics.h"
+#include "ext/statistics.h"
 #include"Optimizer.h"
 #include"PnPsolver.h"
 
@@ -482,6 +482,11 @@ void Tracking::Track()
             // Check if we need to insert a new keyframe
             if(NeedNewKeyFrame())
                 CreateNewKeyFrame();
+            else
+            {
+                //states number of frame rejected because of tracking
+                ext::statistics::get().reject_kf_by_tracking();
+            }
 
             // We allow points with high innovation (considererd outliers by the Huber Function)
             // pass to the new keyframe, so that bundle adjustment will finally decide
@@ -1054,7 +1059,7 @@ bool Tracking::NeedNewKeyFrame()
     // Condition 1a: More than "MaxFrames" have passed from last keyframe insertion
     const bool c1a = mCurrentFrame.mnId>=mnLastKeyFrameId+mMaxFrames;
     // Condition 1b: More than "MinFrames" have passed and Local Mapping is idle
-    const bool c1b = (mCurrentFrame.mnId>=mnLastKeyFrameId+mMinFrames && bLocalMappingIdle);
+    const bool c1b = (mCurrentFrame.mnId>=mnLastKeyFrameId+mMinFrames);
     //Condition 1c: tracking is weak
     const bool c1c =  mSensor!=System::MONOCULAR && (mnMatchesInliers<nRefMatches*0.25 || bNeedToInsertClose) ;
     // Condition 2: Few tracked points compared to reference keyframe. Lots of visual odometry compared to map matches.
@@ -1070,6 +1075,8 @@ bool Tracking::NeedNewKeyFrame()
         }
         else
         {
+			//states number of frame rejected because of local mapping busy
+			ext::statistics::get().reject_kf_for_busy();
             mpLocalMapper->InterruptBA();
             if(mSensor!=System::MONOCULAR)
             {

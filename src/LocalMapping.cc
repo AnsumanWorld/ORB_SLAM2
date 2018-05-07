@@ -22,7 +22,7 @@
 #include "LoopClosing.h"
 #include "ORBmatcher.h"
 #include "Optimizer.h"
-#include "statistics.h"
+#include "ext/statistics.h"
 #include<mutex>
 
 namespace ORB_SLAM2
@@ -694,7 +694,10 @@ void LocalMapping::KeyFrameCulling()
         }  
 
         if(nRedundantObservations>0.9*nMPs)
+        {
             pKF->SetBadFlag();
+            ext::statistics::get().reject_kf_by_keyframeculling();
+        }
     }
 }
 

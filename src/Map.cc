@@ -21,7 +21,7 @@
 #include "Map.h"
 
 #include<mutex>
-
+#include "ext/statistics.h"
 namespace ORB_SLAM2
 {
 
@@ -47,7 +47,7 @@ void Map::EraseMapPoint(MapPoint *pMP)
 {
     unique_lock<mutex> lock(mMutexMap);
     mspMapPoints.erase(pMP);
-
+    ext::statistics::get().set_rejected_mappoints();
     // TODO: This only erase the pointer.
     // Delete the MapPoint
 }

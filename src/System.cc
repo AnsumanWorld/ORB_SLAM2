@@ -22,7 +22,7 @@
 #include "ext/app_monitor_api.h"
 #include "System.h"
 #include "Converter.h"
-#include "statistics.h"
+#include "ext/statistics.h"
 #include <thread>
 #include <pangolin/pangolin.h>
 #include <iomanip>
@@ -354,8 +354,6 @@ void System::Shutdown()
     if(mpViewer)
         pangolin::BindToContext("ORB-SLAM2: Map Viewer");
 
-    statistics::get().update_map_stats(mpMap);
-    statistics::get().print_stats();
 }
 
 void System::SaveTrajectoryTUM(const string &filename)
@@ -426,6 +424,18 @@ void System::SaveKeyFrameTrajectoryTUM(const string &filename)
     vector<KeyFrame*> vpKFs = mpMap->GetAllKeyFrames();
     sort(vpKFs.begin(),vpKFs.end(),KeyFrame::lId);
 
+    vector<MapPoint*> vpMP = mpMap->GetAllMapPoints();
+    int semantic_mappoints = 0;
+    for (auto p_map_point : vpMP)
+    {
+        if (p_map_point)
+        {
+            if (p_map_point->is_semantic())
+                semantic_mappoints++;
+        }
+    }
+
+    ext::statistics::get().update_status(vpKFs.size(), vpMP.size(), semantic_mappoints);
     // Transform all keyframes so that the first keyframe is at the origin.
     // After a loop closure the first keyframe might not be at the origin.
     //cv::Mat Two = vpKFs[0]->GetPoseInverse();

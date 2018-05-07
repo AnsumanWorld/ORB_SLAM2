@@ -21,7 +21,6 @@
 #include "KeyFrame.h"
 #include "Converter.h"
 #include "ORBmatcher.h"
-#include "statistics.h"
 
 #include<mutex>
 
@@ -46,8 +45,6 @@ KeyFrame::KeyFrame(Frame &F, Map *pMap, KeyFrameDatabase *pKFDB):
     mbToBeErased(false), mbBad(false), mHalfBaseline(F.mb/2), mpMap(pMap)
 {
     mnId=nNextId++;
-    statistics::get().update_keyframe_count(1);
-    statistics::get().update_keyframe_keypoint_stats(mvKeys);
 
     mGrid.resize(mnGridCols);
     for(int i=0; i<mnGridCols;i++)

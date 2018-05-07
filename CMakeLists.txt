@@ -27,7 +27,7 @@ endif()
 
 find_package(Eigen3 REQUIRED)
 
-find_package(Boost REQUIRED COMPONENTS filesystem)
+find_package(Boost REQUIRED COMPONENTS filesystem log)
 
 if("${EIGEN3_VERSION_STRING}" VERSION_LESS "3.1.0")
 	message(FATAL_ERROR "Eigen3 > 3.1.0 not found.")
@@ -53,7 +53,9 @@ add_library(orb-slam2-ext STATIC
     ext/app_monitor_api.h
     ext/app_monitor_api_impl.h
     ext/messages.h
-    ext/functionless-sentinel.cpp)
+    ext/functionless-sentinel.cpp
+    ext/statistics.h	
+    ext/statistics.cc)
 
 target_include_directories(orb-slam2-ext PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
@@ -93,7 +95,6 @@ src/KeyFrameDatabase.cc
 src/Sim3Solver.cc
 src/Initializer.cc
 src/Viewer.cc
-src/statistics.cc
 )
 
 if(CMAKE_COMPILER_IS_GNUCXX)
