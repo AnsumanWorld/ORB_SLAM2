@@ -44,6 +44,10 @@ void LocalMapping::SetTracker(Tracking *pTracker)
     mpTracker=pTracker;
 }
 
+bool LocalMapping::check_optimizer()
+{
+	return (kf_optimize_interval_count > max_kf_optimize_interval);
+}
 void LocalMapping::Run()
 {
 
@@ -51,12 +55,11 @@ void LocalMapping::Run()
 
     while(1)
     {
-        // Tracking will see that Local Mapping is busy
-        SetAcceptKeyFrames(false);
-
         // Check if there are keyframes in the queue
         if(CheckNewKeyFrames())
         {
+			// Tracking will see that Local Mapping is busy 
+			SetAcceptKeyFrames(false);
             // BoW conversion and insertion in Map
             ProcessNewKeyFrame();
 
@@ -66,7 +69,7 @@ void LocalMapping::Run()
             // Triangulate new MapPoints
             CreateNewMapPoints();
 
-            if(!CheckNewKeyFrames())
+            if(!CheckNewKeyFrames() || (check_optimizer()))
             {
                 // Find more matches in neighbor keyframes and fuse point duplications
                 SearchInNeighbors();
@@ -74,17 +77,24 @@ void LocalMapping::Run()
 
             mbAbortBA = false;
 
-            if(!CheckNewKeyFrames() && !stopRequested())
-            {
-                // Local BA
-                if(mpMap->KeyFramesInMap()>2)
-                    Optimizer::LocalBundleAdjustment(mpCurrentKeyFrame,&mbAbortBA, mpMap);
-
-                // Check redundant local Keyframes
-                KeyFrameCulling();
-            }
+			if ((!CheckNewKeyFrames()|| (check_optimizer())) && !stopRequested())
+			{
+				// Local BA
+				if (mpMap->KeyFramesInMap() > 2)
+				{
+					Optimizer::LocalBundleAdjustment(mpCurrentKeyFrame, &mbAbortBA, mpMap);
+					kf_optimize_interval_count = 0;
+				}
+				// Check redundant local Keyframes
+				KeyFrameCulling();
+				
+			}
+			else
+				kf_optimize_interval_count++;
 
             mpLoopCloser->InsertKeyFrame(mpCurrentKeyFrame);
+			// Tracking will see that Local Mapping is busy
+			SetAcceptKeyFrames(true);
         }
         else if(Stop())
         {
@@ -100,14 +110,14 @@ void LocalMapping::Run()
 
         ResetIfRequested();
 
-        // Tracking will see that Local Mapping is busy
-        SetAcceptKeyFrames(true);
-
         if(CheckFinish())
             break;
 
-        //usleep(3000);
-		std::this_thread::sleep_for(std::chrono::milliseconds(3));
+		if (false == CheckNewKeyFrames())
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(3));
+		}
+			
 
     }
 
@@ -118,10 +128,10 @@ void LocalMapping::InsertKeyFrame(KeyFrame *pKF)
 {
     unique_lock<mutex> lock(mMutexNewKFs);
     mlNewKeyFrames.push_back(pKF);
-	if (pKF->_priority)
-		ext::statistics::get().add_semantic_lkf();
-    mbAbortBA=true;
-}
+    if (pKF->_priority)
+        ext::statistics::get().add_semantic_lkf();
+    else
+        mbAbortBA=true;}
 
 
 bool LocalMapping::CheckNewKeyFrames()
@@ -647,6 +657,8 @@ void LocalMapping::KeyFrameCulling()
         KeyFrame* pKF = *vit;
         if(pKF->mnId==0)
             continue;
+		if (pKF->_priority)
+			continue;
         const vector<MapPoint*> vpMapPoints = pKF->GetMapPointMatches();
 
         int nObs = 3;

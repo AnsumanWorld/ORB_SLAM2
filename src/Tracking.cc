@@ -1064,7 +1064,15 @@ bool Tracking::NeedNewKeyFrame()
     // Condition 2: Few tracked points compared to reference keyframe. Lots of visual odometry compared to map matches.
     const bool c2 = ((mnMatchesInliers<nRefMatches*thRefRatio|| bNeedToInsertClose) && mnMatchesInliers>15);
 
-    if((c1a||c1b||c1c)&&c2)
+	// special Condition : if current frame contains special information(gps or tsr) then it should convert to keyframe
+	// more check is added for avoiding to create consecutive keyframes
+	const bool sp_case = (mCurrentFrame._priority && (mCurrentFrame._priority >= mnLastKeyFrameId + 2) && (mpLocalMapper->KeyframesInQueue() < 3));
+
+	if(sp_case)
+	{
+		return true;
+	}
+    else if((c1a||c1b||c1c)&&c2)
     {
         // If the mapping accepts keyframes, insert keyframe.
         // Otherwise send a signal to interrupt BA
