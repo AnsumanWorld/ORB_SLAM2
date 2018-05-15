@@ -47,7 +47,7 @@ void Map::EraseMapPoint(MapPoint *pMP)
 {
     unique_lock<mutex> lock(mMutexMap);
     mspMapPoints.erase(pMP);
-    ext::statistics::get().set_rejected_mappoints();
+    ext::statistics::get().set_rejected_lmp();
     // TODO: This only erase the pointer.
     // Delete the MapPoint
 }

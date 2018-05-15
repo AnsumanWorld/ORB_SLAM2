@@ -118,6 +118,8 @@ void LocalMapping::InsertKeyFrame(KeyFrame *pKF)
 {
     unique_lock<mutex> lock(mMutexNewKFs);
     mlNewKeyFrames.push_back(pKF);
+	if (pKF->_priority)
+		ext::statistics::get().add_semantic_lkf();
     mbAbortBA=true;
 }
 
@@ -696,7 +698,9 @@ void LocalMapping::KeyFrameCulling()
         if(nRedundantObservations>0.9*nMPs)
         {
             pKF->SetBadFlag();
-            ext::statistics::get().reject_kf_by_keyframeculling();
+            ext::statistics::get().reject_lkf_by_keyframeculling();
+			if(pKF->_priority)
+				ext::statistics::get().rejected_semantic_lkf_by_keyframeculling();
         }
     }
 }

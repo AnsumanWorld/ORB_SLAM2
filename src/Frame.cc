@@ -22,6 +22,7 @@
 #include "Converter.h"
 #include "ORBmatcher.h"
 #include <thread>
+#include "ext/statistics.h"
 
 #define MIN_ORB_IMG_WIDTH 90 
 #define MIN_ORB_IMG_HEIGHT 90
@@ -51,7 +52,7 @@ Frame::Frame(const Frame &frame)
      mfScaleFactor(frame.mfScaleFactor), mfLogScaleFactor(frame.mfLogScaleFactor),
      mvScaleFactors(frame.mvScaleFactors), mvInvScaleFactors(frame.mvInvScaleFactors),
      mvLevelSigma2(frame.mvLevelSigma2), mvInvLevelSigma2(frame.mvInvLevelSigma2),
-     _sensor_input(frame._sensor_input)
+     _sensor_input(frame._sensor_input),_priority(frame._priority)
 {
     for(int i=0;i<FRAME_GRID_COLS;i++)
         for(int j=0; j<FRAME_GRID_ROWS; j++)
@@ -368,6 +369,9 @@ void Frame::ExtractORBInSubImage(const cv::Mat &im,std::vector<cv::KeyPoint> &Al
 
 	if (auto ts_data = std::get<ext::tsr_info_opt_t>(_sensor_input))
 	{
+		_priority = mnId;
+		ext::statistics::get().add_semantic_frame();
+
 		if(!mpORBextractorSub)
 			mpORBextractorSub = new ORBextractor(mpORBextractorLeft->Getfeatures(),mfScaleFactor,mnScaleLevels,mpORBextractorLeft->GetiniThFAST(),mpORBextractorLeft->GetminThFAST());	
 

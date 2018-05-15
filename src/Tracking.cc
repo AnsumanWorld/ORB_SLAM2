@@ -485,7 +485,7 @@ void Tracking::Track()
             else
             {
                 //states number of frame rejected because of tracking
-                ext::statistics::get().reject_kf_by_tracking();
+                ext::statistics::get().reject_frame_by_tracking();
             }
 
             // We allow points with high innovation (considererd outliers by the Huber Function)
@@ -1004,7 +1004,6 @@ bool Tracking::TrackLocalMap()
         return true;
 }
 
-
 bool Tracking::NeedNewKeyFrame()
 {
     if(mbOnlyTracking)
@@ -1059,7 +1058,7 @@ bool Tracking::NeedNewKeyFrame()
     // Condition 1a: More than "MaxFrames" have passed from last keyframe insertion
     const bool c1a = mCurrentFrame.mnId>=mnLastKeyFrameId+mMaxFrames;
     // Condition 1b: More than "MinFrames" have passed and Local Mapping is idle
-    const bool c1b = (mCurrentFrame.mnId>=mnLastKeyFrameId+mMinFrames);
+    const bool c1b = (mCurrentFrame.mnId>=mnLastKeyFrameId+mMinFrames && bLocalMappingIdle);
     //Condition 1c: tracking is weak
     const bool c1c =  mSensor!=System::MONOCULAR && (mnMatchesInliers<nRefMatches*0.25 || bNeedToInsertClose) ;
     // Condition 2: Few tracked points compared to reference keyframe. Lots of visual odometry compared to map matches.
@@ -1076,7 +1075,7 @@ bool Tracking::NeedNewKeyFrame()
         else
         {
 			//states number of frame rejected because of local mapping busy
-			ext::statistics::get().reject_kf_for_busy();
+			ext::statistics::get().reject_frame_for_lmt_busy();
             mpLocalMapper->InterruptBA();
             if(mSensor!=System::MONOCULAR)
             {
@@ -1089,8 +1088,16 @@ bool Tracking::NeedNewKeyFrame()
                 return false;
         }
     }
-    else
-        return false;
+	else
+	{
+		if (false == bLocalMappingIdle)
+		{
+			//states number of frame rejected because of local mapping busy
+			ext::statistics::get().reject_frame_for_lmt_busy();
+		}
+		return false;
+	}
+        
 }
 
 void Tracking::CreateNewKeyFrame()

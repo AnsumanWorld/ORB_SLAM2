@@ -186,6 +186,7 @@ public:
 
     // Current and Next Frame id.
     static long unsigned int nNextId;
+	long unsigned int _priority;
     long unsigned int mnId;
 
     // Reference Keyframe.

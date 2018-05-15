@@ -42,7 +42,7 @@ MapPoint::MapPoint(const cv::Mat &Pos, KeyFrame *pRefKF, Map* pMap, bool semanti
     mNormalVector = cv::Mat::zeros(3,1,CV_32F);
 
     if(_is_semantic)
-        ext::statistics::get().add_semantic_mappoint();
+        ext::statistics::get().add_semantic_lmp();
     // MapPoints can be created from Tracking and Local Mapping. This mutex avoid conflicts with id.
     unique_lock<mutex> lock(mpMap->mMutexPointCreation);
     mnId=nNextId++;
@@ -72,7 +72,7 @@ MapPoint::MapPoint(const cv::Mat &Pos, Map* pMap, Frame* pFrame, const int &idxF
     pFrame->mDescriptors.row(idxF).copyTo(mDescriptor);
 
     if(_is_semantic)
-        ext::statistics::get().add_semantic_mappoint();
+        ext::statistics::get().add_semantic_lmp();
 
     // MapPoints can be created from Tracking and Local Mapping. This mutex avoid conflicts with id.
     unique_lock<mutex> lock(mpMap->mMutexPointCreation);
