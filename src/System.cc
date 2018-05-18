@@ -424,18 +424,8 @@ void System::SaveKeyFrameTrajectoryTUM(const string &filename)
     vector<KeyFrame*> vpKFs = mpMap->GetAllKeyFrames();
     sort(vpKFs.begin(),vpKFs.end(),KeyFrame::lId);
 
-    vector<MapPoint*> vpMP = mpMap->GetAllMapPoints();
-    int semantic_mappoints = 0;
-    for (auto p_map_point : vpMP)
-    {
-        if (p_map_point)
-        {
-            if (p_map_point->is_semantic())
-                semantic_mappoints++;
-        }
-    }
-
-    ext::statistics::get().update_status(vpKFs.size(), vpMP.size(), semantic_mappoints);
+	ext::statistics::get().log_map_state(mpMap);
+	ext::statistics::get().dump();
     // Transform all keyframes so that the first keyframe is at the origin.
     // After a loop closure the first keyframe might not be at the origin.
     //cv::Mat Two = vpKFs[0]->GetPoseInverse();

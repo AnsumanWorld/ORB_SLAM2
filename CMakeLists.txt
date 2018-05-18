@@ -53,7 +53,6 @@ add_library(orb-slam2-ext STATIC
     ext/app_monitor_api.h
     ext/app_monitor_api_impl.h
     ext/messages.h
-    ext/functionless-sentinel.cpp
     ext/statistics.h	
     ext/statistics.cc)
 
