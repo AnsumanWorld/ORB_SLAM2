@@ -265,6 +265,12 @@ Frame::Frame(
     mvInvLevelSigma2 = mpORBextractorLeft->GetInverseScaleSigmaSquares();
 	mpORBextractorSub = NULL;
     // ORB extraction
+	//if sensor data contain valid tsr data or gps data
+	if (std::get<ext::tsr_info_opt_t>(_sensor_input) || std::get<ext::pos_info_opt_t>(_sensor_input))
+	{
+		_priority = mnId;
+		ext::statistics::get().add_semantic_frame();
+	}
     ExtractORB(0,imGray);
 
     N = mvKeys.size();
@@ -369,8 +375,6 @@ void Frame::ExtractORBInSubImage(const cv::Mat &im,std::vector<cv::KeyPoint> &Al
 
 	if (auto ts_data = std::get<ext::tsr_info_opt_t>(_sensor_input))
 	{
-		_priority = mnId;
-		ext::statistics::get().add_semantic_frame();
 		if(!mpORBextractorSub)
 			mpORBextractorSub = new ORBextractor(mpORBextractorLeft->Getfeatures(),mfScaleFactor,mnScaleLevels,mpORBextractorLeft->GetiniThFAST(),mpORBextractorLeft->GetminThFAST());	
 

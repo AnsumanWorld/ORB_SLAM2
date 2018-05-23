@@ -121,6 +121,9 @@ protected:
 
     bool mbAcceptKeyFrames;
     std::mutex mMutexAccept;
+	int ba_interval_count{ 0 };
+	const int max_ba_interval_count{ 3 };
+	bool activate_ba();
 };
 
 } //namespace ORB_SLAM

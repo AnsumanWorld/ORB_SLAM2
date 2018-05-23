@@ -36,11 +36,11 @@ input_args parse_input_arguments(int argc, char** argv)
             "Usage: ./semantic_monocular path_to_vocabulary path_to_camera_settings path_to_image_folder path_to_jsonfile");
     }
 
-    return input_args{
-        argv[1],
-        argv[2],
-        argv[3],
-        argv[4]
+	return input_args{
+		argv[1],
+		argv[2],
+		argv[3],
+		(argc >= 5) ? argv[4] : ""
     };
 }
 

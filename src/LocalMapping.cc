@@ -44,10 +44,11 @@ void LocalMapping::SetTracker(Tracking *pTracker)
     mpTracker=pTracker;
 }
 
-bool LocalMapping::check_optimizer()
+bool LocalMapping::activate_ba()
 {
-	return (kf_optimize_interval_count > max_kf_optimize_interval);
+	return (ba_interval_count > max_ba_interval_count);
 }
+
 void LocalMapping::Run()
 {
 
@@ -69,7 +70,7 @@ void LocalMapping::Run()
             // Triangulate new MapPoints
             CreateNewMapPoints();
 
-            if(!CheckNewKeyFrames() || (check_optimizer()))
+            if(!CheckNewKeyFrames() || (activate_ba()))
             {
                 // Find more matches in neighbor keyframes and fuse point duplications
                 SearchInNeighbors();
@@ -77,20 +78,20 @@ void LocalMapping::Run()
 
             mbAbortBA = false;
 
-			if ((!CheckNewKeyFrames()|| (check_optimizer())) && !stopRequested())
+			if ((!CheckNewKeyFrames()|| (activate_ba())) && !stopRequested())
 			{
 				// Local BA
 				if (mpMap->KeyFramesInMap() > 2)
 				{
 					Optimizer::LocalBundleAdjustment(mpCurrentKeyFrame, &mbAbortBA, mpMap);
-					kf_optimize_interval_count = 0;
+					ba_interval_count = 0;
 				}
 				// Check redundant local Keyframes
 				KeyFrameCulling();
 				
 			}
 			else
-				kf_optimize_interval_count++;
+				ba_interval_count++;
 
             mpLoopCloser->InsertKeyFrame(mpCurrentKeyFrame);
 			// Tracking will see that Local Mapping is busy
