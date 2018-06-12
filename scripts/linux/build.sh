@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 ScriptDir=$(realpath $(dirname $0))
 ProjectDir=$(realpath ${ScriptDir}/../..)
 cd ${ProjectDir}
@@ -30,7 +32,7 @@ mkdir -p "${BuildDir}"
 
 cmake ${ProjectDir} \
     -B${BuildDir} \
-    -DCMAKE_BUILD_TYPE=${OrbSlamBuildtype} \
+    -DCMAKE_BUILD_TYPE=${Buildtype} \
     -DBUILD_EXAMPLES=ON \
     -DCMAKE_INSTALL_PREFIX=/usr/local
 

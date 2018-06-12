@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 if [ ! "${EUID}" = "0" ]
 then
    echo "ERROR: ${0} must be run as root" 
@@ -82,13 +84,6 @@ install_pangolin() {
     make install
 }
 
-cleanup() {
-    apt-get -y autoremove
-    apt-get -y autoclean
-    rm -rf /var/lib/apt/lists/*
-}
-
 install_dependencies
 download_packages
 install_pangolin
-cleanup

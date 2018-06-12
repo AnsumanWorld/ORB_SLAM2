@@ -1,14 +1,16 @@
 #!/bin/bash
 
+set -e
+
 ScriptDir=$(realpath $(dirname $0))
 ProjectDir=$(realpath ${ScriptDir}/../..)
 cd ${ProjectDir}
 
-OrbSlamPlatform=`uname -m`
-OrbSlamToolset=gcc.`gcc -dumpversion`
-OrbSlamBuildtype=Release
+Platform=`uname -m`
+Toolset=gcc.`gcc -dumpversion`
+Buildtype=Release
 
-BuildDir="products/cmake.make.linux.${OrbSlamPlatform}.${OrbSlamToolset}.${OrbSlamBuildtype}"
+BuildDir="products/cmake.make.linux.${Platform}.${Toolset}.${Buildtype}"
 
 if [ "$1" = "" ]
 then
@@ -23,6 +25,8 @@ then
     tar -xf ORBvoc.bin.tar.gz
     cd ${ProjectDir}
 fi
+
+export LD_LIBRARY_PATH=/usr/local/lib/:$LD_LIBRARY_PATH
 
 ${ProjectDir}/${BuildDir}/mono_video \
     ${1} \
