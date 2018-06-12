@@ -1,5 +1,7 @@
 #/bin/bash
 
+set -e
+
 ScriptDir=$(realpath $(dirname $0))
 ProjectDir=$(realpath ${ScriptDir}/../..)
 cd ${ProjectDir}
@@ -42,4 +44,3 @@ then
     fi
 fi
 
-exit ${build_status}
