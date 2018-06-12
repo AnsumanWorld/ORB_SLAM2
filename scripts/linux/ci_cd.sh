@@ -9,6 +9,11 @@ cd ${ProjectDir}
 ${ProjectDir}/docker/build-from-docker.sh
 
 :'
+# Below code detects changes in Dockerfile and bootstrap.sh
+# If there are changes in these files, script will build and upload a new docker image
+# In travis ci due to time limit build and upload of docker is causing error
+# Use this code as reference if automatic updation of docker images are required from CI setup
+
 function upload_docker_image () {
 	$(git diff --name-only ${TRAVIS_COMMIT_RANGE} | grep docker/Dockerfile > /dev/null)
 	dockerfile_status=$?
