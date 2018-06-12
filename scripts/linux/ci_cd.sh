@@ -41,3 +41,5 @@ then
         echo "Not a commit on 'master', Docker image is not pushed to Docker hub"
     fi
 fi
+
+exit ${build_status}
