@@ -1,6 +1,6 @@
 project(util)
 
-set(src_list util.hpp util.cpp)
+set(src_list util.h util.cc)
 add_library(${PROJECT_NAME} STATIC ${src_list})
 
 target_include_directories(${PROJECT_NAME} PUBLIC
@@ -16,5 +16,5 @@ install(TARGETS ${PROJECT_NAME} EXPORT orb-slam2
 
 install(DIRECTORY ${PROJECT_SOURCE_DIR} 
     DESTINATION include/orb-slam2/util 
-    FILES_MATCHING PATTERN *.hpp
+    FILES_MATCHING PATTERN *.h
 )

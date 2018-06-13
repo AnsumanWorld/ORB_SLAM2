@@ -73,11 +73,9 @@ add_library(orb-slam2-ext STATIC
     ext/statistics.h	
     ext/statistics.cc
     ext/GeodeticCoords.h
-    ext/GeodeticCoords.cpp
-    ext/gps_cfg.h
-    ext/gps_cfg.cpp
-    ext/gps_adder.h
-    ext/gps_adder.cpp
+    ext/GeodeticCoords.cc
+    ext/pos_adder.h
+    ext/pos_adder.cc
 )
 
 target_include_directories(orb-slam2-ext PUBLIC

@@ -43,7 +43,7 @@ KeyFrame::KeyFrame(Frame &F, Map *pMap, KeyFrameDatabase *pKFDB):
     mnMaxY(F.mnMaxY), mK(F.mK), mvpMapPoints(F.mvpMapPoints), mpKeyFrameDB(pKFDB),
     mpORBvocabulary(F.mpORBvocabulary), mbFirstConnection(true), mpParent(NULL), mbNotErase(false),
     mbToBeErased(false), mbBad(false), mHalfBaseline(F.mb/2), mpMap(pMap), _priority(F._priority)
-    , _gps_pos(std::get<3>(F._sensor_input).get())
+    , _pos_info(std::get<3>(F._sensor_input))
 {
     mnId=nNextId++;
 

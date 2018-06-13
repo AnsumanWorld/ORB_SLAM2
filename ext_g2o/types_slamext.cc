@@ -1,4 +1,4 @@
-#include "types_slamext.hpp"
+#include "types_slamext.h"
 
 #include <g2o/core/factory.h>
 

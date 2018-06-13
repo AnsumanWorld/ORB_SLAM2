@@ -8,16 +8,16 @@ add_definitions(
 )
 
 set(hpp_list
-edge_se3_expmap_gps_dist.hpp
-edge_se3_expmap_prior_3d.hpp
-g2o_types_slamext_api.hpp
-types_slamext.hpp
+edge_se3_expmap_gps_dist.h
+edge_se3_expmap_prior_3d.h
+g2o_types_slamext_api.h
+types_slamext.h
 )
 
 set(cpp_list
-edge_se3_expmap_gps_dist.cpp
-edge_se3_expmap_prior_3d.cpp
-types_slamext.cpp
+edge_se3_expmap_gps_dist.cc
+edge_se3_expmap_prior_3d.cc
+types_slamext.cc
 )
 
 set(src_list ${hpp_list} ${cpp_list})
@@ -37,4 +37,4 @@ install(TARGETS ${PROJECT_NAME} EXPORT orb-slam2
 
 install(DIRECTORY ${PROJECT_SOURCE_DIR} 
     DESTINATION include/orb-slam2/ext_g2o 
-    FILES_MATCHING PATTERN *.hpp)
+    FILES_MATCHING PATTERN *.h)

@@ -1,5 +1,5 @@
-#include "edge_se3_expmap_gps_dist.hpp"
-#include "util/util.hpp"
+#include "edge_se3_expmap_gps_dist.h"
+#include "util/util.h"
 
 namespace g2o
 {

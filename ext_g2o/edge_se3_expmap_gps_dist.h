@@ -1,6 +1,6 @@
 #pragma once
 
-#include "g2o_types_slamext_api.hpp"
+#include "g2o_types_slamext_api.h"
 
 #include <g2o/core/base_binary_edge.h>
 #include <g2o/core/hyper_graph_action.h>

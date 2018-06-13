@@ -14,7 +14,7 @@
 #include <iomanip>
 
 #include "ext/GeodeticCoords.h"
-#include "util/util.hpp"
+#include "util/util.h"
 
 namespace fs = boost::filesystem;
 

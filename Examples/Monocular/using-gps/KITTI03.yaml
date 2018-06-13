@@ -21,26 +21,6 @@ Camera.fps: 10.0
 # Color order of the images (0: BGR, 1: RGB. It is ignored if images are grayscale)
 Camera.RGB: 1
 
-# GPS
-# GPS.ba_fuse_option:
-# dont_use_gps = 0,
-# unary_gps_edge = 1,
-# binary_gps_edge = 2,
-# unary_and_binary_gps_edge = 3
-GPS.ba_fuse_option: 0
-
-# bool, enable/disable adding of vo edges 
-GPS.add_vo_edge: 0
-
-# bool, enable/disable adding of gps during pose optimization
-GPS.pose_optimization: 0
-
-# source of gps
-# none = 0
-# ground_truth = 1
-# oxts = 2
-GPS.source: 0
-
 #--------------------------------------------------------------------------------------------
 # ORB Parameters
 #--------------------------------------------------------------------------------------------

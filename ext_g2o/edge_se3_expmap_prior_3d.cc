@@ -1,4 +1,4 @@
-#include "edge_se3_expmap_prior_3d.hpp"
+#include "edge_se3_expmap_prior_3d.h"
 
 namespace g2o
 {

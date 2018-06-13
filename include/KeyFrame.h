@@ -189,7 +189,7 @@ public:
     const int mnMaxY;
     const cv::Mat mK;
 
-    ext::pos_info_opt_t _gps_pos;
+    ext::pos_info_opt_t _pos_info;
 
     // The following variables need to be accessed trough a mutex to be thread safe.
 protected:

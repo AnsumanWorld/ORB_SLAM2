@@ -33,7 +33,7 @@
 #include "Converter.h"
 #include<mutex>
 
-#include "ext/gps_adder.h"
+#include "ext/pos_adder.h"
 
 namespace ORB_SLAM2
 {
@@ -61,7 +61,7 @@ void Optimizer::BundleAdjustment(const vector<KeyFrame *> &vpKFs, const vector<M
 
     g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(g2o::make_unique < g2o::BlockSolver_6_3 >(std::move(linearSolver)));
     optimizer.setAlgorithm(solver);
-    ext::gps_adder gps_adder_(optimizer);
+    ext::pos_adder pos_adder_(optimizer);
 
     if(pbStopFlag)
         optimizer.setForceStopFlag(pbStopFlag);
@@ -82,11 +82,9 @@ void Optimizer::BundleAdjustment(const vector<KeyFrame *> &vpKFs, const vector<M
         if(pKF->mnId>maxKFid)
             maxKFid=pKF->mnId;
 
-        gps_adder_.add_gps_to_gba(vSE3, pKF->_gps_pos);
+        pos_adder_.add_pos_prior(vSE3, pKF->_pos_info);
     }
 
-    gps_adder_.add_vo_edges_to_ba();
-    
     const float thHuber2D = sqrt(5.99);
     const float thHuber3D = sqrt(7.815);
 
@@ -251,7 +249,6 @@ int Optimizer::PoseOptimization(Frame *pFrame)
 
 	g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(g2o::make_unique<g2o::BlockSolver_6_3>(std::move(linearSolver)));
     optimizer.setAlgorithm(solver);
-    ext::gps_adder gps_adder_(optimizer);
 
     int nInitialCorrespondences=0;
 
@@ -261,8 +258,6 @@ int Optimizer::PoseOptimization(Frame *pFrame)
     vSE3->setId(0);
     vSE3->setFixed(false);
     optimizer.addVertex(vSE3);
-
-    gps_adder_.add_gps_to_pose_optimization(vSE3, std::get<3>(pFrame->_sensor_input));
 
     // Set MapPoint vertices
     const int N = pFrame->N;
@@ -519,7 +514,7 @@ void Optimizer::LocalBundleAdjustment(KeyFrame *pKF, bool* pbStopFlag, Map* pMap
 
 	g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(g2o::make_unique<g2o::BlockSolver_6_3>(std::move(linearSolver)));
     optimizer.setAlgorithm(solver);
-    ext::gps_adder gps_adder_(optimizer);
+    ext::pos_adder pos_adder_(optimizer);
 
     if(pbStopFlag)
         optimizer.setForceStopFlag(pbStopFlag);
@@ -538,7 +533,7 @@ void Optimizer::LocalBundleAdjustment(KeyFrame *pKF, bool* pbStopFlag, Map* pMap
         if(pKFi->mnId>maxKFid)
             maxKFid=pKFi->mnId;
 
-        gps_adder_.add_gps_to_ba_for_local_kf(vSE3, pKFi->_gps_pos);
+        pos_adder_.add_pos_prior(vSE3, pKFi->_pos_info);
     }
 
     // Set Fixed KeyFrame vertices
@@ -553,10 +548,9 @@ void Optimizer::LocalBundleAdjustment(KeyFrame *pKF, bool* pbStopFlag, Map* pMap
         if(pKFi->mnId>maxKFid)
             maxKFid=pKFi->mnId;
 
-        gps_adder_.add_gps_to_ba_for_fixed_kf(vSE3, pKFi->_gps_pos);
+        pos_adder_.add_pos_prior(vSE3, pKFi->_pos_info);
     }
 
-    gps_adder_.add_vo_edges_to_ba();
     // Set MapPoint vertices
     const int nExpectedSize = (lLocalKeyFrames.size()+lFixedCameras.size())*lLocalMapPoints.size();
 

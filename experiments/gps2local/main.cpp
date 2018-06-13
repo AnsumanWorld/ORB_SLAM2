@@ -7,7 +7,7 @@
 #include <iomanip>
 
 #include "ext/GeodeticCoords.h"
-#include "util/util.hpp"
+#include "util/util.h"
 
 std::vector<std::string> split(const std::string &s, const char delim)
 {
