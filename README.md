@@ -317,6 +317,10 @@ Although different input formats are supported it is recommended to use binary f
 
 eval_vo is a evaluation tool from KITTI which calculates and plots trajectory errors using ground truth as reference
 
+## Dependencies
+
+eval_vo uses `gnuplot` and `texlive-extra-utils` packages. `scripts/linux/bootstrap.sh` will install these packages
+
 ### Usage
 
 1. Generate trajectory in KITTI pose format

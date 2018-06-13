@@ -1,7 +1,1 @@
-add_subdirectory(cov)
-add_subdirectory(geoconv)
-add_subdirectory(gps-fusion)
-add_subdirectory(gt2gps)
-add_subdirectory(kitti-runner)
-add_subdirectory(orb-extract)
-add_subdirectory(oxt2local)
+add_subdirectory(cpp)

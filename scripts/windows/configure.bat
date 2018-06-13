@@ -27,9 +27,12 @@ call cmake.exe -G "%CMakeGeneratorName%" ^
 -DVCPKG_TARGET_TRIPLET=%VcPkgTriplet% ^
 -DG2O_ROOT="%VcPkgDir%\installed\%VcPkgTriplet%" ^
 -DCMAKE_TOOLCHAIN_FILE="%VcPkgDir%\scripts\buildsystems\vcpkg.cmake" ^
--DBUILD_TOOLS=ON ^
--DBUILD_EXPERIMENTS=ON ^
--DBUILD_TESTS=ON ^
+-DBUILD_ALL_EXAMPLES=OFF ^
+-DWARNINGS=ON ^
+-DBUILD_EXAMPLES=ON ^
+-DBUILD_TOOLS=OFF ^
+-DBUILD_EXPERIMENTS=OFF ^
+-DBUILD_TESTS=OFF ^
 "%~dp0..\.."
 
 popd

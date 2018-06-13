@@ -1,0 +1,4 @@
+0-100 frames provide gps as unary constraint
+100th frame onwards gps values are not provided
+ground truth = gps
+

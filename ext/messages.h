@@ -19,7 +19,6 @@ namespace ORB_SLAM2 {
             cv::Rect box;
         };
 
-        // vector, matrix are aliases to Eigen types
         struct pos_info {
             Eigen::Vector3d pos;
             Eigen::Matrix3d covariance;

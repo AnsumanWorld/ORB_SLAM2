@@ -78,6 +78,9 @@
         "strstream": "cpp",
         "complex": "cpp",
         "optional": "cpp",
-        "typeindex": "cpp"
+        "typeindex": "cpp",
+        "csignal": "cpp",
+        "codecvt": "cpp",
+        "future": "cpp"
     }
 }

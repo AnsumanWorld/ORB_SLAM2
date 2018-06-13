@@ -61,13 +61,14 @@ void Optimizer::BundleAdjustment(const vector<KeyFrame *> &vpKFs, const vector<M
 
     g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(g2o::make_unique < g2o::BlockSolver_6_3 >(std::move(linearSolver)));
     optimizer.setAlgorithm(solver);
-    ext::pos_adder pos_adder_(optimizer);
 
     if(pbStopFlag)
         optimizer.setForceStopFlag(pbStopFlag);
 
     long unsigned int maxKFid = 0;
 
+    // KeyFrame* from_kf_{nullptr};
+    // g2o::VertexSE3Expmap* from_cam_{nullptr};
     // Set KeyFrame vertices
     for(size_t i=0; i<vpKFs.size(); i++)
     {
@@ -82,7 +83,19 @@ void Optimizer::BundleAdjustment(const vector<KeyFrame *> &vpKFs, const vector<M
         if(pKF->mnId>maxKFid)
             maxKFid=pKF->mnId;
 
-        pos_adder_.add_pos_prior(vSE3, pKF->_pos_info);
+        ext::add_pos_prior(optimizer, vSE3, pKF->_pos_info);
+
+        // distance constraint
+        // if(from_kf_ && from_cam_) {
+        //     auto to_kf_ = pKF;
+        //     auto to_cam_ = vSE3;
+        //     ext::add_pos_displacement(optimizer,
+        //                               from_cam_, to_cam_,
+        //                               from_kf_->_pos_info, to_kf_->_pos_info);
+        // }
+
+        // from_kf_ = pKF;
+        // from_cam_ = vSE3;
     }
 
     const float thHuber2D = sqrt(5.99);
@@ -514,13 +527,14 @@ void Optimizer::LocalBundleAdjustment(KeyFrame *pKF, bool* pbStopFlag, Map* pMap
 
 	g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(g2o::make_unique<g2o::BlockSolver_6_3>(std::move(linearSolver)));
     optimizer.setAlgorithm(solver);
-    ext::pos_adder pos_adder_(optimizer);
 
     if(pbStopFlag)
         optimizer.setForceStopFlag(pbStopFlag);
 
     unsigned long maxKFid = 0;
 
+    // KeyFrame* from_local_kf_ = {nullptr};
+    // g2o::VertexSE3Expmap* from_local_cam_ = {nullptr};
     // Set Local KeyFrame vertices
     for(list<KeyFrame*>::iterator lit=lLocalKeyFrames.begin(), lend=lLocalKeyFrames.end(); lit!=lend; lit++)
     {
@@ -533,9 +547,23 @@ void Optimizer::LocalBundleAdjustment(KeyFrame *pKF, bool* pbStopFlag, Map* pMap
         if(pKFi->mnId>maxKFid)
             maxKFid=pKFi->mnId;
 
-        pos_adder_.add_pos_prior(vSE3, pKFi->_pos_info);
+        ext::add_pos_prior(optimizer, vSE3, pKFi->_pos_info);
+
+        // distance constraint
+        // if(from_local_kf_ && from_local_cam_) {
+        //     auto to_local_kf_ = pKFi;
+        //     auto to_local_cam_ = vSE3;
+        //     ext::add_pos_displacement(optimizer,
+        //                               from_local_cam_, to_local_cam_,
+        //                               from_local_kf_->_pos_info, to_local_kf_->_pos_info);
+        // }
+
+        // from_local_kf_ = pKFi;
+        // from_local_cam_ = vSE3;
     }
 
+    // KeyFrame* from_fixed_kf_ = {nullptr};
+    // g2o::VertexSE3Expmap* from_fixed_cam_ = {nullptr};
     // Set Fixed KeyFrame vertices
     for(list<KeyFrame*>::iterator lit=lFixedCameras.begin(), lend=lFixedCameras.end(); lit!=lend; lit++)
     {
@@ -548,7 +576,19 @@ void Optimizer::LocalBundleAdjustment(KeyFrame *pKF, bool* pbStopFlag, Map* pMap
         if(pKFi->mnId>maxKFid)
             maxKFid=pKFi->mnId;
 
-        pos_adder_.add_pos_prior(vSE3, pKFi->_pos_info);
+        ext::add_pos_prior(optimizer, vSE3, pKFi->_pos_info);
+
+        // distance constraint
+        // if(from_fixed_kf_ && from_fixed_cam_) {
+        //     auto to_fixed_kf_ = pKFi;
+        //     auto to_fixed_cam_ = vSE3;
+        //     ext::add_pos_displacement(optimizer,
+        //                               from_fixed_cam_, to_fixed_cam_,
+        //                               from_fixed_kf_->_pos_info, to_fixed_kf_->_pos_info);
+        // }
+
+        // from_fixed_kf_ = pKFi;
+        // from_fixed_cam_ = vSE3;
     }
 
     // Set MapPoint vertices

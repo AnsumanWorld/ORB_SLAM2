@@ -8,20 +8,20 @@ add_definitions(
 )
 
 set(hpp_list
-edge_se3_expmap_gps_dist.h
+edge_se3_expmap_dist.h
 edge_se3_expmap_prior_3d.h
 g2o_types_slamext_api.h
 types_slamext.h
 )
 
 set(cpp_list
-edge_se3_expmap_gps_dist.cc
+edge_se3_expmap_dist.cc
 edge_se3_expmap_prior_3d.cc
 types_slamext.cc
 )
 
 set(src_list ${hpp_list} ${cpp_list})
-set(lib_list ${G2O_LIBS} ${EIGEN3_LIBS} ${OPENGL_LIBRARY} util)
+set(lib_list ${G2O_LIBS} ${EIGEN3_LIBS} ${OPENGL_LIBRARY} utils)
 
 add_library(${PROJECT_NAME} SHARED ${src_list})
 target_link_libraries(${PROJECT_NAME} ${lib_list})

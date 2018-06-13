@@ -34,3 +34,4 @@ products/
 /.vs/slnx.sqlite*
 data/
 /install
+orbslam.csv

@@ -27,9 +27,20 @@ if(WIN32)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -O3 -march=native ")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3 -march=native")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -march=native ")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -march=native")
 endif()
+
+set(warning_options "")
+if(NOT WARNINGS)
+    if(CMAKE_COMPILER_IS_GNUCXX)
+        set(warning_options "-w")
+    endif()
+    if(MSVC)
+        set(warning_options "/w")
+    endif()
+endif()
+add_compile_options(${warning_options})
 
 find_package(OpenCV REQUIRED)
 
@@ -59,7 +70,7 @@ ${G2O_INCLUDE_DIR}
 )
 
 add_subdirectory(Thirdparty/DBoW2)
-add_subdirectory(util)
+add_subdirectory(utils)
 add_subdirectory(ext_g2o)
 
 # INTERFACE targets seems to be broken for "Visual Studio" generators. 
@@ -75,7 +86,6 @@ add_library(orb-slam2-ext STATIC
     ext/GeodeticCoords.h
     ext/GeodeticCoords.cc
     ext/pos_adder.h
-    ext/pos_adder.cc
 )
 
 target_include_directories(orb-slam2-ext PUBLIC
@@ -126,7 +136,7 @@ target_link_libraries(orb-slam2
     DBoW2
     ${G2O_LIBS}
     g2o_slamext
-    util
+    utils
 )
 
 target_include_directories(orb-slam2 INTERFACE $<INSTALL_INTERFACE:include>)

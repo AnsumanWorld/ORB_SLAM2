@@ -33,10 +33,12 @@ mkdir -p "${BuildDir}"
 cmake ${ProjectDir} \
     -B${BuildDir} \
     -DCMAKE_BUILD_TYPE=${Buildtype} \
+    -DBUILD_ALL_EXAMPLES=OFF\
     -DBUILD_EXAMPLES=ON \
-    -DBUILD_EXPERIMENTS=ON \
-    -DBUILD_TOOLS=ON \
-    -DBUILD_TESTS=ON \
+    -DBUILD_EXPERIMENTS=OFF \
+    -DBUILD_TOOLS=OFF \
+    -DBUILD_TESTS=OFF \
+    -DWARNINGS=OFF \
     -DCMAKE_INSTALL_PREFIX=/usr/local
 
 cmake --build ${BuildDir} --target install -- -j${cores}

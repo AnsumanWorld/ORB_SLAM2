@@ -52,7 +52,7 @@ popd
 rem ==============================
 rem Upgrade and Install packages.
 rem ==============================
-set "VcPkgDeps=boost-accumulators boost-filesystem boost-property-tree boost-log eigen3 opencv[ffmpeg] pangolin gtest"
+set "VcPkgDeps=boost-accumulators boost-filesystem boost-property-tree boost-log boost-math eigen3 opencv[ffmpeg] pangolin gtest"
 call :BootstrapVcPkgExe
 call "%VcPkgDir%\vcpkg.exe" upgrade %VcPkgDeps% --no-dry-run --triplet %VcPkgTriplet%
 call "%VcPkgDir%\vcpkg.exe" install %VcPkgDeps% --triplet %VcPkgTriplet%
