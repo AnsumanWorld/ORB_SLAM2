@@ -14,13 +14,14 @@ install_dir=/usr/local
 mkdir -p ${packages_dir}
 build_type=Release
 
-install_dependencies() {
+function install_dependencies() {
     apt-get update --fix-missing
     apt-get install -y \
         apt-utils \
         build-essential \
         cmake \
         git \
+        gnuplot \
         libboost-all-dev \
         libeigen3-dev \
         libglew-dev \
@@ -29,6 +30,7 @@ install_dependencies() {
         libsuitesparse-dev \
         qt5-qmake \
         qtdeclarative5-dev \
+        texlive-extra-utils \
         wget
 }
 
@@ -54,7 +56,7 @@ function download_packages() {
     download_file googletest ${googletest_url}
 }
 
-install_googletest() {
+function install_googletest() {
     cd ${packages_dir}/googletest
     extracted_folder=googletest-1.8.0
     archive_file=release-1.8.0.tar.gz
@@ -66,14 +68,14 @@ install_googletest() {
     fi
     
     cd ${extracted_folder}
-    mkdir -p release
-    cd release
-    cmake -D CMAKE_BUILD_TYPE=release -D CMAKE_INSTALL_PREFIX=${install_dir} ..
+    mkdir -p ${build_type}
+    cd ${build_type}
+    cmake -D CMAKE_BUILD_TYPE=${build_type} -D CMAKE_INSTALL_PREFIX=${install_dir} ..
     make -j${cores}
     make install
 }
 
-install_pangolin() {
+function install_pangolin() {
     cd ${packages_dir}/pangolin
     extracted_folder=pangolin-0.5
     archive_file=v0.5.tar.gz
@@ -90,7 +92,7 @@ install_pangolin() {
     make install
 }
 
-install_g2o() {
+function install_g2o() {
     cd ${packages_dir}/g2o
     extracted_folder=g2o-master
     archive_file=master.tar.gz
@@ -101,9 +103,9 @@ install_g2o() {
     fi
     echo ${extracted_folder}
     cd ${extracted_folder}
-    mkdir -p release
-    cd release
-    cmake -D CMAKE_BUILD_TYPE=release -D CMAKE_INSTALL_PREFIX=${install_dir} ..
+    mkdir -p ${build_type}
+    cd ${build_type}
+    cmake -D CMAKE_BUILD_TYPE=${build_type} -D CMAKE_INSTALL_PREFIX=${install_dir} ..
     make -j${cores}
     make install
 }
