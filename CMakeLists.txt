@@ -153,13 +153,13 @@ elseif(BUILD_EXAMPLES)
         orb-slam2
         ${Boost_LIBRARIES})
 
-    #add_executable(mono_grabbing Examples/Monocular/mono_grabbing.cc)
-    #target_link_libraries(mono_grabbing 
-        #orb-slam2
-        #${Boost_LIBRARIES})
+    add_executable(mono_grabbing Examples/Monocular/mono_grabbing.cc)
+    target_link_libraries(mono_grabbing 
+        orb-slam2
+        ${Boost_LIBRARIES})
 
-    #add_executable(mono_video Examples/Monocular/mono_video.cc)
-    #target_link_libraries(mono_video orb-slam2)
+    add_executable(mono_video Examples/Monocular/mono_video.cc)
+    target_link_libraries(mono_video orb-slam2)
 endif()
 
 # Build tools

@@ -36,12 +36,12 @@ rem Check whether we have a difference in the toolsrc folder. If non empty, %err
 rem git --no-pager diff --name-only origin/HEAD remotes/origin/HEAD | find "toolsrc/" > NUL & echo %errorlevel%
 rem Check whether changes was made between local commit an remotes/origin/HEAD in toolsrc\VERSION.txt
 rem 
-rem git --no-pager diff --name-only 15e4f46b45c432a41ee6a962609039bc2497ec19 remotes/origin/HEAD -- toolsrc\VERSION.txt
+rem git --no-pager diff --name-only b07568da4100d8be5d54feb1b1ccf65d0a5c0c3f remotes/origin/HEAD -- toolsrc\VERSION.txt
 
 rem ----------------------------------
-rem Using version 0.0.108 (toolsrc/VERSION.txt)
+rem Using version 0.0.113 (toolsrc/VERSION.txt)
 rem ----------------------------------
-set "VcPkgCommit=15e4f46b45c432a41ee6a962609039bc2497ec19"
+set "VcPkgCommit=b07568da4100d8be5d54feb1b1ccf65d0a5c0c3f"
 set "VcPkgCommitLock=bootstrap-vcpkg-%VcPkgCommit%"
 call
 pushd "%VcPkgDir%"
