@@ -26,28 +26,28 @@ namespace ORB_SLAM2
 			std::ofstream m_csv_file;
 		public:
 			// The constructor initializes the internal data
-			stat_collector::stat_collector(std::string &file_name) :m_csv_file(file_name, std::ios::out)
+		        stat_collector(std::string &file_name) :m_csv_file(file_name, std::ios::out)
 			{
 				if (!m_csv_file.is_open()) throw std::runtime_error("could not open the CSV file");
 			}
 
 			// The function consumes the log records that come from the frontend
-			void stat_collector::consume(boost::log::record_view const& rec)
+			void consume(boost::log::record_view const& rec)
 			{
 				m_csv_file << rec[boost::log::expressions::smessage];
 			}
 			// The function flushes the file
-			void stat_collector::flush()
+			void flush()
 			{
 				m_csv_file.flush();
 			}
-			stat_collector::~stat_collector()
+			~stat_collector()
 			{
 				flush();
 				m_csv_file.close();
 			}
 			typedef boost::log::sinks::synchronous_sink< stat_collector > sink_t;
-			static void stat_collector::init_logging(std::string filename)
+			static void init_logging(std::string filename)
 			{
 				boost::shared_ptr< boost::log::core > core = boost::log::core::get();
 				boost::shared_ptr< stat_collector > backend(new stat_collector(filename));
@@ -66,7 +66,7 @@ namespace ORB_SLAM2
 			stat_collector::init_logging("orbslam.csv");
 		}
 
-		void statistics ::reject_frame_for_lmt_busy()
+		void statistics::reject_frame_for_lmt_busy()
 		{
 			_reject_frame_for_lmt_busy++;
 		}
