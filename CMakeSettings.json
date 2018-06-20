@@ -3,12 +3,12 @@
     "configurations": [
         {
             "name": "x64-Debug",
-            "generator": "Ninja",
+            "generator": "Visual Studio 15 2017 Win64",
             "configurationType": "Debug",
             "inheritEnvironments": [ "msvc_x64_x64" ],
             "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
             "cmakeCommandArgs": "",
-            "buildCommandArgs": "-v -j4",
+            "buildCommandArgs": "",
             "ctestCommandArgs": "",
             "variables": [
                 {
@@ -26,17 +26,21 @@
                 {
                     "name": "CMAKE_INSTALL_PREFIX",
                     "value": "${workspaceRoot}\\install"
+                },
+                {
+                    "name": "G2O_ROOT",
+                    "value": "${env.USERPROFILE}\\.vcpkg\\vcpkg\\installed\\x64-windows"
                 }
             ]
         },
         {
             "name": "x64-Release",
-            "generator": "Ninja",
+            "generator": "Visual Studio 15 2017 Win64",
             "configurationType": "RelWithDebInfo",
             "inheritEnvironments": [ "msvc_x64_x64" ],
             "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
             "cmakeCommandArgs": "",
-            "buildCommandArgs": "-v -j4",
+            "buildCommandArgs": "",
             "ctestCommandArgs": "",
             "variables": [
                 {
@@ -54,6 +58,10 @@
                 {
                     "name": "CMAKE_INSTALL_PREFIX",
                     "value": "${workspaceRoot}\\install"
+                },
+                {
+                    "name": "G2O_ROOT",
+                    "value": "${env.USERPROFILE}\\.vcpkg\\vcpkg\\installed\\x64-windows"
                 }
             ]
         }

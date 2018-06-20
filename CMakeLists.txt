@@ -13,6 +13,13 @@ if (CMAKE_SYSTEM_NAME MATCHES Windows AND CMAKE_VERSION LESS 3.11)
     LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules/FindBoost)
 endif()
 
+# FindG2O for treatment of G20 imported targets
+LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules/FindG2O)
+
+message(STATUS "======")
+message(STATUS CMAKE_MODULE_PATH = ${CMAKE_MODULE_PATH})
+message(STATUS "======")
+
 add_definitions("-DCOMPILEDWITHC11")
 if(WIN32)
     add_definitions("-DNOMINMAX")
@@ -70,7 +77,8 @@ target_include_directories(orb-slam2-ext PUBLIC
     $<INSTALL_INTERFACE:include>)
 
 target_link_libraries(orb-slam2-ext PUBLIC 
-    ${Boost_LIBRARIES}
+    Boost::boost
+    Boost::log
     ${OpenCV_LIBS})
 
 install(TARGETS orb-slam2-ext EXPORT orb-slam2
@@ -121,28 +129,6 @@ install(TARGETS orb-slam2 EXPORT orb-slam2
 )
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION include/orb-slam2)
 install(EXPORT orb-slam2 FILE orb-slam2Config.cmake DESTINATION share/orb-slam2)
-
-# INTERFACE targets seems to be broken for "Visual Studio" generators. 
-# I want to see these files in the generated solutions, hence the hack with
-# a static library.
-add_library(orb-slam2-ext STATIC
-    ext/app_monitor.h
-    ext/app_monitor_api.h
-    ext/app_monitor_api_impl.h
-    ext/messages.h
-    ext/functionless-sentinel.cpp)
-
-target_include_directories(orb-slam2-ext PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-    $<INSTALL_INTERFACE:include>)
-
-target_link_libraries(orb-slam2-ext
-    Boost::boost)
-
-install(TARGETS orb-slam2-ext EXPORT orb-slam2
-    RUNTIME DESTINATION bin
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib)
 
 install(
     DIRECTORY ${PROJECT_SOURCE_DIR}/ext/ 
