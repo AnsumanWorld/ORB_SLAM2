@@ -16,10 +16,6 @@ endif()
 # FindG2O for treatment of G20 imported targets
 LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules/FindG2O)
 
-message(STATUS "======")
-message(STATUS CMAKE_MODULE_PATH = ${CMAKE_MODULE_PATH})
-message(STATUS "======")
-
 add_definitions("-DCOMPILEDWITHC11")
 if(WIN32)
     add_definitions("-DNOMINMAX")
@@ -43,6 +39,8 @@ endif()
 
 find_package(Eigen3 REQUIRED)
 find_package(Boost REQUIRED COMPONENTS filesystem log)
+# This is unfortunate but some Boost libraries (e.g. Boost::log) need this.
+add_compile_options(-DBOOST_ALL_DYN_LINK)
 
 if("${EIGEN3_VERSION_STRING}" VERSION_LESS "3.1.0")
     message(FATAL_ERROR "Eigen3 > 3.1.0 not found.")

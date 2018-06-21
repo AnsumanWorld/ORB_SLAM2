@@ -1,11 +1,16 @@
 {
   "version": "0.2.1",
-    "tasks": [
-        {
-            "taskName": "Invoke script",
-            "appliesTo": "*.bat",
-            "command": "${file}",
-            "type": "launch"
-        }
-    ]
+  "tasks": [
+    {
+      "taskName": "Invoke script",
+      "appliesTo": "*.bat",
+      "command": "${file}",
+      "type": "launch"
+    },
+    {
+      "taskName": "task-configure",
+      "appliesTo": "scripts/windows/configure.bat",
+      "type": "launch"
+    }
+  ]
 }
