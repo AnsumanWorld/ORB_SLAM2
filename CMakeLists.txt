@@ -1,11 +1,16 @@
 cmake_minimum_required(VERSION 3.0)
 project(orb-slam2)
 
+include(CTest)
+
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+# I'd prefer to not set these but it seems to be much more convenient to have all the artifacts in out place 
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/$<CONFIGURATION>/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/$<CONFIGURATION>/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/$<CONFIGURATION>/bin)
 
-set(ORBSLAM2_LIB_TYPE STATIC)
 option(BUILD_EXAMPLES "Build Examples" ON )
 
 if (CMAKE_SYSTEM_NAME MATCHES Windows AND CMAKE_VERSION LESS 3.11)
@@ -59,7 +64,6 @@ endif()
 
 find_package(Pangolin REQUIRED)
 find_package(G2O REQUIRED)
-find_package(GTest REQUIRED)
 
 include_directories(
 ${PROJECT_SOURCE_DIR}
@@ -107,7 +111,7 @@ install(
     DESTINATION include/orb-slam2/ext 
     FILES_MATCHING PATTERN *.h)
 
-add_library(orb-slam2 ${ORBSLAM2_LIB_TYPE}
+add_library(orb-slam2 STATIC
 src/System.cc
 src/Tracking.cc
 src/LocalMapping.cc
@@ -175,19 +179,22 @@ if(BUILD_ALL_EXAMPLES)
 
     add_executable(mono_video Examples/Monocular/mono_video.cc) 
     target_link_libraries(mono_video orb-slam2)
+endif()
 
-    add_executable(semantic_monocular Examples/Monocular/semantic_monocular.cc)
-    target_link_libraries(semantic_monocular orb-slam2)
-
-    # semantic_monocular_video is not using messages.h's types correctly and causing build issue, hence disabling
-    # add_executable(semantic_monocular_video Examples/Monocular/semantic_monocular_video.cpp)
-    # target_link_libraries(semantic_monocular_video orb-slam2 filesystem)
-elseif(BUILD_EXAMPLES)
-    add_executable(semantic_monocular Examples/Monocular/semantic_monocular.cc Examples/Monocular/semantic_monocular.hpp)
+if(BUILD_EXAMPLES)
+    add_executable(semantic_monocular 
+        Examples/Monocular/semantic_monocular.cc 
+        Examples/Monocular/semantic_monocular.hpp
+        .vs/launch.vs.json
+        CMakeSettings.json)
     target_link_libraries(semantic_monocular 
         orb-slam2
         orb-slam2-ext
         Boost::filesystem)
+
+    # semantic_monocular_video is not using messages.h's types correctly and causing build issue, hence disabling
+    # add_executable(semantic_monocular_video Examples/Monocular/semantic_monocular_video.cpp)
+    # target_link_libraries(semantic_monocular_video orb-slam2 filesystem)
 
     add_executable(mono_grabbing Examples/Monocular/mono_grabbing.cc)
     target_link_libraries(mono_grabbing 
@@ -200,10 +207,12 @@ elseif(BUILD_EXAMPLES)
         orb-slam2
         orb-slam2-ext
         Boost::filesystem)
+
 if(CMAKE_SYSTEM_NAME MATCHES Windows) 
     add_custom_command(TARGET mono_video POST_BUILD
                    COMMAND ${CMAKE_SOURCE_DIR}/products/copy_ffmpeg$<$<CONFIG:Debug>:d>.bat "$<TARGET_FILE_DIR:mono_video>")
 endif()
+
 endif()
 
 # Build tools
@@ -217,7 +226,7 @@ if(BUILD_EXPERIMENTS)
 endif()
 
 # Tests
-if(BUILD_TESTS)
+if(BUILD_TESTING)
     add_subdirectory(tests)
 endif()
 

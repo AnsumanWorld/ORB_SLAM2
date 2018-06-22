@@ -39,17 +39,23 @@
       ]
     },
     {
-        "type": "default",
-        "project": "CMakeLists.txt",
-        "projectTarget": "semantic_monocular.exe (RelWithDebInfo\\semantic_monocular.exe)",
-        "name": "semantic_monocular.exe (RelWithDebInfo\\semantic_monocular.exe)",
-        "currentDir": "${workspaceRoot}",
-        "args": [
-            "Vocabulary\\ORBvoc.bin",
-            "Examples\\Monocular\\Garching-Test-Drive.yaml",
-            "data\\Garching_LoopClosure-3-images",
-            "data\\Garching_LoopClosure-3-features.json"
-        ]
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "semantic_monocular.exe (RelWithDebInfo\\semantic_monocular.exe)",
+      "name": "semantic_monocular.exe (RelWithDebInfo\\semantic_monocular.exe)",
+      "currentDir": "${workspaceRoot}",
+      "args": [
+        "Vocabulary\\ORBvoc.bin",
+        "Examples\\Monocular\\Garching-Test-Drive.yaml",
+        "data\\Garching_LoopClosure-3-images",
+        "data\\Garching_LoopClosure-3-features.json"
+      ]
+    },
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "tests-orb-slam2.exe (Debug\\bin\\tests-orb-slam2.exe)",
+      "name": "tests-orb-slam2.exe (Debug\\bin\\tests-orb-slam2.exe)"
     }
   ]
 }

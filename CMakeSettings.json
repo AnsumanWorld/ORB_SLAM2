@@ -30,6 +30,10 @@
                 {
                     "name": "G2O_ROOT",
                     "value": "${env.USERPROFILE}\\.vcpkg\\vcpkg\\installed\\x64-windows"
+                },
+                {
+                    "name": "BUILD_TESTING",
+                    "value": "ON"
                 }
             ]
         },
@@ -62,6 +66,10 @@
                 {
                     "name": "G2O_ROOT",
                     "value": "${env.USERPROFILE}\\.vcpkg\\vcpkg\\installed\\x64-windows"
+                },
+                {
+                    "name": "BUILD_TESTING",
+                    "value": "ON"
                 }
             ]
         }

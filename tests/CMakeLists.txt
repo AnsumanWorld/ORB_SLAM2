@@ -1,15 +1,14 @@
-project(test-orb-slam2)
+project(tests-orb-slam2)
 
-set(src_list
-test_coord_conv.cpp
-)
+find_package(GTest REQUIRED)
 
-set(lib_list GTest::GTest GTest::Main orb-slam2)
+add_executable(${PROJECT_NAME} 
+    test_coord_conv.cpp)
 
-add_executable(${PROJECT_NAME} ${src_list})
-target_link_libraries(${PROJECT_NAME} ${lib_list})
+target_link_libraries(${PROJECT_NAME} 
+    GTest::GTest GTest::Main orb-slam2 orb-slam2-ext)
 
 add_test(
-NAME ${PROJECT_NAME}
-COMMAND $<TARGET_FILE:${PROJECT_NAME}>
+    NAME ${PROJECT_NAME}
+    COMMAND $<TARGET_FILE:${PROJECT_NAME}>
 )
