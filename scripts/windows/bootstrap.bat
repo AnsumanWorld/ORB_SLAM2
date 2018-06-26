@@ -71,7 +71,8 @@ set "VcPkgTriplet=%VcPkgTriplet%" & ^
 set "Platform=%Platform%" & ^
 set "Toolset=%Toolset%" & ^
 set "Platform=%Platform%" & ^
-set "BuildType=%BuildType%"
+set "BuildType=%BuildType%" & ^
+exit /b %errorlevel%
 
 goto :eof
 

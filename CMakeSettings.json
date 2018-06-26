@@ -34,6 +34,10 @@
                 {
                     "name": "BUILD_TESTING",
                     "value": "ON"
+                },
+                {
+                    "name": "BUILD_EXPERIMENTS",
+                    "value": "ON"
                 }
             ]
         },
@@ -69,6 +73,10 @@
                 },
                 {
                     "name": "BUILD_TESTING",
+                    "value": "ON"
+                },
+                {
+                    "name": "BUILD_EXPERIMENTS",
                     "value": "ON"
                 }
             ]

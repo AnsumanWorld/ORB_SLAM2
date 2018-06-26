@@ -31,9 +31,10 @@ call cmake.exe -G "%CMakeGeneratorName%" ^
 -DWARNINGS=ON ^
 -DBUILD_EXAMPLES=ON ^
 -DBUILD_TOOLS=OFF ^
--DBUILD_EXPERIMENTS=OFF ^
+-DBUILD_EXPERIMENTS=ON ^
 -DBUILD_TESTING=ON ^
 "%~dp0..\.."
 
 popd
-endlocal & set "BuildDir=%BuildDir%" & set "BuildType=%BuildType%"
+
+endlocal & set "BuildDir=%BuildDir%" & set "BuildType=%BuildType%" & exit /b %errorcode%

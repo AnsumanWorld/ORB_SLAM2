@@ -1,6 +1,6 @@
-FROM ubuntu:17.10
+FROM ubuntu:18.04
 COPY scripts/linux /tmp
-RUN /tmp/bootstrap.sh \
+RUN DEBIAN_FRONTEND=noninteractive /tmp/bootstrap.sh \
     && rm -rf /root/packages \
     && apt-get -y autoremove \
     && apt-get -y autoclean \

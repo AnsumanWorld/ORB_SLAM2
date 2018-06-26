@@ -5,4 +5,6 @@ add_executable(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
     orb-slam2
+    orb-slam2-ext
+    Boost::filesystem
 )

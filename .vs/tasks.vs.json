@@ -6,11 +6,6 @@
       "appliesTo": "*.bat",
       "command": "${file}",
       "type": "launch"
-    },
-    {
-      "taskName": "task-configure",
-      "appliesTo": "scripts/windows/configure.bat",
-      "type": "launch"
     }
   ]
 }

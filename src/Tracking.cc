@@ -37,8 +37,6 @@
 #include<iomanip>
 #include<mutex>
 
-#include "ext/gps_cfg.h"
-#include "util/util.hpp"
 
 using namespace std;
 
@@ -118,18 +116,6 @@ Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer,
     int fIniThFAST = fSettings["ORBextractor.iniThFAST"];
     int fMinThFAST = fSettings["ORBextractor.minThFAST"];
 
-    int ba_fuse_option_ = fSettings["GPS.ba_fuse_option"];
-    ext::gps_cfg::get().ba_fuse_option(static_cast<ext::gps_option>(ba_fuse_option_));
-
-    int vo_option = fSettings["GPS.add_vo_edge"];
-    ext::gps_cfg::get().add_vo_edge(static_cast<bool>(vo_option));
-    
-    int gps_pose_opt = fSettings["GPS.pose_optimization"];
-    ext::gps_cfg::get().pose_optimization(static_cast<bool>(gps_pose_opt));
-
-    int gps_source_ = fSettings["GPS.source"];
-    ext::gps_cfg::get().source_gps(static_cast<ext::gps_source>(gps_source_));
-
     mpORBextractorLeft = new ORBextractor(nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
 
     if(sensor==System::STEREO)
@@ -144,10 +130,6 @@ Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer,
     cout << "- Scale Factor: " << fScaleFactor << endl;
     cout << "- Initial Fast Threshold: " << fIniThFAST << endl;
     cout << "- Minimum Fast Threshold: " << fMinThFAST << endl;
-    cout << "- GPS.ba_fuse_option: " << ba_fuse_option_ << endl;
-    cout << "- GPS.add_vo_edge: " << vo_option << endl;
-    cout << "- GPS.pose_optimization: " << gps_pose_opt << endl;
-    cout << "- GPS.gps_source: " << gps_source_ << endl;
 
     if(sensor==System::STEREO || sensor==System::RGBD)
     {
@@ -732,35 +714,11 @@ void Tracking::CreateInitialMapMonocular()
     // Bundle Adjustment
     cout << "New Map created with " << mpMap->MapPointsInMap() << " points" << endl;
 
-    auto pos_info = std::get<3>(mInitialFrame._sensor_input);
-    if(pos_info)
-    {
-        auto position = pos_info.get();
-        Eigen::Vector3d orig = position.pos;
-        ext::orientation_t orient = position.orient;
-
-        cout << "mInitialFrame FID = " << mInitialFrame.mnId << endl;
-        cout << "mCurrentFrame FID = " << mCurrentFrame.mnId << endl;
-        
-        cout << "GPS Origin :" 
-            << orig.x() << ", "
-            << orig.y() << ", "
-            << orig.z() << endl;
-        cout << "Initial Orientation :"
-            << std::get<0>(orient) << ", "
-            << std::get<1>(orient) << ", "
-            << std::get<2>(orient) << endl;
-        
-        ext::gps_cfg::get().gps_origin(pos_info);
-    }
-
     Optimizer::GlobalBundleAdjustemnt(mpMap,20);
 
     // Set median depth to 1
     float medianDepth = pKFini->ComputeSceneMedianDepth(2);
     float invMedianDepth = 1.0f/medianDepth;
-
-    cout << setprecision(15) << "Scale = " << invMedianDepth << endl;
 
     if(medianDepth<0 || pKFcur->TrackedMapPoints(1)<100)
     {

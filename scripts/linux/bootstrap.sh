@@ -112,6 +112,13 @@ function install_g2o() {
 
 install_dependencies
 download_packages
+
+build_type=Release
+install_pangolin
+install_g2o
+install_googletest
+
+build_type=Debug
 install_pangolin
 install_g2o
 install_googletest
