@@ -26,7 +26,7 @@ then
     Buildtype="$3"
 fi
 
-BuildDir="products/cmake.make.linux.${Platform}.${Toolset}.${Buildtype}"
+BuildDir="${ProjectDir}/products/cmake.make.linux.${Platform}.${Toolset}.${Buildtype}"
 
 mkdir -p "${BuildDir}"
 
