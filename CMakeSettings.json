@@ -37,7 +37,7 @@
                 },
                 {
                     "name": "BUILD_EXPERIMENTS",
-                    "value": "ON"
+                    "value": "OFF"
                 }
             ]
         },
@@ -77,7 +77,7 @@
                 },
                 {
                     "name": "BUILD_EXPERIMENTS",
-                    "value": "ON"
+                    "value": "OFF"
                 }
             ]
         }
