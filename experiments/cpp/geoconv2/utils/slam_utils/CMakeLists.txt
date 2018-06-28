@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.0)
 project(slam-tools VERSION 0.1)
 
 find_package(Eigen3 REQUIRED)

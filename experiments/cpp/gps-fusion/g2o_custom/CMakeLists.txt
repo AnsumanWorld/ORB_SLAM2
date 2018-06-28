@@ -14,10 +14,11 @@ add_library(${PROJECT_NAME} SHARED
     types_custom.cpp)
 
 target_link_libraries(${PROJECT_NAME} 
-    debug ${G2O_LIBS_DEBUG}
-    optimized ${G2O_LIBS})
-target_link_libraries(${PROJECT_NAME} 
- ${EIGEN3_LIBS} ${OPENGL_LIBRARY} util)
+    ${EIGEN3_LIBS}
+    ${OPENGL_LIBRARY}
+    util
+    ${G2O_LIBS}
+)
 
 if(USE_COTIRE)
     cotire(${PROJECT_NAME})

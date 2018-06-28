@@ -17,12 +17,12 @@ add_library(${PROJECT_NAME} SHARED
     edge_se3_expmap_prior_3d.cc
     types_slamext.cc)
 
-target_link_libraries(${PROJECT_NAME}  
-    debug ${G2O_LIBS_DEBUG}
-    optimized ${G2O_LIBS})
-
 target_link_libraries(${PROJECT_NAME}
-    ${EIGEN3_LIBS} ${OPENGL_LIBRARY} utils)
+    ${EIGEN3_LIBS}
+    ${OPENGL_LIBRARY}
+    utils
+    ${G2O_LIBS}
+)
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>

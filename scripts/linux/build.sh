@@ -41,4 +41,4 @@ cmake ${ProjectDir} \
     -DWARNINGS=OFF \
     -DCMAKE_INSTALL_PREFIX=/usr/local
 
-cmake --build ${BuildDir} --target install -- -j${cores}
+cmake --build ${BuildDir} --config ${Buildtype} --target install -- -j${cores}

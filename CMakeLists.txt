@@ -139,12 +139,9 @@ target_link_libraries(orb-slam2
     ${Pangolin_LIBRARIES}
     DBoW2
     g2o_slamext
-    utils)
-
-target_link_libraries(orb-slam2 
-    debug ${G2O_LIBS_DEBUG}
-    optimized ${G2O_LIBS})
-
+    utils
+    ${G2O_LIBS}
+)
 
 target_include_directories(orb-slam2 INTERFACE $<INSTALL_INTERFACE:include>)
 install(TARGETS orb-slam2 EXPORT orb-slam2  

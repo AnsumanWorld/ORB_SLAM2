@@ -29,34 +29,6 @@ find_package(GTest REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(G2O REQUIRED)
 
-set(G2O_LIBS
-    ${G2O_CORE_LIBRARY}
-    ${G2O_SOLVER_EIGEN}
-    ${G2O_STUFF_LIBRARY}
-    ${G2O_TYPES_DATA}
-    ${G2O_TYPES_ICP}
-    ${G2O_TYPES_SBA}
-    ${G2O_TYPES_SCLAM2D}
-    ${G2O_TYPES_SIM3}
-    ${G2O_TYPES_SLAM2D}
-    ${G2O_TYPES_SLAM3D}
-)
-
-if (${CMAKE_BUILD_TYPE} MATCHES "Debug")
-    set(G2O_LIBS
-        ${G2O_CORE_LIBRARY_DEBUG}
-        ${G2O_SOLVER_EIGEN_DEBUG}
-        ${G2O_STUFF_LIBRARY_DEBUG}
-        ${G2O_TYPES_DATA_DEBUG}
-        ${G2O_TYPES_ICP_DEBUG}
-        ${G2O_TYPES_SBA_DEBUG}
-        ${G2O_TYPES_SCLAM2D_DEBUG}
-        ${G2O_TYPES_SIM3_DEBUG}
-        ${G2O_TYPES_SLAM2D_DEBUG}
-        ${G2O_TYPES_SLAM3D_DEBUG}
-    )
-endif()
-
 include_directories(
     ${PROJECT_SOURCE_DIR}
     ${PROJECT_SOURCE_DIR}/core

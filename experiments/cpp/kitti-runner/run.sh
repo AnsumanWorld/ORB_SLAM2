@@ -78,13 +78,18 @@ function save_gnuplot_side_view(){
 function save_evo_ape(){
     GroundTruth=${1}
     SlamTraj=${2}
-    OutputPdf=${3}
+    Output=${3}
 
-    evo_ape kitti ${GroundTruth} ${SlamTraj} \
+    GTClipped=${Output}_clipped.txt
+    python ${ProjectDir}/experiments/py/clip-traj/clip_traj.py ${GroundTruth} ${SlamTraj} ${GTClipped}
+
+    evo_ape kitti ${GTClipped} ${SlamTraj} \
         --plot_mode xyz \
         --pose_relation full \
         --save_plot ${Output}_evo_ape.pdf \
         --save_results ${Output}_evo_ape.zip
+
+    rm -rf ${GTClipped}
 }
 
 function save_evo_traj(){
@@ -127,24 +132,19 @@ function run_sequence() {
     # save_gnuplot_top_view ${SensorSource} ${SlamTraj} ${Sequence}_top.png ${Sequence}
     # save_gnuplot_side_view ${SensorSource} ${SlamTraj} ${Sequence}_side.png ${Sequence}
     save_evo_traj ${SensorSource} ${SlamTraj} ${Sequence}
-
-    GTClipped=${Sequence}_clipped.txt
-    python ${ProjectDir}/experiments/py/clip-traj/clip_traj.py ${SensorSource} ${SlamTraj} ${GTClipped}
-
-    save_evo_ape ${GTClipped} ${SlamTraj} ${Sequence}
-    rm -rf ${GTClipped}
+    save_evo_ape ${SensorSource} ${SlamTraj} ${Sequence}
 
     echo "Finished sequence ${Sequence}" 
 }
 
-# run_sequence 00
+run_sequence 00
 # run_sequence 01
-# run_sequence 02
-# run_sequence 03
+run_sequence 02
+run_sequence 03
 run_sequence 04
-# run_sequence 05
-# run_sequence 06
-# run_sequence 07
-# run_sequence 08
-# run_sequence 09
-# run_sequence 10
+run_sequence 05
+run_sequence 06
+run_sequence 07
+run_sequence 08
+run_sequence 09
+run_sequence 10
