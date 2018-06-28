@@ -21,8 +21,9 @@ target_link_libraries(${PROJECT_NAME}
     ${EIGEN3_LIBS}
     ${OPENGL_LIBRARY}
     utils
-    ${G2O_LIBS}
 )
+
+target_link_libraries(${PROJECT_NAME} ${G2O_LIBS})
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
