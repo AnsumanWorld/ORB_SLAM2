@@ -7,11 +7,8 @@ set -e
 
 ################################################################################
 # User Input
-Option="gps"
 Sequences=/mnt/hgfs/C/data/data_odometry_gray/dataset/sequences
 Poses=/mnt/hgfs/C/data/gt/data_odometry_poses/dataset/poses
-MinInitGPSFrames=99999
-GPSSkipFrequency=99999
 ################################################################################
 
 Timestamp=$(date '+%Y%m%d_%H%M%S')
@@ -125,12 +122,21 @@ function run_sequence() {
     SensorSource=${Poses}/${Sequence}.txt
     SlamTraj="${Sequence}.txt"
 
-    ${App} ${Option} ${Vocabulary} ${Settings} ${ImagesDir} \
-    ${SensorSource} ${SlamTraj} ${MinInitGPSFrames} ${GPSSkipFrequency} \
-    > ${Sequence}.log 2>&1
+    ${App} \
+        --ext_pose_data=${SensorSource} \
+        --ext_pose_skip_freq=10 \
+        --frame_interval_ms=200 \
+        --images_dir=${ImagesDir} \
+        --min_init_frames_with_ext_pose=100 \
+        --output_traj_path=${SlamTraj} \
+        --settings_path=${Settings} \
+        --use_ext_pose=true \
+        --vocabulary_path=${Vocabulary} \
+        --wait_for_stdin=false \
+        |& tee ${Sequence}.log
     
-    # save_gnuplot_top_view ${SensorSource} ${SlamTraj} ${Sequence}_top.png ${Sequence}
-    # save_gnuplot_side_view ${SensorSource} ${SlamTraj} ${Sequence}_side.png ${Sequence}
+    save_gnuplot_top_view ${SensorSource} ${SlamTraj} ${Sequence}_top.png ${Sequence}
+    save_gnuplot_side_view ${SensorSource} ${SlamTraj} ${Sequence}_side.png ${Sequence}
     save_evo_traj ${SensorSource} ${SlamTraj} ${Sequence}
     save_evo_ape ${SensorSource} ${SlamTraj} ${Sequence}
 

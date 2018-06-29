@@ -12,10 +12,11 @@
 #include <chrono>
 #include <exception>
 #include <fstream>
-#include <initializer_list>
 #include <iostream>
 #include <string>
 #include <vector>
+
+#include "config.h"
 
 namespace fs = boost::filesystem;
 
@@ -83,14 +84,14 @@ std::vector<sensor_data_t> get_sensor_values(const fs::path& file) {
     return gt_values;
 }
 
-void check_existence(const std::initializer_list<fs::path>& paths) {
+void check_existence(const std::vector<fs::path>& paths) {
     std::for_each(paths.begin(), paths.end(), [&](const fs::path& path) {
         if (!fs::exists(path))
             throw std::runtime_error("invalid path:" + path.generic_string());
     });
 }
 
-void check_file(const std::initializer_list<fs::path>& paths) {
+void check_file(const std::vector<fs::path>& paths) {
     std::for_each(paths.begin(), paths.end(), [&](const fs::path& path) {
         if (!fs::is_regular_file(path))
             throw std::runtime_error("not a regular file:" +
@@ -98,7 +99,7 @@ void check_file(const std::initializer_list<fs::path>& paths) {
     });
 }
 
-void check_directory(const std::initializer_list<fs::path>& paths) {
+void check_directory(const std::vector<fs::path>& paths) {
     std::for_each(paths.begin(), paths.end(), [&](const fs::path& path) {
         if (!fs::is_directory(path))
             throw std::runtime_error("not a directory:" +
@@ -106,14 +107,15 @@ void check_directory(const std::initializer_list<fs::path>& paths) {
     });
 }
 
-void track(ORB_SLAM2::System& slam, const slam_input_t& input) {
-    // Simulate ~10 fps for KITTI using sleep
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+void track(ORB_SLAM2::System& slam, slam_input_t const& input,
+           config const& cfg) {
+    std::this_thread::sleep_for(
+        std::chrono::milliseconds(cfg.frame_interval_ms()));
     slam.TrackMonocular(input);
 }
 
-void feed_images(ORB_SLAM2::System& slam, const fs::path& image_folder) {
-    auto image_files = get_files(image_folder, ".png");
+void feed_images(ORB_SLAM2::System& slam, config const& cfg) {
+    auto image_files = get_files(cfg.images_dir(), ".png");
 
     for (auto image_file : image_files) {
         auto image =
@@ -124,15 +126,13 @@ void feed_images(ORB_SLAM2::System& slam, const fs::path& image_folder) {
                                      image_file.generic_string());
 
         auto input = std::make_tuple(0.0, image, boost::none, boost::none);
-        track(slam, input);
+        track(slam, input, cfg);
     }
 }
 
-void feed_from_gt(ORB_SLAM2::System& slam, const fs::path& image_folder,
-                  const fs::path& gt, const std::size_t& init_frames_with_gps,
-                  const std::size_t& skip_frequency) {
-    auto image_files = get_files(image_folder, ".png");
-    auto gt_values = get_sensor_values(gt);
+void feed_from_gt(ORB_SLAM2::System& slam, config const& cfg) {
+    auto image_files = get_files(cfg.images_dir(), ".png");
+    auto gt_values = get_sensor_values(cfg.ext_pose_data());
 
     if (image_files.size() != gt_values.size())
         throw std::runtime_error("image_files count != gt_values count");
@@ -153,7 +153,8 @@ void feed_from_gt(ORB_SLAM2::System& slam, const fs::path& image_folder,
 
         slam_input_t input;
 
-        if (i > init_frames_with_gps && skipped_frames < skip_frequency) {
+        if (i > cfg.min_init_frames_with_ext_pose() &&
+            skipped_frames < cfg.ext_pose_skip_freq()) {
             input = std::make_tuple(i, image, boost::none, boost::none);
             ++skipped_frames;
         } else {
@@ -161,70 +162,47 @@ void feed_from_gt(ORB_SLAM2::System& slam, const fs::path& image_folder,
             skipped_frames = 0;
         }
 
-        track(slam, input);
+        track(slam, input, cfg);
     }
 }
 
-void run_slam(const std::string& option, const fs::path& voc,
-              const fs::path& settings, const fs::path& image_folder,
-              const fs::path& sensor_source, const fs::path& output_traj,
-              const std::size_t& init_frames_with_gps,
-              const std::size_t& skip_frequency) {
-    check_existence({voc, settings, image_folder, sensor_source});
-    check_file({voc, settings, sensor_source});
-    check_directory({image_folder});
+void run_slam(config const& cfg) {
+    check_existence({cfg.vocabulary_path(), cfg.settings_path(),
+                     cfg.images_dir(), cfg.ext_pose_data()});
+    check_file(
+        {cfg.vocabulary_path(), cfg.settings_path(), cfg.ext_pose_data()});
+    check_directory({cfg.images_dir()});
     ORB_SLAM2::ext::app_monitor_impl app_monitor_inst;
     ORB_SLAM2::ext::app_monitor_api* app_monitor = &app_monitor_inst;
 
-    ORB_SLAM2::System slam(voc.generic_string(), settings.generic_string(),
+    ORB_SLAM2::System slam(cfg.vocabulary_path().generic_string(),
+                           cfg.settings_path().generic_string(),
                            ORB_SLAM2::System::MONOCULAR, true, app_monitor);
 
-    check_file({sensor_source});
-
-    if ("gps" == option)
-        feed_from_gt(slam, image_folder, sensor_source, init_frames_with_gps,
-                     skip_frequency);
-    else if ("no-gps" == option)
-        feed_images(slam, image_folder);
-    else
-        throw std::runtime_error("invalid option:" + option);
+    if (cfg.use_ext_pose()) {
+        check_file({cfg.ext_pose_data()});
+        feed_from_gt(slam, cfg);
+    } else
+        feed_images(slam, cfg);
 
     slam.Shutdown();
-    slam.SaveTrajectoryKITTI(output_traj.generic_string().c_str());
+    slam.SaveTrajectoryKITTI(cfg.output_traj_path().generic_string().c_str());
 }
 
 void wait_for_key() {
     char x{'0'};
     std::cout << "Press any char and enter to continue!" << std::endl;
     std::cin >> x;
+    std::cout << "Recieved key input " << x << " continuing..." << std::endl;
 }
 
 void run(int argc, char** argv) {
-    // wait_for_key(); // Use Attach to process and press Key
+    config cfg(argc, argv);
 
-    // std::ofstream out("kitti-runner.log");
-    // std::cout.rdbuf(out.rdbuf());
-    // std::ios_base::sync_with_stdio(false);
-    // std::cin.tie(NULL);
+    if (cfg.wait_for_stdin())
+        wait_for_key();
 
-    if (argc != 9)
-        throw std::invalid_argument(
-            "usage: kitti_runner option(gps|no-gps) vocabulary settings "
-            "image_folder sensor_source(groundtruth) output_traj min_init_gps "
-            "skip_frequency");
-
-    std::string option = argv[1];
-    fs::path voc = argv[2];
-    fs::path settings = argv[3];
-    fs::path image_folder = argv[4];
-    fs::path sensor_source = argv[5];
-    fs::path output_traj = argv[6];
-    std::size_t init_frames_with_gps =
-        boost::lexical_cast<std::size_t>(argv[7]);
-    std::size_t skip_frequency = boost::lexical_cast<std::size_t>(argv[8]);
-
-    run_slam(option, voc, settings, image_folder, sensor_source, output_traj,
-             init_frames_with_gps, skip_frequency);
+    run_slam(cfg);
 }
 
 int main(int argc, char** argv) {
