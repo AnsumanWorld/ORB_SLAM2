@@ -16,7 +16,7 @@ if not exist "%ProjectDir%\Vocabulary\ORBvoc.bin" (
     del /f /q "%ProjectDir%\Vocabulary\ORBvoc.bin.tar"
 )
 
-set ds_semantic_app="%BuildDir%\%BuildType%\run_ds_semantic.exe"
+set ds_semantic_app="%BuildDir%\%BuildType%\bin\run_ds_semantic.exe"
 set VocabularyFile="%ProjectDir%\Vocabulary\ORBvoc.bin"
 
 if /i not "%~1"=="" set "settings_file_path=%~1"
