@@ -1,0 +1,118 @@
+RobustKernelFactory WARNING: Overwriting robust kernel tag Huber
+RobustKernelFactory WARNING: Overwriting robust kernel tag PseudoHuber
+RobustKernelFactory WARNING: Overwriting robust kernel tag Cauchy
+RobustKernelFactory WARNING: Overwriting robust kernel tag GemanMcClure
+RobustKernelFactory WARNING: Overwriting robust kernel tag Welsch
+RobustKernelFactory WARNING: Overwriting robust kernel tag Fair
+RobustKernelFactory WARNING: Overwriting robust kernel tag Tukey
+RobustKernelFactory WARNING: Overwriting robust kernel tag Saturated
+RobustKernelFactory WARNING: Overwriting robust kernel tag DCS
+FACTORY WARNING: Overwriting Vertex tag VERTEX_CAM
+FACTORY WARNING: Registering same class for two tags N3g2o9VertexCamE
+FACTORY WARNING: Overwriting Vertex tag VERTEX_XYZ
+FACTORY WARNING: Registering same class for two tags N3g2o17VertexSBAPointXYZE
+FACTORY WARNING: Overwriting Vertex tag VERTEX_INTRINSICS
+FACTORY WARNING: Registering same class for two tags N3g2o16VertexIntrinsicsE
+FACTORY WARNING: Overwriting Vertex tag EDGE_PROJECT_P2MC
+FACTORY WARNING: Registering same class for two tags N3g2o15EdgeProjectP2MCE
+FACTORY WARNING: Overwriting Vertex tag EDGE_PROJECT_P2MC_INTRINSICS
+FACTORY WARNING: Registering same class for two tags N3g2o26EdgeProjectP2MC_IntrinsicsE
+FACTORY WARNING: Overwriting Vertex tag EDGE_PROJECT_P2SC
+FACTORY WARNING: Registering same class for two tags N3g2o15EdgeProjectP2SCE
+FACTORY WARNING: Overwriting Vertex tag EDGE_CAM
+FACTORY WARNING: Registering same class for two tags N3g2o10EdgeSBACamE
+FACTORY WARNING: Overwriting Vertex tag EDGE_SCALE
+FACTORY WARNING: Registering same class for two tags N3g2o12EdgeSBAScaleE
+FACTORY WARNING: Overwriting Vertex tag VERTEX_SE3:EXPMAP
+FACTORY WARNING: Registering same class for two tags N3g2o15VertexSE3ExpmapE
+FACTORY WARNING: Overwriting Vertex tag EDGE_SE3:EXPMAP
+FACTORY WARNING: Registering same class for two tags N3g2o13EdgeSE3ExpmapE
+FACTORY WARNING: Overwriting Vertex tag EDGE_PROJECT_XYZ2UV:EXPMAP
+FACTORY WARNING: Registering same class for two tags N3g2o17EdgeProjectXYZ2UVE
+FACTORY WARNING: Overwriting Vertex tag EDGE_PROJECT_XYZ2UVU:EXPMAP
+FACTORY WARNING: Registering same class for two tags N3g2o18EdgeProjectXYZ2UVUE
+FACTORY WARNING: Overwriting Vertex tag EDGE_SE3_PROJECT_XYZ:EXPMAP
+FACTORY WARNING: Registering same class for two tags N3g2o17EdgeSE3ProjectXYZE
+FACTORY WARNING: Overwriting Vertex tag EDGE_SE3_PROJECT_XYZONLYPOSE:EXPMAP
+FACTORY WARNING: Registering same class for two tags N3g2o25EdgeSE3ProjectXYZOnlyPoseE
+FACTORY WARNING: Overwriting Vertex tag EDGE_STEREO_SE3_PROJECT_XYZ:EXPMAP
+FACTORY WARNING: Registering same class for two tags N3g2o23EdgeStereoSE3ProjectXYZE
+FACTORY WARNING: Overwriting Vertex tag EDGE_STEREO_SE3_PROJECT_XYZONLYPOSE:EXPMAP
+FACTORY WARNING: Registering same class for two tags N3g2o31EdgeStereoSE3ProjectXYZOnlyPoseE
+FACTORY WARNING: Overwriting Vertex tag PARAMS_CAMERAPARAMETERS
+FACTORY WARNING: Registering same class for two tags N3g2o16CameraParametersE
+
+ORB-SLAM2 Copyright (C) 2014-2016 Raul Mur-Artal, University of Zaragoza.
+This program comes with ABSOLUTELY NO WARRANTY;
+This is free software, and you are welcome to redistribute it
+under certain conditions. See LICENSE.txt.
+
+Input sensor was set to: Monocular
+
+Loading ORB Vocabulary. This could take a while...
+Vocabulary file = /mnt/hgfs/D/git/ORB_SLAM2/Vocabulary/ORBvoc.bin
+Vocabulary loaded!
+
+Vocabulary loading time(ms): 457
+
+Camera Parameters: 
+- fx: 718.856
+- fy: 718.856
+- cx: 607.193
+- cy: 185.216
+- k1: 0
+- k2: 0
+- p1: 0
+- p2: 0
+- fps: 10
+- color order: RGB (ignored if grayscale)
+
+ORB Extractor Parameters: 
+- Number of Features: 2000
+- Scale Levels: 8
+- Scale Factor: 1.2
+- Initial Fast Threshold: 20
+- Minimum Fast Threshold: 7
+Framebuffer with requested attributes not available. Using available framebuffer. You may see visual artifacts.
+(ORB-SLAM2: Current Frame:10483): dbind-WARNING **: 18:47:27.726: Error retrieving accessibility bus address: org.freedesktop.DBus.Error.ServiceUnknown: The name org.a11y.Bus was not provided by any .service files
+New Map created with 176 points
+Loop detected!
+Local Mapping STOP
+Local Mapping RELEASE
+Starting Global Bundle Adjustment
+Global Bundle Adjustment finished
+Updating map ...
+Local Mapping STOP
+Local Mapping RELEASE
+Map updated!
+Loop detected!
+Local Mapping STOP
+Local Mapping RELEASE
+Starting Global Bundle Adjustment
+Global Bundle Adjustment finished
+Updating map ...
+Local Mapping STOP
+Local Mapping RELEASE
+Map updated!
+Loop detected!
+Local Mapping STOP
+Local Mapping RELEASE
+Starting Global Bundle Adjustment
+Global Bundle Adjustment finished
+Updating map ...
+Local Mapping STOP
+Local Mapping RELEASE
+Map updated!
+Loop detected!
+Local Mapping STOP
+Local Mapping RELEASE
+Starting Global Bundle Adjustment
+Global Bundle Adjustment finished
+Updating map ...
+Local Mapping STOP
+Local Mapping RELEASE
+Map updated!
+
+Saving camera trajectory to 00.txt ...
+
+trajectory saved!

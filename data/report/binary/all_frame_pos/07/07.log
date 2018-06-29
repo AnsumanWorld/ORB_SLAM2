@@ -1,0 +1,39 @@
+
+ORB-SLAM2 Copyright (C) 2014-2016 Raul Mur-Artal, University of Zaragoza.
+This program comes with ABSOLUTELY NO WARRANTY;
+This is free software, and you are welcome to redistribute it
+under certain conditions. See LICENSE.txt.
+
+Input sensor was set to: Monocular
+
+Loading ORB Vocabulary. This could take a while...
+Vocabulary file = /mnt/hgfs/D/git/ORB_SLAM2/Vocabulary/ORBvoc.bin
+Vocabulary loaded!
+
+Vocabulary loading time(ms): 310
+
+Camera Parameters: 
+- fx: 707.091
+- fy: 707.091
+- cx: 601.887
+- cy: 183.11
+- k1: 0
+- k2: 0
+- p1: 0
+- p2: 0
+- fps: 10
+- color order: RGB (ignored if grayscale)
+
+ORB Extractor Parameters: 
+- Number of Features: 2000
+- Scale Levels: 8
+- Scale Factor: 1.2
+- Initial Fast Threshold: 20
+- Minimum Fast Threshold: 7
+Framebuffer with requested attributes not available. Using available framebuffer. You may see visual artifacts.
+(ORB-SLAM2: Current Frame:2615): dbind-WARNING **: 16:41:24.245: Error retrieving accessibility bus address: org.freedesktop.DBus.Error.ServiceUnknown: The name org.a11y.Bus was not provided by any .service files
+New Map created with 161 points
+
+Saving camera trajectory to 07.txt ...
+
+trajectory saved!
