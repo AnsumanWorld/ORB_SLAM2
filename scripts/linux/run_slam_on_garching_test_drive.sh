@@ -10,7 +10,7 @@ Platform=`uname -m`
 Toolset=gcc.`gcc -dumpversion`
 Buildtype=Release
 
-BuildDir="products/cmake.make.linux.${Platform}.${Toolset}.${Buildtype}"
+BuildDir="${ProjectDir}/products/cmake.make.linux.${Platform}.${Toolset}.${Buildtype}"
 
 if [ "$1" = "" ]
 then
@@ -21,14 +21,16 @@ fi
 if [ ! -e Vocabulary/ORBvoc.bin ]
 then
     cd ${ProjectDir}/Vocabulary
-    echo "Uncompress vocabulary ..."
+    echo "Uncompress vocabulary..."
     tar -xf ORBvoc.bin.tar.gz
     cd ${ProjectDir}
 fi
 
-export LD_LIBRARY_PATH=/usr/local/lib/:$LD_LIBRARY_PATH
+BinaryDir=${BuildDir}/${Buildtype}/bin
 
-${ProjectDir}/${BuildDir}/mono_video \
+export LD_LIBRARY_PATH=/usr/local/lib/:${BinaryDir}:$LD_LIBRARY_PATH
+
+ ${BinaryDir}/mono_video \
     ${1} \
     ${ProjectDir}/Vocabulary/ORBvoc.bin \
     ${ProjectDir}/Examples/Monocular/Garching-Test-Drive.yaml

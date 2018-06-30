@@ -33,6 +33,7 @@ call cmake.exe -G "%CMakeGeneratorName%" ^
 -DBUILD_TOOLS=OFF ^
 -DBUILD_EXPERIMENTS=OFF ^
 -DBUILD_TESTING=ON ^
+-DPRINT_CMAKE_VARIABLES=OFF ^
 "%~dp0..\.."
 
 popd
