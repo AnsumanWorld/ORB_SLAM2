@@ -11,17 +11,17 @@ Toolset=gcc.`gcc -dumpversion`
 Buildtype=Release
 cores=$(nproc)
 
-if [ ! -z "$1" ] 
+if [ ! -z "$1" ]
 then
     Platform="$1"
 fi
 
-if [ ! -z "$2" ] 
+if [ ! -z "$2" ]
 then
     Toolset="$2"
 fi
 
-if [ ! -z "$3" ] 
+if [ ! -z "$3" ]
 then
     Buildtype="$3"
 fi
@@ -30,10 +30,11 @@ BuildDir="${ProjectDir}/products/cmake.make.linux.${Platform}.${Toolset}.${Build
 
 mkdir -p "${BuildDir}"
 
-cmake ${ProjectDir} \
+cmake \
+    ${ProjectDir} \
     -B${BuildDir} \
     -DCMAKE_BUILD_TYPE=${Buildtype} \
-    -DBUILD_ALL_EXAMPLES=ON\
+    -DBUILD_ALL_EXAMPLES=ON \
     -DBUILD_EXAMPLES=ON \
     -DBUILD_EXPERIMENTS=ON \
     -DBUILD_TOOLS=ON \
@@ -42,4 +43,8 @@ cmake ${ProjectDir} \
     -DPRINT_CMAKE_VARIABLES=OFF \
     -DCMAKE_INSTALL_PREFIX=/usr/local
 
-cmake --build ${BuildDir} --config ${Buildtype} --target install -- -j${cores}
+cmake \
+    --build ${BuildDir} \
+    --config ${Buildtype} \
+    --target install \
+    -- -j${cores}
