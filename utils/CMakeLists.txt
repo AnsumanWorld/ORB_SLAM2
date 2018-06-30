@@ -15,6 +15,6 @@ install(TARGETS ${PROJECT_NAME} EXPORT orb-slam2
 )
 
 install(DIRECTORY ${PROJECT_SOURCE_DIR} 
-    DESTINATION include/orb-slam2/util 
+    DESTINATION include/orb-slam2
     FILES_MATCHING PATTERN *.h
 )

@@ -35,5 +35,5 @@ install(TARGETS ${PROJECT_NAME} EXPORT orb-slam2
     ARCHIVE DESTINATION lib)
 
 install(DIRECTORY ${PROJECT_SOURCE_DIR} 
-    DESTINATION include/orb-slam2/ext_g2o 
+    DESTINATION include/orb-slam2
     FILES_MATCHING PATTERN *.h)
