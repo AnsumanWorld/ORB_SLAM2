@@ -27,7 +27,7 @@ if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
     endif()
 endif()
 
-if (${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
+if (${CMAKE_CXX_COMPILER_ID} EQUAL GNU)
     add_compile_options(-O3 -march=native)
     if (DEFINED WARNINGS AND NOT WARNINGS)
         add_compile_options(-w)
