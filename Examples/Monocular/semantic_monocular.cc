@@ -18,7 +18,7 @@
 #include <vector>
 #include <cinttypes>
 #include <stdexcept>
-#include "semantic_monocular.h"
+#include "semantic_monocular.hpp"
 
 
 struct input_args {

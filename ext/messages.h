@@ -24,13 +24,13 @@ namespace ORB_SLAM2 {
             Eigen::Matrix3d covariance;
 		};
 
-		using gps_pair_t = std::pair<long unsigned int, pos_info >;
+        using gps_pair_t = std::pair<long unsigned int, pos_info >;
         using traffic_sign_map_t = std::map<long unsigned int, std::vector<traffic_sign> >;
         using traffic_sign_vec_t = std::vector<traffic_sign>;
         using time_point_t = double/*std::chrono::time_point<double>*/;
         using image_t = cv::Mat;
         using tsr_info_opt_t = boost::optional<std::vector<traffic_sign>>;
         using pos_info_opt_t = boost::optional<pos_info>;
-		using semantic_info_t = std::tuple <long unsigned int, double, tsr_info_opt_t,  pos_info_opt_t>;
+        using semantic_info_t = std::tuple <long unsigned int, double, tsr_info_opt_t,  pos_info_opt_t>;
     }
 } // namespace ORB_SLAM

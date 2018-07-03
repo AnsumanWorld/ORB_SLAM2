@@ -47,8 +47,28 @@ if(BUILD_EXAMPLES)
         Boost::filesystem
     )
 
+    add_executable(run_ds_kitty Monocular/run_ds_kitty.cc)
+    target_link_libraries(run_ds_kitty 
+        orb-slam2
+        orb-slam2-ext
+        Boost::filesystem)
+
+    add_executable(run_ds_semantic Monocular/run_ds_semantic.cc)
+    target_link_libraries(run_ds_semantic 
+        orb-slam2
+        orb-slam2-ext
+        Boost::filesystem)
+
+    add_executable(run_ds_dashcam Monocular/run_ds_dashcam.cc)
+    target_link_libraries(run_ds_dashcam
+        orb-slam2
+        orb-slam2-ext
+        Boost::filesystem)
+
     if(CMAKE_SYSTEM_NAME MATCHES Windows) 
         add_custom_command(TARGET mono_video POST_BUILD
             COMMAND ${CMAKE_SOURCE_DIR}/products/copy_ffmpeg$<$<CONFIG:Debug>:d>.bat "$<TARGET_FILE_DIR:mono_video>")
+        add_custom_command(TARGET run_ds_dashcam POST_BUILD
+            COMMAND ${CMAKE_SOURCE_DIR}/products/copy_ffmpeg$<$<CONFIG:Debug>:d>.bat "$<TARGET_FILE_DIR:run_ds_dashcam>")
     endif()
 endif()

@@ -8,6 +8,12 @@ add_library(orb-slam2-ext STATIC
     GeodeticCoords.h
     GeodeticCoords.cc
     pos_adder.h
+    ds_kitty.h
+    ds_dashcam.h
+    ds_dashcam.cc
+    ds_semantic.h
+    slam_object.h
+    run_tracking.h
 )
 
 target_include_directories(orb-slam2-ext PUBLIC
