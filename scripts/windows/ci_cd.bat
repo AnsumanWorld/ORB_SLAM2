@@ -2,8 +2,7 @@
 
 setlocal EnableDelayedExpansion
 
-REM set "VcpkgUrl=https://www.dropbox.com/s/6b788vd6ox1f5iq/orb_slam2_vcpkg.7z?dl=1"
-set "VcpkgUrl=http://localhost:12345/orb_slam2_vcpkg.7z"
+set "VcpkgUrl=https://www.dropbox.com/s/6b788vd6ox1f5iq/orb_slam2_vcpkg.7z?dl=1"
 set "VcpkgExport=C:\orb_slam2_vcpkg.7z"
 
 if not exist "%VcpkgExport%" (
