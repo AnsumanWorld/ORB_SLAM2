@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-project(orb-slam2)
+project(orb-slam2 C CXX)
 
 include(CTest)
 
@@ -120,7 +120,6 @@ add_custom_target(orb-slam2-scripts SOURCES
     appveyor.yml
     .travis.yml
     CMakeSettings.json
-    CppProperties.json
     .vs/launch.vs.json
     .vs/tasks.vs.json
     scripts/windows/bootstrap.bat
