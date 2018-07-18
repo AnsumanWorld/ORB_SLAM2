@@ -24,9 +24,9 @@ if /i not "%~2"=="" set "primary_input_src_path=%~2"
 if /i not "%~3"=="" set "secondary_input_src_path=%~3"
 
 if /i "%primary_input_src_path%"=="" (
-	echo "invalid arguments provided !!!"
-	echo ".\%~n0 <setting-path> <path-to-image-or-video> <path-to-gps-or-semantic-file>"
-	echo An error occured in %~n0, bailing out & exit /b %errorlevel%
+    echo "invalid arguments provided !!!"
+    echo ".\%~n0 <setting-path> <path-to-image-or-video> <path-to-gps-or-semantic-file>"
+    echo An error occured in %~n0, bailing out & exit /b %errorlevel%
 )
 
 

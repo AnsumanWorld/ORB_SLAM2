@@ -26,9 +26,9 @@ if /i not "%~4"=="" set "secondary_input_src_path=%~4"
 
 
 if /i "%primary_input_src_path%"=="" (
-	echo "invalid arguments provided !!!"
-	echo ".\%app_name% <setting-path> <path-to-image-or-video> <path-to-timestamp-file> <path-to-gps-or-semantic-file>"
-	echo An error occured in %app_name%, bailing out & exit /b %errorlevel%
+    echo "invalid arguments provided !!!"
+    echo ".\%app_name% <setting-path> <path-to-image-or-video> <path-to-timestamp-file> <path-to-gps-or-semantic-file>"
+    echo An error occured in %app_name%, bailing out & exit /b %errorlevel%
 )
 
 call %ds_kitty_app% %VocabularyFile% %settings_file_path% %primary_input_src_path% %timestamp_path% %secondary_input_src_path%   

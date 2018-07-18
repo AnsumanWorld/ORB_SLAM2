@@ -1,5 +1,12 @@
 #include "utils.h"
-
+#include "geo_convertor/include/CoordEcef.h"
+#include "geo_convertor/include/CoordEnu.h"
+#include "geo_convertor/include/CoordLocal.h"
+#include "geo_convertor/include/CoordWgs84.h"
+#include "geo_convertor/include/PoseWgs84.h"
+#include "geo_convertor/include/SphericalCoordinates.h"
+#include <fstream>
+#include <iostream>
 namespace utils
 {
 double deg_to_rad(const double& deg)
@@ -69,4 +76,22 @@ std::pair<double, double> estimate_geo(
     auto new_longitude = longitude + (dx / r_earth) * (180.0 / M_PI) / cos(latitude * M_PI / 180.0);
     return std::make_pair(new_latitude, new_longitude);
 }
+
+void dump_data(std::string filename, CoordLocal &coord_local)
+{
+    std::fstream out;
+    out.open(filename, std::fstream::out | std::fstream::app);
+    out << -coord_local.y <<" " << coord_local.x << " " << -coord_local.z<<std::endl;
+    out.close();
+}
+
+ORB_SLAM2::ext::pos_info get_pos_info(gps_info org_gps_, gps_info cur_lgps_)
+{
+    PoseWgs84 origin(deg_to_rad(org_gps_._lat), deg_to_rad(org_gps_._lon), org_gps_._alt, org_gps_._yaw, org_gps_._pitch, org_gps_._roll);
+    CoordWgs84 coord(deg_to_rad(cur_lgps_._lat), deg_to_rad(cur_lgps_._lon), cur_lgps_._alt);
+    CoordLocal coord_local(coord.toCoordLocal(origin));
+    dump_data("kitty_07.txt", coord_local);
+    return { Eigen::Vector3d(-coord_local.y,coord_local.x ,-coord_local.z) ,(Eigen::Matrix3d::Identity() * 0.01) };
+}
+
 } // namespace utils

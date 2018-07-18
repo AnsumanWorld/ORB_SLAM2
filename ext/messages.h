@@ -22,7 +22,7 @@ namespace ORB_SLAM2 {
         struct pos_info {
             Eigen::Vector3d pos;
             Eigen::Matrix3d covariance;
-		};
+        };
 
         using gps_pair_t = std::pair<long unsigned int, pos_info >;
         using traffic_sign_map_t = std::map<long unsigned int, std::vector<traffic_sign> >;

@@ -7,8 +7,8 @@
 namespace ORB_SLAM2 {
     namespace ext {
         class slam_object {
-			ORB_SLAM2::ext::app_monitor_api* _app_monitor;
-			ORB_SLAM2::ext::app_monitor_impl app_monitor_inst;
+            ORB_SLAM2::ext::app_monitor_api* _app_monitor;
+            ORB_SLAM2::ext::app_monitor_impl app_monitor_inst;
             ORB_SLAM2::System _slam;
 
             void shutdown()
@@ -36,17 +36,17 @@ namespace ORB_SLAM2 {
             }
             void track(std::tuple<ext::time_point_t, ext::image_t, ext::tsr_info_opt_t, ext::pos_info_opt_t> const& item)
             {
-				_slam.TrackMonocular(item);
+                _slam.TrackMonocular(item);
             }
 
-			slam_object(int argc, char** argv)
+            slam_object(int argc, char** argv)
                 : _app_monitor(&app_monitor_inst),
-				_slam{
-					argv[1],
-					argv[2],
+                _slam{
+                    argv[1],
+                    argv[2],
                     ORB_SLAM2::System::MONOCULAR,
-					true,
-					_app_monitor }
+                    true,
+                    _app_monitor }
             {}
 
             ~slam_object()

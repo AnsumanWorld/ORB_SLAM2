@@ -10,7 +10,6 @@ add_library(orb-slam2-ext STATIC
     pos_adder.h
     ds_kitty.h
     ds_dashcam.h
-    ds_dashcam.cc
     ds_semantic.h
     slam_object.h
     run_tracking.h
@@ -23,7 +22,8 @@ target_include_directories(orb-slam2-ext PUBLIC
 target_link_libraries(orb-slam2-ext PUBLIC 
     Boost::boost
     Boost::log
-    ${OpenCV_LIBS})
+    ${OpenCV_LIBS}
+    geo_convertor)
 
 install(TARGETS orb-slam2-ext EXPORT orb-slam2
     RUNTIME DESTINATION bin
