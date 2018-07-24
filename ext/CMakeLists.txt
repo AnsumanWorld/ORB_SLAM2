@@ -1,3 +1,6 @@
+cmake_minimum_required(VERSION 3.0)
+project(orb-slam2-ext C CXX)
+
 add_library(orb-slam2-ext STATIC
     app_monitor.h
     app_monitor_api.h
