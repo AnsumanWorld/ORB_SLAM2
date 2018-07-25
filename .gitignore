@@ -34,3 +34,4 @@ orbslam.csv
 /.vscode/settings.json
 data/
 data.zip
+*.log

@@ -117,6 +117,9 @@ IF(${G2O_FOUND} MATCHES "YES")
   set(G2O_LIBS_RELEASE
     optimized ${G2O_CORE_LIBRARY}
     optimized ${G2O_SOLVER_EIGEN}
+    optimized ${G2O_SOLVER_CHOLMOD}
+    optimized ${G2O_SOLVER_CSPARSE}
+    optimized ${G2O_SOLVER_CSPARSE_EXTENSION}
     optimized ${G2O_STUFF_LIBRARY}
     optimized ${G2O_TYPES_DATA}
     optimized ${G2O_TYPES_ICP}
@@ -130,6 +133,9 @@ IF(${G2O_FOUND} MATCHES "YES")
   SET(G2O_LIBS_DEBUG
     debug ${G2O_CORE_LIBRARY_DEBUG}
     debug ${G2O_SOLVER_EIGEN_DEBUG}
+    debug ${G2O_SOLVER_CHOLMOD_DEBUG}
+    debug ${G2O_SOLVER_CSPARSE_DEBUG}
+    debug ${G2O_SOLVER_CSPARSE_EXTENSION_DEBUG}
     debug ${G2O_STUFF_LIBRARY_DEBUG}
     debug ${G2O_TYPES_DATA_DEBUG}
     debug ${G2O_TYPES_ICP_DEBUG}

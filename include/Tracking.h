@@ -40,6 +40,8 @@
 
 #include <mutex>
 
+#include "ext/messages.h"
+
 namespace ORB_SLAM2
 {
 
@@ -61,7 +63,7 @@ public:
     cv::Mat GrabImageStereo(const cv::Mat &imRectLeft,const cv::Mat &imRectRight, const double &timestamp);
     cv::Mat GrabImageRGBD(const cv::Mat &imRGB,const cv::Mat &imD, const double &timestamp);
     cv::Mat GrabImageMonocular(const cv::Mat &im, const double &timestamp);
-    cv::Mat GrabImageMonocular(std::tuple<ext::time_point_t, ext::image_t, ext::tsr_info_opt_t, ext::pos_info_opt_t> const& slam_input);
+    cv::Mat GrabImageMonocular(ext::slam_input_t const& slam_input);
     void SetLocalMapper(LocalMapping* pLocalMapper);
     void SetLoopClosing(LoopClosing* pLoopClosing);
     void SetViewer(Viewer* pViewer);
@@ -74,7 +76,7 @@ public:
     // Use this function if you have deactivated local mapping and you only want to localize the camera.
     void InformOnlyTracking(const bool &flag);
 
-
+    ext::slam_input_t GetSensorInputOfOrigin() const;
 public:
 
     // Tracking states
@@ -214,6 +216,8 @@ protected:
     bool mbRGB;
 
     list<MapPoint*> mlpTemporalPoints;
+
+    ext::slam_input_t _origin;
 };
 
 } //namespace ORB_SLAM

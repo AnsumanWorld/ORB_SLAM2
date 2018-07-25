@@ -143,6 +143,10 @@ public:
     void Play();
     void Pause();
     void Stop();
+
+    ext::map_export_t GetMapData();
+    ext::sfm_export_t GetSFMData();
+
 private:
     ext::app_monitor_api* _monitor;
 

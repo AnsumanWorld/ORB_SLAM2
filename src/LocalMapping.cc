@@ -436,8 +436,12 @@ void LocalMapping::CreateNewMapPoints()
                 continue;
 
             // Triangulation is succesfull
-            MapPoint* pMP = new MapPoint(x3D, mpCurrentKeyFrame, mpMap,
-                                         kp1.class_id != -1 || kp2.class_id != -1);
+            int class_id = -1;
+            if (kp1.class_id != -1 && kp2.class_id != -1)
+                if(kp1.class_id == kp2.class_id)
+                    class_id = kp1.class_id;
+
+            MapPoint* pMP = new MapPoint(x3D, mpCurrentKeyFrame, mpMap, class_id);
             pMP->AddObservation(mpCurrentKeyFrame,idx1);            
             pMP->AddObservation(pKF2,idx2);
 

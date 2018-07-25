@@ -39,8 +39,8 @@ class Frame;
 class MapPoint
 {
 public:
-    MapPoint(const cv::Mat &Pos, KeyFrame* pRefKF, Map* pMap, bool semantic=false);
-    MapPoint(const cv::Mat &Pos,  Map* pMap, Frame* pFrame, const int &idxF, bool semantic=false);
+    MapPoint(const cv::Mat &Pos, KeyFrame* pRefKF, Map* pMap, int class_id=-1);
+    MapPoint(const cv::Mat &Pos,  Map* pMap, Frame* pFrame, const int &idxF, int class_id=-1);
 
     void SetWorldPos(const cv::Mat &Pos);
     cv::Mat GetWorldPos();
@@ -83,6 +83,9 @@ public:
     
     bool is_semantic() const;
 
+    void SetCovariance(const Eigen::Matrix<double, 3, 3>&);
+    Eigen::Matrix<double, 3, 3> GetCovariance() const;
+
 public:
     long unsigned int mnId;
     static long unsigned int nNextId;
@@ -113,7 +116,8 @@ public:
 
 
     static std::mutex mGlobalMutex;
-
+    
+    int _class_id;
 protected:    
 
      // Position in absolute coordinates
@@ -145,9 +149,11 @@ protected:
 
      Map* mpMap;
 
+     Eigen::Matrix<double, 3, 3> _covariance;
+
      std::mutex mMutexPos;
      std::mutex mMutexFeatures;
-     const bool _is_semantic;
+     mutable std::mutex _mutex_cov;
 };
 
 } //namespace ORB_SLAM

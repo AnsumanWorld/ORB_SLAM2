@@ -23,10 +23,14 @@
 #include "System.h"
 #include "Converter.h"
 #include "ext/statistics.h"
+#include "ext/messages.h"
 #include <thread>
 #include <pangolin/pangolin.h>
 #include <iomanip>
 #include <chrono>
+#include <map>
+#include <set>
+#include <tuple>
 
 namespace ORB_SLAM2
 {
@@ -246,7 +250,7 @@ cv::Mat System::TrackRGBD(const cv::Mat &im, const cv::Mat &depthmap, const doub
     return Tcw;
 }
 
-cv::Mat System::TrackMonocular(std::tuple<ext::time_point_t, ext::image_t, ext::tsr_info_opt_t,ext::pos_info_opt_t> const& slam_input)
+cv::Mat System::TrackMonocular(ext::slam_input_t const& slam_input)
 {
     //const double &timestamp = std::get<1>(slam_input).time_since_epoch().count();
     //const double &timestamp = std::get<1>(slam_input);
@@ -299,7 +303,7 @@ cv::Mat System::TrackMonocular(const cv::Mat &im, const double &timestamp)
 {
     return TrackMonocular(std::make_tuple(
         timestamp, 
-        im, 
+        im.clone(), 
         boost::none, 
         boost::none));
 }
@@ -559,4 +563,93 @@ void System::Stop()
         _monitor->stop();
     }
 }
+
+ext::map_export_t System::GetMapData() {    
+    auto kfs = mpMap->GetAllKeyFrames();
+    auto all_mps = mpMap->GetAllMapPoints();
+    auto tmp_ref_mps_ = mpMap->GetReferenceMapPoints();
+
+    ext::landmark_map_t map_points;
+    ext::observations_t mp2kf;
+    ext::keyframe_map_t key_frames;
+    auto origin = std::get<ext::pos_info_opt_t>(mpTracker->GetSensorInputOfOrigin());
+
+    set<MapPoint*> mps_db;
+    set<MapPoint*> ref_mps(tmp_ref_mps_.begin(), tmp_ref_mps_.end());
+
+    for(auto mp : all_mps) {
+        if(mp->isBad() || ref_mps.count(mp))
+            continue;
+        mps_db.insert(mp);
+    }
+
+    for(auto mp : ref_mps) {
+        if(mp->isBad())
+            continue;
+        mps_db.insert(mp);
+    }
+
+    /*
+        world_y = cam_z
+        world_z = cam_y
+        Above transformation can be performed here,
+        co-variance matrix need to be altered if axes is transformed(?)
+    */
+    for(auto& mp : mps_db) {
+        auto pos = mp->GetWorldPos();
+        auto world_xm = pos.at<float>(0);
+        auto world_ym = pos.at<float>(1);
+        auto world_zm = pos.at<float>(2);
+        map_points[mp->mnId] = { mp->_class_id, {world_xm, world_ym, world_zm},
+             mp->GetCovariance() };
+
+        auto observations = mp->GetObservations();
+        for (auto obs : observations) {
+            auto kf = obs.first;
+            if(kf->isBad())
+                continue;
+            mp2kf[mp->mnId].insert(kf->mnFrameId);
+        }
+    }
+
+    for(auto& kf : kfs) {
+        if(kf->isBad())
+            continue;
+
+        auto R = kf->GetRotation().t();
+        auto q = Converter::toQuaternion(R);
+        auto t = kf->GetCameraCenter();
+
+        auto world_xc = t.at<float>(0);
+        auto world_yc = t.at<float>(1);
+        auto world_zc = t.at<float>(2);
+
+        key_frames[kf->mnFrameId] = {
+            {
+                {world_xc, world_yc, world_zc},
+                {q[0], q[1], q[2],  q[3]}
+            }, 
+            kf->GetCovariance()
+        };
+    }
+
+    return {key_frames, map_points, mp2kf, origin};
+}
+
+ext::sfm_export_t System::GetSFMData() {
+    ext::keyframe_list_t kflist;
+    auto kfs = mpMap->GetAllKeyFrames();
+    cv::Mat K;
+    for(auto& kf : kfs) {
+        if(kf->isBad())
+            continue;
+        K = kf->mK;
+        kflist.push_back({kf->mnFrameId, 
+            std::get<ext::image_t>(kf->_sensor_input),
+            std::get<ext::pos_info_opt_t>(kf->_sensor_input)});
+    }
+
+    return {kflist, K};
+}
+
 } //namespace ORB_SLAM

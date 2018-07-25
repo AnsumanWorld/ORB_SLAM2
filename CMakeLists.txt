@@ -19,7 +19,7 @@ endif()
 # FindG2O for treatment of G20 imported targets
 LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules/FindG2O)
 
-if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     add_definitions(-DWINDOWS)
     add_compile_options(/MP /bigobj)
     if (DEFINED WARNINGS AND NOT WARNINGS)
@@ -27,7 +27,7 @@ if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
     endif()
 endif()
 
-if (${CMAKE_CXX_COMPILER_ID} EQUAL GNU)
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     add_compile_options(-O3 -march=native)
     if (DEFINED WARNINGS AND NOT WARNINGS)
         add_compile_options(-w)
@@ -41,6 +41,11 @@ find_package(Boost REQUIRED COMPONENTS filesystem log)
 add_definitions(-DBOOST_ALL_DYN_LINK)
 
 find_package(Pangolin REQUIRED)
+find_package(Cholmod REQUIRED)
+find_package(BLAS REQUIRED)
+find_package(LAPACK REQUIRED)
+find_package(SuiteSparse REQUIRED)
+find_package(CSparse REQUIRED)
 find_package(G2O REQUIRED)
 
 include_directories(
@@ -48,6 +53,7 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/include
     ${EIGEN3_INCLUDE_DIR}
     ${Pangolin_INCLUDE_DIRS}
+    ${CHOLMOD_INCLUDE_DIR}
     ${G2O_INCLUDE_DIR}
 )
 
@@ -90,6 +96,13 @@ target_link_libraries(orb-slam2
     g2o_slamext
     utils
     ${G2O_LIBS}
+    ${CHOLMOD_LIBRARY}
+    ${AMD_LIBRARY}
+    ${SUITESPARSECONFIG_LIBRARY}
+    ${COLAMD_LIBRARY}
+    ${BLAS_LIBRARIES}
+    ${LAPACK_LIBRARIES}
+    ${CSPARSE_LIBRARY}
 )
 
 target_include_directories(orb-slam2 INTERFACE $<INSTALL_INTERFACE:include>)

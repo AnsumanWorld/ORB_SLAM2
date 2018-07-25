@@ -43,7 +43,7 @@ KeyFrame::KeyFrame(Frame &F, Map *pMap, KeyFrameDatabase *pKFDB):
     mnMaxY(F.mnMaxY), mK(F.mK), mvpMapPoints(F.mvpMapPoints), mpKeyFrameDB(pKFDB),
     mpORBvocabulary(F.mpORBvocabulary), mbFirstConnection(true), mpParent(NULL), mbNotErase(false),
     mbToBeErased(false), mbBad(false), mHalfBaseline(F.mb/2), mpMap(pMap), _priority(F._priority)
-    , _pos_info(std::get<3>(F._sensor_input))
+    , _sensor_input(F._sensor_input)
 {
     mnId=nNextId++;
 
@@ -662,6 +662,16 @@ float KeyFrame::ComputeSceneMedianDepth(const int q)
     sort(vDepths.begin(),vDepths.end());
 
     return vDepths[(vDepths.size()-1)/q];
+}
+
+void KeyFrame::SetCovariance(const Eigen::Matrix<double, 6, 6>& cov) {
+    std::unique_lock<std::mutex> lock(_mutex_cov);
+    _covariance = cov;
+}
+
+Eigen::Matrix<double, 6, 6> KeyFrame::GetCovariance() const {
+    std::unique_lock<std::mutex> lock(_mutex_cov);
+    return _covariance;
 }
 
 } //namespace ORB_SLAM

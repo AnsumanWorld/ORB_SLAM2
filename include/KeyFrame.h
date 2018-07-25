@@ -117,7 +117,8 @@ public:
         return pKF1->mnId<pKF2->mnId;
     }
 
-
+    void SetCovariance(const Eigen::Matrix<double, 6, 6>&);
+    Eigen::Matrix<double, 6, 6> GetCovariance() const;
     // The following variables are accesed from only 1 thread or never change (no mutex needed).
 public:
 
@@ -189,7 +190,7 @@ public:
     const int mnMaxY;
     const cv::Mat mK;
 
-    ext::pos_info_opt_t _pos_info;
+    ext::slam_input_t _sensor_input;
 
     // The following variables need to be accessed trough a mutex to be thread safe.
 protected:
@@ -229,10 +230,12 @@ protected:
     float mHalfBaseline; // Only for visualization
 
     Map* mpMap;
+    Eigen::Matrix<double, 6, 6> _covariance;
 
     std::mutex mMutexPose;
     std::mutex mMutexConnections;
     std::mutex mMutexFeatures;
+    mutable std::mutex _mutex_cov;
 };
 
 } //namespace ORB_SLAM
