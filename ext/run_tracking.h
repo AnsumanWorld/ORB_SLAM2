@@ -24,7 +24,7 @@ namespace ORB_SLAM2 {
 
         //The iterator pair variant:
         template<class TDataSourceItr>
-        void run_tracking(slam_object& sys_, TDataSourceItr beg_, TDataSourceItr end_, double default_wait_time = 0)
+        void run_tracking(slam_object& sys_, TDataSourceItr beg_, TDataSourceItr end_, double default_wait_time = 1)
         {
             double prev_expected_tracking_time = 0;
 
@@ -42,7 +42,7 @@ namespace ORB_SLAM2 {
 
         //The Range variant:
         template<class TDataSource>
-        void run_tracking(slam_object& sys_, TDataSource data_source_,double default_wait_time= 0)
+        void run_tracking(slam_object& sys_, TDataSource data_source_,double default_wait_time= 1)
         {
             for (auto &item : data_source_) {
                 sys_.request_wait();
