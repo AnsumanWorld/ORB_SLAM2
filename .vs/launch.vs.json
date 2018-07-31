@@ -5,31 +5,8 @@
     {
       "type": "default",
       "project": "CMakeLists.txt",
-      "name": "mono_grabbing.exe (RelWithDebInfo)",
-      "projectTarget": "mono_grabbing.exe (RelWithDebInfo\\bin\\mono_video.exe)",
-      "currentDir": "${workspaceRoot}",
-      "args": [
-        "Vocabulary\\ORBvoc.bin",
-        "Examples\\Monocular\\Garching-Test-Drive.yaml"
-      ]
-    },
-    {
-      "type": "default",
-      "project": "CMakeLists.txt",
-      "projectTarget": "mono_video.exe (RelWithDebInfo\\bin\\mono_video.exe)",
-      "name": "mono_video.exe (RelWithDebInfo)",
-      "currentDir": "${workspaceRoot}",
-      "args": [
-        "data\\Garching_LoopClosure-3.mp4",
-        "Vocabulary\\ORBvoc.bin",
-        "Examples\\Monocular\\Garching-Test-Drive.yaml"
-      ]
-    },
-    {
-      "type": "default",
-      "project": "CMakeLists.txt",
-      "projectTarget": "semantic_monocular.exe (RelWithDebInfo\\bin\\semantic_monocular.exe)",
-      "name": "semantic_monocular.exe (RelWithDebInfo\\bin\\semantic_monocular.exe)",
+      "projectTarget": "run_ds_tsr.exe (Debug\\bin\\run_ds_tsr.exe)",
+      "name": "run_ds_tsr.exe (Debug\\bin\\run_ds_tsr.exe)",
       "currentDir": "${workspaceRoot}",
       "args": [
         "Vocabulary\\ORBvoc.bin",
@@ -37,26 +14,6 @@
         "data\\Garching_LoopClosure-3-images",
         "data\\Garching_LoopClosure-3-features.json"
       ]
-    },
-    {
-      "type": "default",
-      "project": "CMakeLists.txt",
-      "projectTarget": "semantic_monocular.exe (Debug\\bin\\semantic_monocular.exe)",
-      "name": "semantic_monocular.exe (Debug\\bin\\semantic_monocular.exe)",
-      "currentDir": "${workspaceRoot}",
-      "args": [
-        "Vocabulary\\ORBvoc.bin",
-        "Examples\\Monocular\\Garching-Test-Drive.yaml",
-        "data\\Garching_LoopClosure-3-images",
-        "data\\Garching_LoopClosure-3-features.json"
-      ]
-    },
-    {
-        "type": "default",
-        "project": "CMakeLists.txt",
-        "projectTarget": "run_ds_dashcam.exe (Debug\\bin\\run_ds_dashcam.exe)",
-        "name": "run_ds_dashcam.exe (Debug + Garching_LoopClosure-2)",
-        "args": [ "Vocabulary\\ORBvoc.bin", "Examples\\Monocular\\Garching-Test-Drive.yaml", "data\\Garching_LoopClosure-2.mp4" ]
     }
   ]
 }

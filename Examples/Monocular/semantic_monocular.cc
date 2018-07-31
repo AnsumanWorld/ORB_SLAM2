@@ -86,8 +86,10 @@ int run_slam_loop(int argc, char** argv)
     try {
         auto args = parse_input_arguments(argc, argv);
         std::vector<fs::path> image_files;
-        std::copy(fs::directory_iterator(args.path_to_image_folder), fs::directory_iterator(),
-                  std::back_inserter(image_files));
+        std::copy(
+            fs::directory_iterator(args.path_to_image_folder), 
+            fs::directory_iterator(),
+            std::back_inserter(image_files));
         std::sort(image_files.begin(), image_files.end());
 
         // Create SLAM system. It initializes all system threads and gets ready to process frames.

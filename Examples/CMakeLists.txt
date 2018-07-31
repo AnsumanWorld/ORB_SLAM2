@@ -53,8 +53,8 @@ if(BUILD_EXAMPLES)
         orb-slam2-ext
         Boost::filesystem)
 
-    add_executable(run_ds_traficsign Monocular/run_ds_traficsign.cc)
-    target_link_libraries(run_ds_traficsign
+    add_executable(run_ds_tsr Monocular/run_ds_tsr.cc)
+    target_link_libraries(run_ds_tsr
         orb-slam2
         orb-slam2-ext
         Boost::filesystem)
