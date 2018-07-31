@@ -8,8 +8,10 @@ int main(int argc, char** argv)
     try {
         ext::ds_kitty_args args{ argc, argv };
         ext::slam_object slam{ argc, argv };
-        //1e6 - hardcorded default wait time set by ramlur
-        ext::run_tracking(slam, ext::ds_kitty{ args }, 1e6);
+        auto ds = ext::make_data_source<ext::ds_kitty>(args);
+        cv::FileStorage fSettings(argv[2], cv::FileStorage::READ);
+        double fps = fSettings["Camera.fps"]; 
+        ext::run_tracking(slam, ds, fps);
     }
     catch (std::exception ex)
     {

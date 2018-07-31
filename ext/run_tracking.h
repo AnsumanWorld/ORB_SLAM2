@@ -1,30 +1,33 @@
 #pragma once
 
 #include "ext/slam_object.h"
+#include <boost/range/iterator_range.hpp>
 #include <chrono>
 
 namespace ORB_SLAM2 {
     namespace ext {
 
         //it will ensure that next tracking wont be called before its corresponding frame timestamp elapsed
-        void wait(double actual_tracking_time, double cur_expected_tracking_time, double default_wait_time)
+        void wait(double actual_track_time, double expected_track_time)
         {
             int wait_time = 0;
-
-            if (!cur_expected_tracking_time)
-                cur_expected_tracking_time = default_wait_time;
-
             //if vehicle drive faster, there is a chance of low connections among frames in terms of keypoints
-            if (actual_tracking_time < cur_expected_tracking_time)
+            if (actual_track_time < expected_track_time)
             {
-                wait_time = (cur_expected_tracking_time - actual_tracking_time) * default_wait_time;
+                wait_time = expected_track_time - actual_track_time;
                 std::this_thread::sleep_for(std::chrono::microseconds(wait_time));
             }
         }
 
+        template<class TDataSourceItr, typename... TArgs>
+        auto make_data_source(TArgs&&... args_)
+        {
+            return boost::make_iterator_range(TDataSourceItr{ std::forward<TArgs>(args_)... }, TDataSourceItr{});
+        }
+
         //The iterator pair variant:
         template<class TDataSourceItr>
-        void run_tracking(slam_object& sys_, TDataSourceItr beg_, TDataSourceItr end_, double default_wait_time = 1)
+        void run_tracking(slam_object& sys_, TDataSourceItr beg_, TDataSourceItr end_, double max_fps_)
         {
             double prev_expected_tracking_time = 0;
 
@@ -36,13 +39,13 @@ namespace ORB_SLAM2 {
 
                 std::chrono::steady_clock::time_point stop_time = std::chrono::steady_clock::now();
                 double actual_tracking_time = std::chrono::duration_cast<std::chrono::duration<double> >(stop_time - start_time).count();
-                wait(actual_tracking_time, std::get<ext::time_point_t>(item));
+                wait(actual_tracking_time, 1.0 / max_fps_);
             }
         }
 
         //The Range variant:
         template<class TDataSource>
-        void run_tracking(slam_object& sys_, TDataSource data_source_,double default_wait_time= 1)
+        void run_tracking(slam_object& sys_, TDataSource data_source_,double max_fps_)
         {
             for (auto &item : data_source_) {
                 sys_.request_wait();
@@ -51,8 +54,8 @@ namespace ORB_SLAM2 {
                 sys_.track(item);
 
                 std::chrono::steady_clock::time_point stop_time = std::chrono::steady_clock::now();
-                double actual_tracking_time = std::chrono::duration_cast<std::chrono::duration<double> >(stop_time - start_time).count();				
-                wait(actual_tracking_time, std::get<ext::time_point_t>(item), default_wait_time);
+                double actual_tracking_time = std::chrono::duration_cast<std::chrono::duration<double> >(stop_time - start_time).count();	
+                wait(actual_tracking_time, 1.0/ max_fps_);
             }
         }
     }

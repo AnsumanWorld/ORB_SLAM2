@@ -16,7 +16,7 @@ if not exist "%ProjectDir%\Vocabulary\ORBvoc.bin" (
     del /f /q "%ProjectDir%\Vocabulary\ORBvoc.bin.tar"
 )
 
-set ds_semantic_app="%BuildDir%\%BuildType%\bin\run_ds_semantic.exe"
+set ds_tsr_app="%BuildDir%\%BuildType%\bin\run_ds_semantic.exe"
 set VocabularyFile="%ProjectDir%\Vocabulary\ORBvoc.bin"
 
 if /i not "%~1"=="" set "settings_file_path=%~1"
@@ -25,10 +25,10 @@ if /i not "%~3"=="" set "secondary_input_src_path=%~3"
 
 if /i "%primary_input_src_path%"=="" (
     echo "invalid arguments provided !!!"
-    echo ".\%~n0 <setting-path> <path-to-image-or-video> <path-to-gps-or-semantic-file>"
+    echo ".\%~n0 <setting-path> <path-to-image-or-video> <path-to-gps-or-tsr-file>"
     echo An error occured in %~n0, bailing out & exit /b %errorlevel%
 )
 
 
-call %ds_semantic_app% %VocabularyFile% %settings_file_path% %primary_input_src_path% %secondary_input_src_path%
+call %ds_tsr_app% %VocabularyFile% %settings_file_path% %primary_input_src_path% %secondary_input_src_path%
 endlocal

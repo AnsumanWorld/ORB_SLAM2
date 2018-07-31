@@ -32,12 +32,12 @@ namespace ORB_SLAM2 {
 
         class ds_dashcam : public boost::iterator_facade<
                             ds_dashcam,
-                            std::tuple<time_point_t, image_t, tsr_info_opt_t, pos_info_opt_t>,
+                            const std::tuple<time_point_t, image_t, tsr_info_opt_t, pos_info_opt_t>,
                             boost::single_pass_traversal_tag >
         {
             cv::VideoCapture _video_capture;
             std::uint64_t    _gps_index{0};
-            std::uint64_t    _image_index{ 0 };
+            std::int64_t    _image_index{-1};
             image_t          _next_image;
             double           _next_timestamp{ 0 };
             std::tuple<time_point_t, image_t, tsr_info_opt_t, pos_info_opt_t> _item;
@@ -135,25 +135,26 @@ namespace ORB_SLAM2 {
 		public:
 
             //read video file and read gps from video
-            ds_dashcam::ds_dashcam(ds_dashcam_args& dashcam_args_) : _dashcam_args(dashcam_args_)
+            ds_dashcam::ds_dashcam(const ds_dashcam_args& dashcam_args_):_dashcam_args(dashcam_args_)
             {
                 read_video(_dashcam_args._path_to_video);
                 utils::extract_gps_from_video(_dashcam_args._path_to_video,_gps_subtitles);  
                 get_next_valid_gps();
-                get_next_item();
-            }
-            ds_dashcam(){}
-            
-            //iterator
-            ds_dashcam begin()
-            {
-                return ds_dashcam(_dashcam_args);
+                _image_index = 0;
             }
 
-            ds_dashcam end()
+            ds_dashcam(const ds_dashcam& obj) :_dashcam_args(obj._dashcam_args)
             {
-                return ds_dashcam();
+                if (obj._image_index != -1)
+                {
+                    _image_index = 0;
+                    read_video(_dashcam_args._path_to_video);
+                    copy(obj._gps_subtitles.begin(), obj._gps_subtitles.end(), back_inserter(_gps_subtitles));
+                    get_next_valid_gps();
+                    get_next_item();
+                }
             }
+            ds_dashcam(){}
 
             bool equal(const ds_dashcam& other) const
             {
@@ -165,9 +166,9 @@ namespace ORB_SLAM2 {
                 get_next_item();
             }
 
-            std::tuple<time_point_t, image_t, tsr_info_opt_t, pos_info_opt_t> & dereference() const
+            auto& dereference() const
             {
-                return (std::tuple<time_point_t, image_t, tsr_info_opt_t, pos_info_opt_t> & const)_item;
+                return _item;
             }
         };
 

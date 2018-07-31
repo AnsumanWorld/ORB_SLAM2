@@ -40,15 +40,14 @@ namespace ORB_SLAM2 {
 
         class ds_kitty : public boost::iterator_facade<
                         ds_kitty,
-                        std::tuple<time_point_t, image_t, tsr_info_opt_t, pos_info_opt_t>,
+                        const std::tuple<time_point_t, image_t, tsr_info_opt_t, pos_info_opt_t>,
                         boost::single_pass_traversal_tag >
         {
             std::vector<fs::path> _image_files;
             std::vector<fs::path> _gps_files;
-            ifstream _timestamp_file;
-            std::uint64_t _image_index{0};
+            std::ifstream _timestamp_file;
+            std::int64_t _image_index{-1};
             bool _gps_input_status{false};
-            double _cur_timestamp{ 0 };
             ds_kitty_args _kitty_args;
             std::tuple<time_point_t, image_t, tsr_info_opt_t, pos_info_opt_t> _item;
             utils::gps_info _org_gps;
@@ -111,7 +110,7 @@ namespace ORB_SLAM2 {
                 if (_image_index < _image_files.size())
                 {
                     image_t image = cv::imread(_image_files[_image_index].generic_string(), CV_LOAD_IMAGE_UNCHANGED);
-                    _item = std::make_tuple(get_next_timestamp(), image, boost::none, get_next_gps());
+                    _item = std::make_tuple(get_next_timestamp(), image, boost::none, boost::none);
                     _image_index++;
                 }
                 else
@@ -121,11 +120,10 @@ namespace ORB_SLAM2 {
             double get_next_timestamp()
             {
                 std::string line_str;
-                double timestamp_diff = 0;
+                double time_stamp = 0;
 
                 if (std::getline(_timestamp_file, line_str))
                 {
-                    double time_stamp = 0;
                     //there are two timestamp format provided by kitty
                     //in one timestamp format yyyy-mm-26 hh:mm:ss
                     if (line_str.find(":") != std::string::npos)
@@ -134,16 +132,11 @@ namespace ORB_SLAM2 {
                         time_stamp = t.time_of_day().total_microseconds();
                     }
                     else
-                    {
-                        //in another timestamp format in microsseconds
                         time_stamp = stod(line_str);
-                    }
-                    timestamp_diff = time_stamp - _cur_timestamp;
-                    _cur_timestamp = time_stamp;
                 }
                 else
                     _timestamp_file.close();
-                return timestamp_diff;
+                return time_stamp;
             }
 
             pos_info_opt_t get_next_gps()
@@ -170,23 +163,40 @@ namespace ORB_SLAM2 {
                 return cur_gps_ds;
             }
 
-            ds_kitty(ds_kitty_args& kitty_args_):_kitty_args(kitty_args_)
+            ds_kitty(const ds_kitty_args& kitty_args_):_kitty_args(kitty_args_)
             {
-                read_image_files(kitty_args_._path_to_image_folder);
-                read_timestamp_files(kitty_args_._path_to_timestamp_file);
-                _gps_input_status = read_gps_files(kitty_args_._path_to_gps_folder);
-                get_next_item();
+                read_image_files(_kitty_args._path_to_image_folder);
+                read_timestamp_files(_kitty_args._path_to_timestamp_file);
+                _gps_input_status = read_gps_files(_kitty_args._path_to_gps_folder);
+                _image_index = 0;
+            }
+
+            ds_kitty(const ds_kitty& obj) :_kitty_args(obj._kitty_args)
+            {
+                if (obj._image_index != -1)
+                {
+                    _image_index = 0;
+                    copy(obj._image_files.begin(), obj._image_files.end(), back_inserter(_image_files));
+                    copy(obj._gps_files.begin(), obj._gps_files.end(), back_inserter(_gps_files));
+                    read_timestamp_files(_kitty_args._path_to_timestamp_file);
+                    _gps_input_status = obj._gps_input_status;
+                    get_next_item();
+                }
             }
             ds_kitty(){}
-            //iterator
-            ds_kitty begin()
+            ~ds_kitty()
             {
-                return ds_kitty(_kitty_args);
+                _timestamp_file.close();
             }
-            ds_kitty end() { return ds_kitty(); }
-            bool equal(const ds_kitty& other) const { return _image_index == other._image_index; }
-            void increment() { get_next_item(); }
-            std::tuple<time_point_t, image_t, tsr_info_opt_t, pos_info_opt_t> & dereference() const { return (std::tuple<time_point_t, image_t, tsr_info_opt_t, pos_info_opt_t> & const)_item; }
+            bool equal(const ds_kitty& other) const { 
+                return _image_index == other._image_index; 
+            }
+            void increment() { 
+                get_next_item(); 
+            }
+            auto& dereference() const { 
+                return _item; 
+            }
         };
 
     }
