@@ -21,7 +21,7 @@ endif()
 if(BUILD_EXAMPLES)
     add_executable(semantic_monocular 
         Monocular/semantic_monocular.cc 
-        Monocular/semantic_monocular.hpp
+        Monocular/semantic_monocular.h
     )
     target_link_libraries(semantic_monocular 
         orb-slam2

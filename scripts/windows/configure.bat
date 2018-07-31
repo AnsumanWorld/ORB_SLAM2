@@ -15,7 +15,7 @@ setlocal
         if "%Toolset%"=="v141" set "CMakeGeneratorName=Visual Studio 15 2017 Win64"
     )
 
-    set "BuildDir=%~dp0..\..\products\cmake.msbuild.windows.%Platform%.%Toolset%"
+    set "BuildDir=%~dp0..\..\products\%Platform%-windows"
     set "InstallDir=%~dp0..\..\installed\%Platform%-windows"
 
     if not exist "%BuildDir%" mkdir "%BuildDir%

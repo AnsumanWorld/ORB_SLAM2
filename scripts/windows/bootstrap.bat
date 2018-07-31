@@ -121,7 +121,7 @@ setlocal
         && powershell.exe -NoProfile -ExecutionPolicy Bypass -command "& {[Net.ServicePointManager]::SecurityProtocol = 'tls12, tls11, tls'; Invoke-WebRequest 'https://github.com/sakra/cotire/archive/master.zip' -OutFile cotire-master.zip; }" ^
         && popd ) || exit /b 1
     )
-    if not exist "%VendorDir%\tools\cotire\CMake\cotire.cmake" (
+    if not exist "%VendorDir%\tools\cotire" (
         ( pushd "%VendorDir%\tools" ^
         && powershell.exe -nologo -noprofile -command "& {Expand-Archive -Path '%VendorDir%\downloads\cotire-master.zip' -DestinationPath '%VendorDir%\downloads\tmp\cotire'; Move-Item -Path '%VendorDir%\downloads\tmp\cotire\cotire-master' -Destination cotire; Remove-Item '%VendorDir%\downloads\tmp\cotire'; }" ^
         && popd ) || exit /b 1

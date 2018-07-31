@@ -1,20 +1,15 @@
 @echo off
 
 setlocal
+set "Platform=x64"
+set "Toolset=v141"
 set "BuildType=Release"
-
-set "ExtToolsBinDir=C:\Program Files\7-Zip"
-
-set "VcpkgRelBinDir=%USERPROFILE%\.vcpkg\vcpkg\installed\x64-windows\bin"
-set "VcpkgDbgBinDir=%USERPROFILE%\.vcpkg\vcpkg\installed\x64-windows\debug\bin"
-
 set "ProjectDir=%~dp0..\.."
-set "ProductsDir=%ProjectDir%\products\cmake.msbuild.windows.x64.v141"
-set "BinaryDir=%ProjectDir%\products\cmake.msbuild.windows.x64.v141\%BuildType%\bin"
+set "BuildDir=%ProjectDir%\products\%Platform%-windows"
+set "VcpkgBinDir=%USERPROFILE%\.vcpkg\vcpkg\installed\x64-windows\bin"
+set "Path=%Path%;%VcpkgBinDir%"
 
-set "Path=%VcpkgRelBinDir%;%VcpkgDbgBinDir%;%ExtToolsBinDir%;%BinaryDir%;%Path%"
-
-cd /d %ProjectDir%
+cd %ProjectDir%
 
 if not exist "%ProjectDir%\Vocabulary\ORBvoc.bin" (
     7z x "%ProjectDir%\Vocabulary\ORBvoc.bin.tar.gz" -o"%ProjectDir%\Vocabulary"

@@ -1,8 +1,7 @@
 #pragma once
+#include <boost/algorithm/string.hpp>
 #include <iostream>
 #include <vector>
-#include <string>
-#include <boost/algorithm/string.hpp>
 
 namespace utils {
     enum class gps_offset {

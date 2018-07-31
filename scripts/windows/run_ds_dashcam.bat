@@ -4,7 +4,7 @@ set "Platform=x64"
 set "Toolset=v141"
 set "BuildType=Release"
 set "ProjectDir=%~dp0..\.."
-set "BuildDir=%ProjectDir%\products\cmake.msbuild.windows.%Platform%.%Toolset%"
+set "BuildDir=%ProjectDir%\products\%Platform%-windows"
 set "VcpkgBinDir=%USERPROFILE%\.vcpkg\vcpkg\installed\x64-windows\bin"
 set "Path=%Path%;%VcpkgBinDir%"
 
