@@ -18,8 +18,8 @@ using boost::property_tree::ptree;
 
 namespace ORB_SLAM2 {
     namespace ext {
-        //read json info from txt file
-        struct traficsign_data {
+        //read tsr info from txt file
+        struct tsr_data {
             std::string _image_name;
             std::string _time_point;
 
@@ -75,10 +75,10 @@ namespace ORB_SLAM2 {
             }
         };
 
-        struct ds_traficsign_args {
+        struct ds_tsr_args {
             variables_map _vm;
             options_description desc{ "Options" };
-            ds_traficsign_args(int argc, char** argv)
+            ds_tsr_args(int argc, char** argv)
             {
                 try{
                     
@@ -106,13 +106,13 @@ namespace ORB_SLAM2 {
                     return _vm[name].as<std::string>();
                 return "";
             }
-            ds_traficsign_args()
+            ds_tsr_args()
             {
             }
         };
 
-        class ds_traficsign : public boost::iterator_facade<
-                            ds_traficsign,
+        class ds_tsr : public boost::iterator_facade<
+                            ds_tsr,
                             const std::tuple<time_point_t, image_t, tsr_info_opt_t, pos_info_opt_t>,
                             boost::single_pass_traversal_tag > 
         {
@@ -122,7 +122,7 @@ namespace ORB_SLAM2 {
             std::tuple<time_point_t, image_t, tsr_info_opt_t, pos_info_opt_t> _item;
             int img_width{ 1280 };
             int img_height{ 720 };
-            ds_traficsign_args _ds_args;
+            ds_tsr_args _ds_args;
             utils::gps_info _org_gps;
 
             void read_image_files(std::string path_to_image_folder_)
@@ -183,28 +183,28 @@ namespace ORB_SLAM2 {
                         time_point_t timestamp = 0;
                         tsr_info_opt_t tsr_ds;
                         pos_info_opt_t gps_ds;
-                        std::tie(timestamp,std::ignore, tsr_ds, gps_ds) = get_next_trafficsign();
+                        std::tie(timestamp,std::ignore, tsr_ds, gps_ds) = get_next_tsr();
                         _item = std::make_tuple(timestamp, image, tsr_ds, gps_ds);
                     }
                     _image_index++;
                 }
                 else
-                    _image_index = 0;
+                    _image_index = -1;
             }
 
-            slam_input_t get_next_trafficsign()
+            slam_input_t get_next_tsr()
             {
                 std::string line;
                 if (std::getline(_jsonfile, line))
                 {
-                    traficsign_data ts_data;
-                    ts_data.get_next_item(line);
-                    //ts_data.print_data();
+                    tsr_data tsr_data_obj;
+                    tsr_data_obj.get_next_item(line);
+                    //tsr_data_obj.print_data();
                     tsr_info_opt_t cur_tsr_info;
                     std::vector<ORB_SLAM2::ext::traffic_sign> traffic_signs;
-                    if (ts_data._vec_tsr_info.size())
+                    if (tsr_data_obj._vec_tsr_info.size())
                     {
-                        for (auto item : ts_data._vec_tsr_info)
+                        for (auto item : tsr_data_obj._vec_tsr_info)
                         {
                             ORB_SLAM2::ext::traffic_sign t;
                             std::vector<double> rect;
@@ -215,28 +215,28 @@ namespace ORB_SLAM2 {
                         cur_tsr_info = traffic_signs;
                     }
                     pos_info_opt_t cur_gps_ds;
-                    if (ts_data._vec_pos.size())
+                    if (tsr_data_obj._vec_pos.size())
                     {
                         utils::gps_info gps;
-                        gps._lat = ts_data._vec_pos[0];
-                        gps._lon = ts_data._vec_pos[1];
-                        gps._alt = ts_data._vec_pos[2];
+                        gps._lat = tsr_data_obj._vec_pos[0];
+                        gps._lon = tsr_data_obj._vec_pos[1];
+                        gps._alt = tsr_data_obj._vec_pos[2];
                         
                         if (!_image_index)
                             _org_gps = gps;
                         cur_gps_ds = utils::get_pos_info(_org_gps, gps);
                     }
-                    return std::make_tuple(stod(ts_data._time_point), cv::Mat(), cur_tsr_info, cur_gps_ds);
+                    return std::make_tuple(stod(tsr_data_obj._time_point), cv::Mat(), cur_tsr_info, cur_gps_ds);
                 }
                 return std::make_tuple(0, cv::Mat(), boost::none, boost::none);
             }
 
-            ds_traficsign(const ds_traficsign_args& ds_args_) :_ds_args(ds_args_)
+            ds_tsr(const ds_tsr_args& ds_args_) :_ds_args(ds_args_)
             {
                 read_image_files(_ds_args.get_val("image"));
                 _image_index = 0;
             }
-            ds_traficsign(const ds_traficsign& obj) :_ds_args(obj._ds_args)
+            ds_tsr(const ds_tsr& obj) :_ds_args(obj._ds_args)
             {
                 if (obj._image_index != -1)
                 {
@@ -246,10 +246,10 @@ namespace ORB_SLAM2 {
                     get_next_item();
                 }
             }
-            ds_traficsign()
+            ds_tsr()
             {
             }
-            ~ds_traficsign()
+            ~ds_tsr()
             {
                 _jsonfile.close();
             }
@@ -276,7 +276,7 @@ namespace ORB_SLAM2 {
                 }
             }
 
-            bool equal(const ds_traficsign& other) const { return _image_index == other._image_index; }
+            bool equal(const ds_tsr& other) const { return _image_index == other._image_index; }
             void increment() { get_next_item(); }
             auto& dereference() const { return _item; }
 

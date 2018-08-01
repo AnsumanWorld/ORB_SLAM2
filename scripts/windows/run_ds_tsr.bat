@@ -16,8 +16,8 @@ if not exist "%ProjectDir%\Vocabulary\ORBvoc.bin" (
     del /f /q "%ProjectDir%\Vocabulary\ORBvoc.bin.tar"
 )
 
-set ds_traficsign_app="%BuildDir%\%BuildType%\bin\run_ds_traficsign.exe"
+set ds_tsr_app="%BuildDir%\%BuildType%\bin\run_ds_tsr.exe"
 set VocabularyFile="%ProjectDir%\Vocabulary\ORBvoc.bin"
 
-call %ds_traficsign_app% %* -o %VocabularyFile%
+call %ds_tsr_app% %* -o %VocabularyFile%
 endlocal

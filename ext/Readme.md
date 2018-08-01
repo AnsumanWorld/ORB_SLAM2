@@ -23,7 +23,7 @@ The folder `scripts/windows` contains accordingly named scripts to run the orb-s
 To run the data set `04`, invoke script as follows: `run_ds_kitti.bat <path-to-setting-file> D:\HAD\orb_slam2_world\slam_data\data_odometry_gray\dataset\sequences\04\image_0 D:\HAD\orb_slam2_world\slam_data\data_odometry_gray\dataset\sequences\04\times.txt kitti_raw_data_dir\oxts\data`
 
 ### Run tsr
-* `run_ds_traficsign.bat -s <path-to-setting-file> -i <path-to-image-folder> -t <path-to-json-file>`   
+* `run_ds_tsr.bat -s <path-to-setting-file> -i <path-to-image-folder> -t <path-to-json-file>`   
 
 ### Run dashcam
 * `run_ds_dashcam.bat -s <path-to-setting-file> -v <path-to-video-file>`
