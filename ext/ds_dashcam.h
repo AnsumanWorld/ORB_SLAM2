@@ -7,7 +7,9 @@
 #include<opencv2/core/core.hpp>
 #include "opencv2/opencv.hpp"
 #include "utils/utils.h"
+#include <boost/program_options.hpp>
 
+using namespace boost::program_options;
 using namespace std;
 
 namespace ORB_SLAM2 {
@@ -15,16 +17,36 @@ namespace ORB_SLAM2 {
 
         struct ds_dashcam_args 
         {
-            std::string _path_to_video;
+            variables_map _vm;
+            options_description desc{ "Options" };
 
             ds_dashcam_args(int argc, char** argv)
             {
-                if (argc < 4) {
-                    std::cout << "Usage: ./run_dashcam_monocular <path_to_vocabulary> <path_to_camera_settings> <path_to_video>" << std::endl;
-                }
-                _path_to_video = argv[3];
-            }
+                try{
+                    
+                    desc.add_options()
+                        ("help,h", "Help screen")
+                        ("orbvoc,o", value<std::string>()->required(), "orb vocabulary")
+                        ("setting,s", value<std::string>()->required(), "camera settings")
+                        ("video,v", value<std::string>()->required(), "video file");
 
+                    store(parse_command_line(argc, argv, desc), _vm);
+                    notify(_vm);
+                }
+                catch(const error &ex){
+                    if (_vm.count("help"))
+                        std::cout << desc << '\n';
+                    else
+                        std::cout << ex.what() << "\nFor help: ./run_dashcam --help"  << std::endl;
+                    throw std::runtime_error("exiting application");
+                }
+            }
+            const std::string get_val(const std::string &name)
+            {
+                if (_vm.count(name))
+                    return _vm[name].as<std::string>();
+                return "";
+            }
             ds_dashcam_args()
             {
             }
@@ -55,49 +77,16 @@ namespace ORB_SLAM2 {
             //collect next image and gps data in _item
             void  get_next_item()
             {
-                image_t cur_image;
-                double cur_timestamp=0,diff_timestamp = 0;
-                std::tie(cur_image, cur_timestamp, diff_timestamp) = get_next_frame();
-                if (false == cur_image.empty())
-                    _item = std::make_tuple(diff_timestamp, cur_image, boost::none, get_next_gps(cur_timestamp));
-            }
-
-            //collect next from from video
-            std::tuple<image_t, double, double>  get_next_frame()
-            {
-                image_t cur_image;
-                double cur_timestamp = 0;
-                double time_diff = 0;
-
-                if (false == _next_image.empty())
+                image_t image;
+                double timestamp = 0;
+                _video_capture >> image;
+                if (false == image.empty())
                 {
-                    cur_image = _next_image;
-                    cur_timestamp = _next_timestamp;
+                    timestamp = _video_capture.get(CV_CAP_PROP_POS_MSEC);
+                    _item = std::make_tuple(timestamp, image, boost::none, get_next_gps(timestamp));
                 }
                 else
-                {
-                    if (_video_capture.read(cur_image))
-                    {
-                        cur_timestamp = _video_capture.get(CV_CAP_PROP_POS_MSEC);
-                    }
-                }
-
-                if (false == cur_image.empty())
-                {                    
-                    _image_index++;
-                    if (_video_capture.read(_next_image))
-                    {
-                        _next_timestamp = _video_capture.get(CV_CAP_PROP_POS_MSEC);
-                        time_diff = _next_timestamp - cur_timestamp;
-                    }                   
-                }
-                else
-                {
-                    _video_capture.release();
-                    _image_index = 0;
-                }
-                   
-                return std::make_tuple(cur_image, cur_timestamp, time_diff);
+                    _image_index = -1;                                      
             }
 
             //collect next gps from gps vector
@@ -137,9 +126,8 @@ namespace ORB_SLAM2 {
             //read video file and read gps from video
             ds_dashcam::ds_dashcam(const ds_dashcam_args& dashcam_args_):_dashcam_args(dashcam_args_)
             {
-                read_video(_dashcam_args._path_to_video);
-                utils::extract_gps_from_video(_dashcam_args._path_to_video,_gps_subtitles);  
-                get_next_valid_gps();
+                read_video(_dashcam_args.get_val("video"));
+                utils::extract_gps_from_video(_dashcam_args.get_val("video"),_gps_subtitles);
                 _image_index = 0;
             }
 
@@ -148,7 +136,7 @@ namespace ORB_SLAM2 {
                 if (obj._image_index != -1)
                 {
                     _image_index = 0;
-                    read_video(_dashcam_args._path_to_video);
+                    read_video(_dashcam_args.get_val("video"));
                     copy(obj._gps_subtitles.begin(), obj._gps_subtitles.end(), back_inserter(_gps_subtitles));
                     get_next_valid_gps();
                     get_next_item();

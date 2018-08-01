@@ -12,7 +12,9 @@
 #include <sstream>
 #include "boost/date_time/posix_time/posix_time.hpp"
 #include "utils/utils.h"
+#include <boost/program_options.hpp>
 
+using namespace boost::program_options;
 namespace fs = boost::filesystem;
 using namespace std;
 using boost::property_tree::ptree;
@@ -20,20 +22,38 @@ using namespace boost::posix_time;
 
 namespace ORB_SLAM2 {
     namespace ext {
-        struct ds_kitty_args {
-            std::string _path_to_image_folder;
-            std::string _path_to_timestamp_file;
-            std::string _path_to_gps_folder;
+        struct ds_kitti_args {
+            variables_map _vm;
+            options_description desc{ "Options" };
+            ds_kitti_args(int argc, char** argv)
+            {      
+                try{                    
+                    desc.add_options()
+                        ("help,h", "Help screen")
+                        ("orbvoc,o", value<std::string>()->required(), "orb vocabulary")
+                        ("setting,s", value<std::string>()->required(), "camera_settings")
+                        ("image,i", value<std::string>()->required(), "image_folder")
+                        ("timestamp,t", value<std::string>()->required(), "timestamp")
+                        ("gps,g", value<std::string>(), "gps_folder");
 
-            ds_kitty_args(int argc, char** argv)
-            {
-                if (argc < 4) 
-                    throw std::runtime_error( "Usage: ./run_kitty <path_to_vocabulary> <path_to_camera_settings> <path_to_image_folder> <_path_to_timestamp_file> <path_to_gps_folder>");
-                _path_to_image_folder = argv[3];
-                _path_to_timestamp_file = (argc >= 5) ? argv[4] : "";
-                _path_to_gps_folder =  (argc >= 6) ? argv[5] : "";
+                    store(parse_command_line(argc, argv, desc), _vm);
+                    notify(_vm);
+                }
+                catch (const error &ex) {
+                    if (_vm.count("help"))
+                        std::cout << desc << '\n';
+                    else
+                        std::cout << ex.what() << "\nFor help: ./run_dashcam --help" << std::endl;
+                    throw std::runtime_error("exiting application");
+                }
             }
-            ds_kitty_args()
+            const std::string get_val(const std::string &name)
+            {
+                if (_vm.count(name))
+                    return _vm[name].as<std::string>();
+                return "";
+            }
+            ds_kitti_args()
             {
             }
         };
@@ -48,7 +68,7 @@ namespace ORB_SLAM2 {
             std::ifstream _timestamp_file;
             std::int64_t _image_index{-1};
             bool _gps_input_status{false};
-            ds_kitty_args _kitty_args;
+            ds_kitti_args _kitti_args;
             std::tuple<time_point_t, image_t, tsr_info_opt_t, pos_info_opt_t> _item;
             utils::gps_info _org_gps;
 
@@ -114,7 +134,7 @@ namespace ORB_SLAM2 {
                     _image_index++;
                 }
                 else
-                    _image_index = 0;
+                    _image_index = -1;
             }
 
             double get_next_timestamp()
@@ -163,22 +183,22 @@ namespace ORB_SLAM2 {
                 return cur_gps_ds;
             }
 
-            ds_kitty(const ds_kitty_args& kitty_args_):_kitty_args(kitty_args_)
+            ds_kitty(const ds_kitti_args& kitti_args_):_kitti_args(kitti_args_)
             {
-                read_image_files(_kitty_args._path_to_image_folder);
-                read_timestamp_files(_kitty_args._path_to_timestamp_file);
-                _gps_input_status = read_gps_files(_kitty_args._path_to_gps_folder);
+                read_image_files(_kitti_args.get_val("image"));
+                read_timestamp_files(_kitti_args.get_val("timestamp"));
+                _gps_input_status = read_gps_files(_kitti_args.get_val("gps"));
                 _image_index = 0;
             }
 
-            ds_kitty(const ds_kitty& obj) :_kitty_args(obj._kitty_args)
+            ds_kitty(const ds_kitty& obj) :_kitti_args(obj._kitti_args)
             {
                 if (obj._image_index != -1)
                 {
                     _image_index = 0;
                     copy(obj._image_files.begin(), obj._image_files.end(), back_inserter(_image_files));
                     copy(obj._gps_files.begin(), obj._gps_files.end(), back_inserter(_gps_files));
-                    read_timestamp_files(_kitty_args._path_to_timestamp_file);
+                    read_timestamp_files(_kitti_args.get_val("timestamp"));
                     _gps_input_status = obj._gps_input_status;
                     get_next_item();
                 }

@@ -36,7 +36,7 @@ endif()
 
 find_package(OpenCV REQUIRED)
 find_package(Eigen3 REQUIRED)
-find_package(Boost REQUIRED COMPONENTS filesystem log)
+find_package(Boost REQUIRED COMPONENTS filesystem log program_options)
 # This is unfortunate but some Boost libraries (e.g. Boost::log) need this.
 add_definitions(-DBOOST_ALL_DYN_LINK)
 
@@ -127,7 +127,7 @@ add_custom_target(orb-slam2-scripts SOURCES
     scripts/windows/build.bat
     scripts/windows/run_slam_on_garching_test_drive.bat
     scripts/windows/run_ds_kitty.bat
-    scripts/windows/run_ds_tsr.bat
+    scripts/windows/run_ds_traficsign.bat
     scripts/windows/run_ds_dashcam.bat
     scripts/linux/bootstrap.sh
     scripts/linux/build.sh)

@@ -39,11 +39,11 @@ namespace ORB_SLAM2 {
                 _slam.TrackMonocular(item);
             }
 
-            slam_object(int argc, char** argv)
+            slam_object(const std::string &vocabulary_, const std::string &camera_setting_)
                 : _app_monitor(&app_monitor_inst),
                 _slam{
-                    argv[1],
-                    argv[2],
+                    vocabulary_,
+                    camera_setting_,
                     ORB_SLAM2::System::MONOCULAR,
                     true,
                     _app_monitor }

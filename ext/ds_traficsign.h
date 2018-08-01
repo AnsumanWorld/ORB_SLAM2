@@ -9,7 +9,9 @@
 #include<iterator>
 #include <boost/lexical_cast.hpp>
 #include "utils/utils.h"
+#include <boost/program_options.hpp>
 
+using namespace boost::program_options;
 namespace fs = boost::filesystem;
 using namespace std;
 using boost::property_tree::ptree;
@@ -73,28 +75,46 @@ namespace ORB_SLAM2 {
             }
         };
 
-        struct ds_tsr_args {
-            std::string _path_to_image_folder;
-            std::string _path_to_json_file;
-
-            ds_tsr_args(int argc, char** argv)
+        struct ds_traficsign_args {
+            variables_map _vm;
+            options_description desc{ "Options" };
+            ds_traficsign_args(int argc, char** argv)
             {
-                if (argc < 4) {
-                    throw std::runtime_error("Usage: ./ds_traficsign <path_to_vocabulary> <path_to_camera_settings> <path_to_image_folder> <path_to_json_file>");
+                try{
+                    
+                    desc.add_options()
+                        ("help,h", "Help screen")
+                        ("orbvoc,o", value<std::string>()->required()->required(), "orb vocabulary")
+                        ("setting,s", value<std::string>()->required()->required(), "camera_settings")
+                        ("image,i", value<std::string>()->required()->required(), "image_folder")
+                        ("traficsign,t", value<std::string>()->required(), "traficsign output file");
+
+                    store(parse_command_line(argc, argv, desc), _vm);
+                    notify(_vm);
                 }
-                _path_to_image_folder = argv[3];
-                _path_to_json_file = (argc >= 5) ? argv[4] : "";
+                catch (const error &ex) {
+                    if (_vm.count("help"))
+                        std::cout << desc << '\n';
+                    else
+                        std::cout << ex.what() << "\nFor help: ./run_dashcam --help" << std::endl;
+                    throw std::runtime_error("exiting application");
+                }
             }
-            ds_tsr_args()
+            const std::string get_val(const std::string &name)
+            {
+                if (_vm.count(name))
+                    return _vm[name].as<std::string>();
+                return "";
+            }
+            ds_traficsign_args()
             {
             }
         };
 
-        class ds_tsr : public boost::iterator_facade<
-            ds_tsr,
-            const std::tuple<time_point_t, image_t, tsr_info_opt_t, pos_info_opt_t>,
-            boost::single_pass_traversal_tag 
-        >
+        class ds_traficsign : public boost::iterator_facade<
+                            ds_traficsign,
+                            const std::tuple<time_point_t, image_t, tsr_info_opt_t, pos_info_opt_t>,
+                            boost::single_pass_traversal_tag > 
         {
             std::vector<fs::path> _image_files;
             std::fstream _jsonfile;
@@ -102,7 +122,7 @@ namespace ORB_SLAM2 {
             std::tuple<time_point_t, image_t, tsr_info_opt_t, pos_info_opt_t> _item;
             int img_width{ 1280 };
             int img_height{ 720 };
-            ds_tsr_args _ds_args;
+            ds_traficsign_args _ds_args;
             utils::gps_info _org_gps;
 
             void read_image_files(std::string path_to_image_folder_)
@@ -211,25 +231,25 @@ namespace ORB_SLAM2 {
                 return std::make_tuple(0, cv::Mat(), boost::none, boost::none);
             }
 
-            ds_tsr(const ds_tsr_args& ds_args_) :_ds_args(ds_args_)
+            ds_traficsign(const ds_traficsign_args& ds_args_) :_ds_args(ds_args_)
             {
-                read_image_files(_ds_args._path_to_image_folder);
+                read_image_files(_ds_args.get_val("image"));
                 _image_index = 0;
             }
-            ds_tsr(const ds_tsr& obj) :_ds_args(obj._ds_args)
+            ds_traficsign(const ds_traficsign& obj) :_ds_args(obj._ds_args)
             {
                 if (obj._image_index != -1)
                 {
                     _image_index = 0;
                     copy(obj._image_files.begin(), obj._image_files.end(), back_inserter(_image_files));
-                    read_jsonparser(_ds_args._path_to_json_file);
+                    read_jsonparser(_ds_args.get_val("traficsign"));
                     get_next_item();
                 }
             }
-            ds_tsr()
+            ds_traficsign()
             {
             }
-            ~ds_tsr()
+            ~ds_traficsign()
             {
                 _jsonfile.close();
             }
@@ -256,7 +276,7 @@ namespace ORB_SLAM2 {
                 }
             }
 
-            bool equal(const ds_tsr& other) const { return _image_index == other._image_index; }
+            bool equal(const ds_traficsign& other) const { return _image_index == other._image_index; }
             void increment() { get_next_item(); }
             auto& dereference() const { return _item; }
 
