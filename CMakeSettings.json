@@ -38,6 +38,10 @@
                 {
                     "name": "BUILD_EXPERIMENTS",
                     "value": "OFF"
+                },
+                {
+                    "name": "COTIRE_MINIMUM_NUMBER_OF_TARGET_SOURCES",
+                    "value": "1"
                 }
             ]
         },
@@ -78,6 +82,10 @@
                 {
                     "name": "BUILD_EXPERIMENTS",
                     "value": "OFF"
+                },
+                {
+                    "name": "COTIRE_MINIMUM_NUMBER_OF_TARGET_SOURCES",
+                    "value": "1"
                 }
             ]
         }

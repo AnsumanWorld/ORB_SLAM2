@@ -18,7 +18,7 @@ setlocal
     set "VendorDir=%~dp0..\..\.vendor"
     ( call :InstallFFMPEGLibs ^
     && call :BootstrapVcPkg ^
-    && call :InstallVcPkgDeps "boost-program-options boost-accumulators boost-filesystem boost-property-tree boost-log boost-math boost-test boost-program_options eigen3 opencv[ffmpeg] pangolin gtest" ^
+    && call :InstallVcPkgDeps "boost-program-options boost-accumulators boost-filesystem boost-property-tree boost-log boost-math boost-test eigen3 opencv[ffmpeg] pangolin gtest" ^
     && call :InstallVcPkgDeps "g2o --head" ^
     && call :InitVendorFolder ^
     && call :InstallCotire ) || ( if defined Debug ( echo Bootstrapping error occured! ) & exit /b 1 )
@@ -68,7 +68,7 @@ goto :eof
 setlocal
     if defined Debug ( echo Enter :InstallVcPkgDeps )
     set "VcPkgDeps=%~1"
-    call "%VcPkgDir%\vcpkg.exe" install %VcPkgDeps% --triplet %VcPkgTriplet%
+    echo call "%VcPkgDir%\vcpkg.exe" install %VcPkgDeps% --triplet %VcPkgTriplet%
 endlocal & exit /b %errorlevel%
 
 goto :eof

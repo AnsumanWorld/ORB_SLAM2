@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.0)
 project(orb-slam2 C CXX)
 
+if (NOT DEFINED VendorDir)
+    set(VendorDir ${CMAKE_SOURCE_DIR}/.vendor)
+endif()
+
 include(CTest)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -25,6 +29,9 @@ if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
     if (DEFINED WARNINGS AND NOT WARNINGS)
         add_compile_options(/w)
     endif()
+    add_compile_options(
+        /wd4251 #'identifier' : class 'type' needs to have dll-interface to be used by clients of class 'type2'
+    )
 endif()
 
 if (${CMAKE_CXX_COMPILER_ID} EQUAL GNU)

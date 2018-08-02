@@ -1,3 +1,8 @@
+cmake_minimum_required(VERSION 3.0)
+project(orb-slam2-examples C CXX)
+
+include(${VendorDir}/tools/cotire/CMake/cotire.cmake)
+
 if(BUILD_ALL_EXAMPLES)
     add_executable(rgbd_tum RGB-D/rgbd_tum.cc) 
     target_link_libraries(rgbd_tum orb-slam2 orb-slam2-ext)
@@ -19,20 +24,6 @@ if(BUILD_ALL_EXAMPLES)
 endif()
 
 if(BUILD_EXAMPLES)
-    add_executable(semantic_monocular 
-        Monocular/semantic_monocular.cc 
-        Monocular/semantic_monocular.h
-    )
-    target_link_libraries(semantic_monocular 
-        orb-slam2
-        orb-slam2-ext
-        Boost::filesystem
-    )
-
-    # semantic_monocular_video is not using messages.h's types correctly and causing build issue, hence disabling
-    # add_executable(semantic_monocular_video Monocular/semantic_monocular_video.cpp)
-    # target_link_libraries(semantic_monocular_video orb-slam2 filesystem)
-
     add_executable(mono_grabbing Monocular/mono_grabbing.cc)
     target_link_libraries(mono_grabbing 
         orb-slam2
@@ -53,11 +44,19 @@ if(BUILD_EXAMPLES)
         orb-slam2-ext
         Boost::filesystem)
 
-    add_executable(run_ds_tsr Monocular/run_ds_tsr.cc)
+    add_executable(run_ds_tsr 
+        stdafx.cpp
+        stdafx.h
+        Monocular/run_ds_tsr.cc)
+    target_include_directories(run_ds_tsr PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
     target_link_libraries(run_ds_tsr 
         orb-slam2
         orb-slam2-ext
         Boost::filesystem)
+    set_target_properties(run_ds_tsr PROPERTIES 
+        COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h"
+        COTIRE_ADD_UNITY_BUILD FALSE)
+    cotire(run_ds_tsr)
 
     add_executable(run_ds_dashcam Monocular/run_ds_dashcam.cc)
     target_link_libraries(run_ds_dashcam

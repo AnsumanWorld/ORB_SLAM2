@@ -1,20 +1,16 @@
 #pragma once
 
 #include "ext/messages.h"
+#include "ext/ds_tsr_args.h"
+#include "utils/utils.h"
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
-#include <boost/foreach.hpp>
-#include <iostream>
 #include <boost/filesystem.hpp>
-#include<iterator>
 #include <boost/lexical_cast.hpp>
-#include "utils/utils.h"
-#include <boost/program_options.hpp>
+#include <iterator>
+#include <iostream>
 
-using namespace boost::program_options;
 namespace fs = boost::filesystem;
-using namespace std;
-using boost::property_tree::ptree;
 
 namespace ORB_SLAM2 {
     namespace ext {
@@ -42,8 +38,7 @@ namespace ORB_SLAM2 {
                 _time_point = pt.get<std::string>("time_point");
                 if (pt.get_optional<std::string>("tsr_info"))
                 {
-                    BOOST_FOREACH(boost::property_tree::ptree::value_type &node, pt.get_child("tsr_info"))
-                    {
+                    for (auto& node : pt.get_child("tsr_info")) {
                         int _classid;
                         double _confidence;
                         _classid = node.second.get<int>("class_id");
@@ -55,59 +50,19 @@ namespace ORB_SLAM2 {
                         _vec_tsr_info.push_back(std::make_tuple(_classid, _confidence, box));
                     }
                 }
-                if (pt.get_optional<std::string>("pos_info"))
-                {
+                if (pt.get_optional<std::string>("pos_info")) {
                     int rows = 0;
-                    BOOST_FOREACH(boost::property_tree::ptree::value_type &node, pt.get_child("pos_info.cov"))
-                    {
+                    for (auto& node : pt.get_child("pos_info.cov")) {
                         std::vector<int> cov;
-                        for (boost::property_tree::ptree::value_type &cell : node.second)
-                        {
+                        for (auto &cell : node.second) {
                             cov.push_back(cell.second.get_value<int>());
                         }
                         _vec_cov.push_back(cov);
                     }
-                    BOOST_FOREACH(boost::property_tree::ptree::value_type &node, pt.get_child("pos_info.pos"))
-                    {
+                    for(auto& node : pt.get_child("pos_info.pos")) {
                         _vec_pos.push_back(node.second.get_value<double>());
                     }
                 }
-            }
-        };
-
-        struct ds_tsr_args {
-            variables_map _vm;
-            options_description desc{ "Options" };
-            ds_tsr_args(int argc, char** argv)
-            {
-                try{
-                    
-                    desc.add_options()
-                        ("help,h", "Help screen")
-                        ("orbvoc,o", value<std::string>()->required()->required(), "orb vocabulary")
-                        ("setting,s", value<std::string>()->required()->required(), "camera_settings")
-                        ("image,i", value<std::string>()->required()->required(), "image_folder")
-                        ("traficsign,t", value<std::string>()->required(), "traficsign output file");
-
-                    store(parse_command_line(argc, argv, desc), _vm);
-                    notify(_vm);
-                }
-                catch (const error &ex) {
-                    if (_vm.count("help"))
-                        std::cout << desc << '\n';
-                    else
-                        std::cout << ex.what() << "\nFor help: ./run_dashcam --help" << std::endl;
-                    throw std::runtime_error("exiting application");
-                }
-            }
-            const std::string get_val(const std::string &name)
-            {
-                if (_vm.count(name))
-                    return _vm[name].as<std::string>();
-                return "";
-            }
-            ds_tsr_args()
-            {
             }
         };
 
@@ -122,10 +77,10 @@ namespace ORB_SLAM2 {
             std::tuple<time_point_t, image_t, tsr_info_opt_t, pos_info_opt_t> _item;
             int img_width{ 1280 };
             int img_height{ 720 };
-            ds_tsr_args _ds_args;
             utils::gps_info _org_gps;
+            ds_tsr_args _ds_args;
 
-            void read_image_files(std::string path_to_image_folder_)
+            void read_image_files(fs::path const& path_to_image_folder_)
             {
                 if (false == path_to_image_folder_.empty())
                 {
@@ -144,18 +99,18 @@ namespace ORB_SLAM2 {
                         }
                     }
                     else
-                        throw std::runtime_error(path_to_image_folder_ + " is not exist or it is not a directory");
+                        throw std::runtime_error(path_to_image_folder_.generic_string() + " does not exist or it is not a directory");
 
                 }
             }
 
-            void read_jsonparser(std::string jsonFilename)
+            void read_jsonparser(fs::path const& jsonFilename)
             {
                 if (false == jsonFilename.empty())
                 {
-                    _jsonfile.open(jsonFilename, std::fstream::in);
+                    _jsonfile.open(jsonFilename.string(), std::fstream::in);
                     if (false == _jsonfile.is_open())
-                        throw std::runtime_error("Unable to open json file "+ jsonFilename);
+                        throw std::runtime_error("Unable to open JSON file " + jsonFilename.string());
                 }
             }
 
@@ -231,18 +186,20 @@ namespace ORB_SLAM2 {
                 return std::make_tuple(0, cv::Mat(), boost::none, boost::none);
             }
 
-            ds_tsr(const ds_tsr_args& ds_args_) :_ds_args(ds_args_)
+            ds_tsr(ds_tsr_args ds_args_) 
+                : _ds_args(std::move(ds_args_))
             {
-                read_image_files(_ds_args.get_val("image"));
+                read_image_files(_ds_args.images());
                 _image_index = 0;
             }
+
             ds_tsr(const ds_tsr& obj) :_ds_args(obj._ds_args)
             {
                 if (obj._image_index != -1)
                 {
                     _image_index = 0;
                     copy(obj._image_files.begin(), obj._image_files.end(), back_inserter(_image_files));
-                    read_jsonparser(_ds_args.get_val("traficsign"));
+                    read_jsonparser(_ds_args.tsr_info());
                     get_next_item();
                 }
             }

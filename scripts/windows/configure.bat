@@ -32,6 +32,7 @@ setlocal
     -DBUILD_TOOLS=OFF ^
     -DBUILD_EXPERIMENTS=OFF ^
     -DPRINT_CMAKE_VARIABLES=OFF ^
+    -DCOTIRE_MINIMUM_NUMBER_OF_TARGET_SOURCES=1 ^
     "%~dp0..\.." ^
    && popd ) || exit /b 1
 endlocal & set "BuildDir=%BuildDir%" & set "BuildType=%BuildType%" & exit /b %errorlevel%

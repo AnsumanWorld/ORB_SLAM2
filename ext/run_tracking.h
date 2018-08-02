@@ -7,14 +7,12 @@
 namespace ORB_SLAM2 {
     namespace ext {
 
-        //it will ensure that next tracking wont be called before its corresponding frame timestamp elapsed
-        void wait(double actual_track_time, double expected_track_time)
+        // Ensure that we wait for at least there is next tracking wont be called before its corresponding frame timestamp elapsed
+        void throttle(double actual_track_time, double expected_track_time)
         {
-            int wait_time = 0;
-            //if vehicle drive faster, there is a chance of low connections among frames in terms of keypoints
             if (actual_track_time < expected_track_time)
             {
-                wait_time = expected_track_time - actual_track_time;
+                int wait_time = expected_track_time - actual_track_time;
                 std::this_thread::sleep_for(std::chrono::microseconds(wait_time));
             }
         }
@@ -39,7 +37,7 @@ namespace ORB_SLAM2 {
 
                 std::chrono::steady_clock::time_point stop_time = std::chrono::steady_clock::now();
                 double actual_tracking_time = std::chrono::duration_cast<std::chrono::duration<double> >(stop_time - start_time).count();
-                wait(actual_tracking_time, 1.0 / max_fps_);
+                throttle(actual_tracking_time, 1.0 / max_fps_);
             }
         }
 
@@ -55,7 +53,7 @@ namespace ORB_SLAM2 {
 
                 std::chrono::steady_clock::time_point stop_time = std::chrono::steady_clock::now();
                 double actual_tracking_time = std::chrono::duration_cast<std::chrono::duration<double> >(stop_time - start_time).count();	
-                wait(actual_tracking_time, 1.0/ max_fps_);
+                throttle(actual_tracking_time, 1.0/ max_fps_);
             }
         }
     }
