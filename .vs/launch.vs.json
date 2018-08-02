@@ -9,10 +9,22 @@
       "name": "run_ds_tsr.exe (Debug\\bin\\run_ds_tsr.exe)",
       "currentDir": "${workspaceRoot}",
       "args": [
-        "Vocabulary\\ORBvoc.bin",
-        "Examples\\Monocular\\Garching-Test-Drive.yaml",
-        "data\\Garching_LoopClosure-3-images",
-        "data\\Garching_LoopClosure-3-features.json"
+        "-o Vocabulary\\ORBvoc.bin",
+        "-s data\\Garching_LoopClosure-5.yaml",
+        "-v data\\Garching_LoopClosure-5.mov",
+        "-t data\\Garching_LoopClosure-5.txt"
+      ]
+    },
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "run_ds_dashcam.exe (RelWithDebInfo\\bin\\run_ds_dashcam.exe)",
+      "name": "run_ds_dashcam.exe (RelWithDebInfo\\bin\\run_ds_dashcam.exe)"
+      "currentDir": "${workspaceRoot}",
+      "args": [
+        "-o Vocabulary\\ORBvoc.bin",
+        "-s data\\Garching_LoopClosure-5.yaml",
+        "-v data\\Garching_LoopClosure-5.mov"
       ]
     }
   ]

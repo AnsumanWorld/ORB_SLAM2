@@ -25,6 +25,7 @@ target_include_directories(orb-slam2-ext PUBLIC
 target_link_libraries(orb-slam2-ext PUBLIC 
     Boost::boost
     Boost::log
+    Boost::program_options
     ${OpenCV_LIBS}
     geo_convertor)
 

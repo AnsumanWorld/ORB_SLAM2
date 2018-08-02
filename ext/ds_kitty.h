@@ -12,7 +12,10 @@
 #include <sstream>
 #include "boost/date_time/posix_time/posix_time.hpp"
 #include "utils/utils.h"
+#include <boost/program_options.hpp>
+#include "utils/ds_image.h"
 
+using namespace boost::program_options;
 namespace fs = boost::filesystem;
 using namespace std;
 using boost::property_tree::ptree;
@@ -20,20 +23,52 @@ using namespace boost::posix_time;
 
 namespace ORB_SLAM2 {
     namespace ext {
-        struct ds_kitty_args {
-            std::string _path_to_image_folder;
-            std::string _path_to_timestamp_file;
-            std::string _path_to_gps_folder;
+        struct ds_kitti_args {
+            variables_map _vm;
+            options_description desc{ "Options" };
+            ds_kitti_args(int argc, char** argv)
+            {      
+                try{                    
+                    desc.add_options()
+                        ("help,h", "Help screen")
+                        ("orbvoc,o", value<std::string>()->required(), "orb vocabulary")
+                        ("setting,s", value<std::string>()->required(), "camera_settings")
+                        ("image,i", value<std::string>(), "image_folder")
+                        ("video,v", value<std::string>(), "video file")
+                        ("timestamp,t", value<std::string>()->required(), "timestamp")
+                        ("gps,g", value<std::string>(), "gps_folder");
 
-            ds_kitty_args(int argc, char** argv)
-            {
-                if (argc < 4) 
-                    throw std::runtime_error( "Usage: ./run_kitty <path_to_vocabulary> <path_to_camera_settings> <path_to_image_folder> <_path_to_timestamp_file> <path_to_gps_folder>");
-                _path_to_image_folder = argv[3];
-                _path_to_timestamp_file = (argc >= 5) ? argv[4] : "";
-                _path_to_gps_folder =  (argc >= 6) ? argv[5] : "";
+                    store(parse_command_line(argc, argv, desc), _vm);
+                    notify(_vm);
+                    if (!_vm.count("image") && !_vm.count("video"))
+                        throw std::runtime_error("--image or --video is required");
+                }
+                catch (const error &ex) {
+                    if (_vm.count("help"))
+                        std::cout << desc << '\n';
+                    else
+                        std::cout << ex.what() << "\nFor help: ./run_dashcam --help" << std::endl;
+                    throw std::runtime_error("exiting application");
+                }
             }
-            ds_kitty_args()
+            const std::string get_val (const std::string& name) const
+            {
+                if (_vm.count(name))
+                    return _vm[name].as<std::string>();
+                return "";
+            }
+            bool _is_video_input() const
+            {
+                return _vm.count("video");
+            }
+            const std::string get_source() const
+            {
+                if(_vm.count("image"))
+                    return _vm["image"].as<std::string>();
+                return _vm["video"].as<std::string>();
+            }
+
+            ds_kitti_args()
             {
             }
         };
@@ -43,30 +78,14 @@ namespace ORB_SLAM2 {
                         const std::tuple<time_point_t, image_t, tsr_info_opt_t, pos_info_opt_t>,
                         boost::single_pass_traversal_tag >
         {
-            std::vector<fs::path> _image_files;
             std::vector<fs::path> _gps_files;
             std::ifstream _timestamp_file;
-            std::int64_t _image_index{-1};
+            std::int64_t _image_index{0};
             bool _gps_input_status{false};
-            ds_kitty_args _kitty_args;
+            string _timestamp_str;
             std::tuple<time_point_t, image_t, tsr_info_opt_t, pos_info_opt_t> _item;
             utils::gps_info _org_gps;
-
-            void read_image_files(std::string path_to_image_folder_)
-            {
-                if (false == path_to_image_folder_.empty())
-                {
-                    if (fs::exists(path_to_image_folder_))
-                    {
-                        std::copy(fs::directory_iterator(path_to_image_folder_), fs::directory_iterator(),
-                            std::back_inserter(_image_files));
-                        if (_image_files.size())
-                            std::sort(_image_files.begin(), _image_files.end());
-                    }
-                    else
-                        throw std::runtime_error(path_to_image_folder_ + " is not exist");
-                }
-            }
+            utils::ds_image _ds_image_ins;
 
             void read_timestamp_files(std::string path_to_timestamp_file_)
             {
@@ -106,36 +125,36 @@ namespace ORB_SLAM2 {
         public:
 
             void get_next_item()
-            {
-                if (_image_index < _image_files.size())
-                {
-                    image_t image = cv::imread(_image_files[_image_index].generic_string(), CV_LOAD_IMAGE_UNCHANGED);
-                    _item = std::make_tuple(get_next_timestamp(), image, boost::none, boost::none);
-                    _image_index++;
-                }
-                else
-                    _image_index = 0;
+            {                
+                _item = std::make_tuple(get_next_timestamp(), *_ds_image_ins, boost::none, boost::none);
+                _ds_image_ins++;
+                _ds_image_ins++;
             }
 
             double get_next_timestamp()
             {
-                std::string line_str;
                 double time_stamp = 0;
-
-                if (std::getline(_timestamp_file, line_str))
+                if (false == _timestamp_file.is_open())
+                    time_stamp = _ds_image_ins.get_timestamp();
+                else
                 {
-                    //there are two timestamp format provided by kitty
-                    //in one timestamp format yyyy-mm-26 hh:mm:ss
-                    if (line_str.find(":") != std::string::npos)
+                    std::string line_str;
+
+                    if (std::getline(_timestamp_file, line_str))
                     {
-                        ptime t(time_from_string(line_str));
-                        time_stamp = t.time_of_day().total_microseconds();
+                        //there are two timestamp format provided by kitty
+                        //in one timestamp format yyyy-mm-26 hh:mm:ss
+                        if (line_str.find(":") != std::string::npos)
+                        {
+                            ptime t(time_from_string(line_str));
+                            time_stamp = t.time_of_day().total_microseconds();
+                        }
+                        else
+                            time_stamp = stod(line_str);
                     }
                     else
-                        time_stamp = stod(line_str);
+                        _timestamp_file.close();
                 }
-                else
-                    _timestamp_file.close();
                 return time_stamp;
             }
 
@@ -163,22 +182,24 @@ namespace ORB_SLAM2 {
                 return cur_gps_ds;
             }
 
-            ds_kitty(const ds_kitty_args& kitty_args_):_kitty_args(kitty_args_)
+            ds_kitty(const ds_kitti_args& kitti_args_)
+                :_ds_image_ins(kitti_args_.get_source()
+                , kitti_args_._is_video_input())
+                , _timestamp_str(kitti_args_.get_val("timestamp"))
             {
-                read_image_files(_kitty_args._path_to_image_folder);
-                read_timestamp_files(_kitty_args._path_to_timestamp_file);
-                _gps_input_status = read_gps_files(_kitty_args._path_to_gps_folder);
-                _image_index = 0;
+                read_timestamp_files(_timestamp_str);
+                _gps_input_status = read_gps_files(kitti_args_.get_val("gps"));
             }
 
-            ds_kitty(const ds_kitty& obj) :_kitty_args(obj._kitty_args)
+            ds_kitty(const ds_kitty& obj) 
+                :_ds_image_ins(obj._ds_image_ins)
+                ,_timestamp_str(obj._timestamp_str)
             {
-                if (obj._image_index != -1)
+                if (false == obj._ds_image_ins.is_empty())
                 {
-                    _image_index = 0;
-                    copy(obj._image_files.begin(), obj._image_files.end(), back_inserter(_image_files));
-                    copy(obj._gps_files.begin(), obj._gps_files.end(), back_inserter(_gps_files));
-                    read_timestamp_files(_kitty_args._path_to_timestamp_file);
+                    _gps_files = obj._gps_files;
+                    obj._gps_files.begin(), obj._gps_files.end(), back_inserter(_gps_files);
+                    read_timestamp_files(_timestamp_str);
                     _gps_input_status = obj._gps_input_status;
                     get_next_item();
                 }
@@ -189,9 +210,10 @@ namespace ORB_SLAM2 {
                 _timestamp_file.close();
             }
             bool equal(const ds_kitty& other) const { 
-                return _image_index == other._image_index; 
+                return _ds_image_ins.is_empty();
             }
-            void increment() { 
+            void increment() {
+                
                 get_next_item(); 
             }
             auto& dereference() const { 

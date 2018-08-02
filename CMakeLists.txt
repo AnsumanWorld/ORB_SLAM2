@@ -36,7 +36,7 @@ endif()
 
 find_package(OpenCV REQUIRED)
 find_package(Eigen3 REQUIRED)
-find_package(Boost REQUIRED COMPONENTS filesystem log)
+find_package(Boost REQUIRED COMPONENTS filesystem log program_options)
 # This is unfortunate but some Boost libraries (e.g. Boost::log) need this.
 add_definitions(-DBOOST_ALL_DYN_LINK)
 

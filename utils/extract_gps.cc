@@ -11,6 +11,16 @@ extern "C" {
 using namespace std;
 
 namespace utils {
+    //check for character A or V from gps string
+    //A for active(is good)
+    //V for void(there's an unexpected problem with the position reading.)
+    bool valid_gps(const std::string &src)
+    {
+        std::vector<std::string> result;
+        int active_gps_offset = 9;
+        boost::split(result, src, boost::is_any_of(","));
+        return ((20 <= result.size()) && (!result[active_gps_offset].compare("A")));
+    }
 
     bool extract_gps_from_video(const std::string &video_file_, std::vector<gps_subtitle> &gps_subtitles_)
     {
@@ -92,7 +102,7 @@ namespace utils {
                     
                     for (int j = 0; j < sub->num_rects; j++)
                     {
-                        if ((sub->rects[j]->type == SUBTITLE_ASS) && (sub->rects[j]->ass))
+                        if ((sub->rects[j]->type == SUBTITLE_ASS) && (sub->rects[j]->ass)&& valid_gps(sub->rects[j]->ass))
                         {
 							int frame_duration = sub->end_display_time - sub->start_display_time;
 							gps_list._timestamp = sub->pts / frame_duration;

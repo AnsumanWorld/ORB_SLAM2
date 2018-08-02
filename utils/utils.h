@@ -48,7 +48,6 @@ namespace utils
     ORB_SLAM2::ext::pos_info get_pos_info(gps_info org_gps_,gps_info cur_lgps_);        
     bool extract_gps_from_video(const std::string &video_file_, std::vector<gps_subtitle> &gps_subtitles_);
     bool lon_lat_from_string(const std::string &src, double &long_val, double &lat_val);
-    bool valid_gps(const std::string &src);
 
 }
 

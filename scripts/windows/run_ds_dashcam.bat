@@ -7,6 +7,7 @@ set "ProjectDir=%~dp0..\.."
 set "BuildDir=%ProjectDir%\products\%Platform%-windows"
 set "VcpkgBinDir=%USERPROFILE%\.vcpkg\vcpkg\installed\x64-windows\bin"
 set "Path=%Path%;%VcpkgBinDir%"
+set "default_input=-s %~dp0..\..\data\Garching_LoopClosure-5.yaml -v %~dp0..\..\data\Garching_LoopClosure-5.mov
 
 cd %ProjectDir%
 
@@ -19,16 +20,8 @@ if not exist "%ProjectDir%\Vocabulary\ORBvoc.bin" (
 set ds_dashcam_app="%BuildDir%\%BuildType%\bin\run_ds_dashcam.exe"
 set VocabularyFile="%ProjectDir%\Vocabulary\ORBvoc.bin"
 
-if /i not "%~1"=="" set "settings_file_path=%~1"
-if /i not "%~2"=="" set "primary_input_src_path=%~2"
+if "%~1"=="" call %ds_dashcam_app% %default_input% -o %VocabularyFile%
+if NOT "%~1"=="" call %ds_dashcam_app% %* -o %VocabularyFile%
 
-if /i "%primary_input_src_path%"=="" (
-    echo "invalid arguments provided !!!"
-    echo ".\%~n0 <setting-path> <path-to-video>"
-    echo An error occured in %~n0, bailing out & exit /b %errorlevel%
-)
-
-
-call %ds_dashcam_app% %VocabularyFile% %settings_file_path% %primary_input_src_path%
 endlocal
 

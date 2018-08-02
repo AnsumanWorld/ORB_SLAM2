@@ -2,11 +2,12 @@ project(utils)
 
 add_subdirectory(geo_convertor)
 
-set(src_list utils.h utils.cc extract_gps.cc gps_parser.cc)
+set(src_list utils.h utils.cc extract_gps.cc gps_parser.cc ds_image.h)
 add_library(${PROJECT_NAME} STATIC ${src_list})
 
 target_link_libraries(${PROJECT_NAME}
     ${EIGEN3_LIBS}
+    ${OpenCV_LIBS}
     geo_convertor
     Boost::boost
 )

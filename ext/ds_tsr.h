@@ -9,22 +9,34 @@
 #include<iterator>
 #include <boost/lexical_cast.hpp>
 #include "utils/utils.h"
+#include <boost/program_options.hpp>
+#include "utils/ds_image.h"
 
+using namespace boost::program_options;
 namespace fs = boost::filesystem;
 using namespace std;
 using boost::property_tree::ptree;
 
 namespace ORB_SLAM2 {
     namespace ext {
-        //read json info from txt file
-        struct traficsign_data {
+        //read tsr info from txt file
+        struct tsr_parser {
             std::string _image_name;
             std::string _time_point;
-
-            std::vector<std::tuple<int, double, std::vector<double> > > _vec_tsr_info;
+            std::vector<traffic_sign> _vec_tsr_info;
             std::vector< std::vector<int> > _vec_cov;
             std::vector<double> _vec_pos;
+            int _img_width{ 1280 };
+            int _img_height{ 720 };
 
+            tsr_parser(int img_width_, int img_height_) 
+                :_img_width(img_width_)
+                , _img_height(img_height_)
+            {
+            }
+            tsr_parser()
+            {
+            }
             void get_next_item(std::string linestr)
             {
                 std::stringstream ss;
@@ -42,15 +54,18 @@ namespace ORB_SLAM2 {
                 {
                     BOOST_FOREACH(boost::property_tree::ptree::value_type &node, pt.get_child("tsr_info"))
                     {
-                        int _classid;
-                        double _confidence;
-                        _classid = node.second.get<int>("class_id");
-                        _confidence = node.second.get<double>("confidence");
-                        std::vector<double> box;
+                        double box[4];
+                        int index = 0;
                         for (auto &temp : node.second.get_child("rectangle")) {
-                            box.push_back(temp.second.get_value < double >());
+                            box[index]= temp.second.get_value < double >();
+                            index++;
                         }
-                        _vec_tsr_info.push_back(std::make_tuple(_classid, _confidence, box));
+
+                        _vec_tsr_info.push_back(traffic_sign{ 
+                            node.second.get<int>("class_id"), 
+                            node.second.get<float>("confidence"),
+                            transform_rect(box)
+                            });
                     }
                 }
                 if (pt.get_optional<std::string>("pos_info"))
@@ -71,63 +86,94 @@ namespace ORB_SLAM2 {
                     }
                 }
             }
+
+            cv::Rect transform_rect(double rect_arr[],bool is_absolute = false)
+            {
+                cv::Rect box;
+                const int min_roi_width = 90;
+                const int min_roi_height = 90;
+
+
+                if (true == is_absolute) {
+                    box.x = rect_arr[0];
+                    box.y = rect_arr[1];
+                    box.width = rect_arr[2] - rect_arr[0];
+                    box.height = rect_arr[3] - rect_arr[1];
+                }
+                else {
+                    int ymin = int(rect_arr[0] * _img_height);
+                    int xmin = int(rect_arr[1] * _img_width);
+                    int ymax = int(rect_arr[2] * _img_height);
+                    int xmax = int(rect_arr[3] * _img_width);
+                    box.x = xmin;
+                    box.y = ymin;
+                    box.width = xmax - xmin;
+                    box.height = ymax - ymin;
+                }
+                return box;
+            }
         };
 
         struct ds_tsr_args {
-            std::string _path_to_image_folder;
-            std::string _path_to_json_file;
-
+            variables_map _vm;
+            options_description desc{ "Options" };
             ds_tsr_args(int argc, char** argv)
             {
-                if (argc < 4) {
-                    throw std::runtime_error("Usage: ./ds_traficsign <path_to_vocabulary> <path_to_camera_settings> <path_to_image_folder> <path_to_json_file>");
+                try{                    
+                    desc.add_options()
+                        ("help,h", "Help screen")
+                        ("orbvoc,o", value<std::string>()->required(), "orb vocabulary")
+                        ("setting,s", value<std::string>()->required(), "camera_settings")
+                        ("image,i", value<std::string>(), "image_folder")
+                        ("video,v", value<std::string>(), "video file")
+                        ("tsr,t", value<std::string>()->required(), "tsr file");
+
+                    store(parse_command_line(argc, argv, desc), _vm);
+                    notify(_vm);
+                    if (!_vm.count("image") && !_vm.count("video"))
+                        throw std::runtime_error("--image or --video is required");
                 }
-                _path_to_image_folder = argv[3];
-                _path_to_json_file = (argc >= 5) ? argv[4] : "";
+                catch (const error &ex) {
+                    if (_vm.count("help"))
+                        std::cout << desc << '\n';
+                    else
+                        std::cout << ex.what() << "\nFor help: ./run_dashcam --help" << std::endl;
+                    throw std::runtime_error("exiting application");
+                }
+            }
+            const std::string get_val(const std::string &name) const
+            {
+                if (_vm.count(name))
+                    return _vm[name].as<std::string>();
+                return "";
             }
             ds_tsr_args()
             {
             }
+            bool _is_video_input() const
+            {
+                return _vm.count("video");
+            }
+            const std::string get_source() const
+            {
+                if (_vm.count("image"))
+                    return _vm["image"].as<std::string>();
+                return _vm["video"].as<std::string>();
+            }
         };
 
         class ds_tsr : public boost::iterator_facade<
-            ds_tsr,
-            const std::tuple<time_point_t, image_t, tsr_info_opt_t, pos_info_opt_t>,
-            boost::single_pass_traversal_tag 
-        >
+                            ds_tsr,
+                            const std::tuple<time_point_t, image_t, tsr_info_opt_t, pos_info_opt_t>,
+                            boost::single_pass_traversal_tag > 
         {
-            std::vector<fs::path> _image_files;
             std::fstream _jsonfile;
-            std::int64_t _image_index{-1};
+            std::int64_t _gps_index{0};
             std::tuple<time_point_t, image_t, tsr_info_opt_t, pos_info_opt_t> _item;
-            int img_width{ 1280 };
-            int img_height{ 720 };
-            ds_tsr_args _ds_args;
+            std::string tsr_file;
             utils::gps_info _org_gps;
-
-            void read_image_files(std::string path_to_image_folder_)
-            {
-                if (false == path_to_image_folder_.empty())
-                {
-                    if (fs::exists(path_to_image_folder_) && fs::is_directory(path_to_image_folder_))
-                    {
-                        std::copy(fs::directory_iterator(path_to_image_folder_), fs::directory_iterator(),
-                            std::back_inserter(_image_files));
-                        if (_image_files.size())
-                        {
-                            std::sort(_image_files.begin(), _image_files.end());
-
-                            //read first image and set image width and height
-                            image_t image = cv::imread(_image_files[0].generic_string(), CV_LOAD_IMAGE_UNCHANGED);
-                            img_width = image.cols;
-                            img_height = image.rows;
-                        }
-                    }
-                    else
-                        throw std::runtime_error(path_to_image_folder_ + " is not exist or it is not a directory");
-
-                }
-            }
+            utils::ds_image _ds_image_ins;
+            tsr_parser _tsr_parser_ins;
 
             void read_jsonparser(std::string jsonFilename)
             {
@@ -152,78 +198,62 @@ namespace ORB_SLAM2 {
                 return extract_value;
             }
         public:
-            void get_next_item()
+
+            pos_info_opt_t extract_gps(const std::vector<double> &pos_vec_)
             {
-                if (_image_index < _image_files.size())
+                pos_info_opt_t cur_gps_ds;
+                if (pos_vec_.size())
                 {
-                    int cur_image_number = extract_num(_image_files[_image_index].generic_string());
-                    if (cur_image_number != -1)
-                    {
-                        image_t image = cv::imread(_image_files[_image_index].generic_string(), CV_LOAD_IMAGE_UNCHANGED);
-                        time_point_t timestamp = 0;
-                        tsr_info_opt_t tsr_ds;
-                        pos_info_opt_t gps_ds;
-                        std::tie(timestamp,std::ignore, tsr_ds, gps_ds) = get_next_trafficsign();
-                        _item = std::make_tuple(timestamp, image, tsr_ds, gps_ds);
-                    }
-                    _image_index++;
+                    utils::gps_info gps;
+                    gps._lat = pos_vec_[0];
+                    gps._lon = pos_vec_[1];
+                    gps._alt = pos_vec_[2];
+
+                    if (!_gps_index)
+                        _org_gps = gps;
+                    else
+                        _gps_index++;
+                    cur_gps_ds = utils::get_pos_info(_org_gps, gps);
                 }
-                else
-                    _image_index = 0;
+                return cur_gps_ds;
             }
 
-            slam_input_t get_next_trafficsign()
+            tsr_info_opt_t extract_tsr(const std::vector<traffic_sign> &tsr_vec_)
+            {
+                tsr_info_opt_t cur_tsr_info;
+                if (tsr_vec_.size())     
+                    cur_tsr_info = tsr_vec_;
+                return cur_tsr_info;
+            }
+            slam_input_t get_next_tsr()
             {
                 std::string line;
                 if (std::getline(_jsonfile, line))
                 {
-                    traficsign_data ts_data;
-                    ts_data.get_next_item(line);
-                    //ts_data.print_data();
-                    tsr_info_opt_t cur_tsr_info;
-                    std::vector<ORB_SLAM2::ext::traffic_sign> traffic_signs;
-                    if (ts_data._vec_tsr_info.size())
-                    {
-                        for (auto item : ts_data._vec_tsr_info)
-                        {
-                            ORB_SLAM2::ext::traffic_sign t;
-                            std::vector<double> rect;
-                            std::tie(t.class_id, t.confidence, rect) = item;
-                            transform_rect(rect, t.box);
-                            traffic_signs.push_back(t);
-                        }
-                        cur_tsr_info = traffic_signs;
-                    }
-                    pos_info_opt_t cur_gps_ds;
-                    if (ts_data._vec_pos.size())
-                    {
-                        utils::gps_info gps;
-                        gps._lat = ts_data._vec_pos[0];
-                        gps._lon = ts_data._vec_pos[1];
-                        gps._alt = ts_data._vec_pos[2];
-                        
-                        if (!_image_index)
-                            _org_gps = gps;
-                        cur_gps_ds = utils::get_pos_info(_org_gps, gps);
-                    }
-                    return std::make_tuple(stod(ts_data._time_point), cv::Mat(), cur_tsr_info, cur_gps_ds);
+                    _tsr_parser_ins.get_next_item(line);                    
+                    return std::make_tuple(
+                        stod(_tsr_parser_ins._time_point), 
+                        cv::Mat(), 
+                        extract_tsr(_tsr_parser_ins._vec_tsr_info), 
+                        extract_gps(_tsr_parser_ins._vec_pos));
                 }
                 return std::make_tuple(0, cv::Mat(), boost::none, boost::none);
             }
 
-            ds_tsr(const ds_tsr_args& ds_args_) :_ds_args(ds_args_)
+            ds_tsr(const ds_tsr_args& ds_args_) 
+                :tsr_file(ds_args_.get_val("tsr"))
+                , _ds_image_ins(ds_args_.get_source()
+                , ds_args_._is_video_input())
+                , _tsr_parser_ins((*_ds_image_ins).cols,(*_ds_image_ins).rows)
             {
-                read_image_files(_ds_args._path_to_image_folder);
-                _image_index = 0;
+                read_jsonparser(tsr_file);
             }
-            ds_tsr(const ds_tsr& obj) :_ds_args(obj._ds_args)
+            ds_tsr(const ds_tsr& obj) :tsr_file(obj.tsr_file), _ds_image_ins(obj._ds_image_ins)
             {
-                if (obj._image_index != -1)
+                if (false == obj._ds_image_ins.is_empty())
                 {
-                    _image_index = 0;
-                    copy(obj._image_files.begin(), obj._image_files.end(), back_inserter(_image_files));
-                    read_jsonparser(_ds_args._path_to_json_file);
-                    get_next_item();
+                    read_jsonparser(tsr_file);
+                    increment();
                 }
             }
             ds_tsr()
@@ -233,32 +263,22 @@ namespace ORB_SLAM2 {
             {
                 _jsonfile.close();
             }
-            void transform_rect(std::vector<double> &rect_arr, cv::Rect& box, bool is_absolute = false)
-            {
-                const int min_roi_width = 90;
-                const int min_roi_height = 90;
 
-                if (true == is_absolute) {
-                    box.x = rect_arr[0];
-                    box.y = rect_arr[1];
-                    box.width = rect_arr[2] - rect_arr[0];
-                    box.height = rect_arr[3] - rect_arr[1];
-                }
-                else {
-                    int ymin = int(rect_arr[0] * img_height);
-                    int xmin = int(rect_arr[1] * img_width);
-                    int ymax = int(rect_arr[2] * img_height);
-                    int xmax = int(rect_arr[3] * img_width);
-                    box.x = xmin;
-                    box.y = ymin;
-                    box.width = xmax - xmin;
-                    box.height = ymax - ymin;
-                }
+
+            bool equal(const ds_tsr& other) const { 
+                return _ds_image_ins.is_empty();
             }
-
-            bool equal(const ds_tsr& other) const { return _image_index == other._image_index; }
-            void increment() { get_next_item(); }
-            auto& dereference() const { return _item; }
+            void increment() { 
+                time_point_t timestamp = 0;
+                tsr_info_opt_t tsr_ds;
+                pos_info_opt_t gps_ds;
+                std::tie(timestamp, std::ignore, tsr_ds, gps_ds) = get_next_tsr();
+                _item = std::make_tuple(timestamp, *_ds_image_ins, tsr_ds, gps_ds);
+                _ds_image_ins++;
+            }
+            auto& dereference() const { 
+                return _item; 
+            }
 
         };
         
