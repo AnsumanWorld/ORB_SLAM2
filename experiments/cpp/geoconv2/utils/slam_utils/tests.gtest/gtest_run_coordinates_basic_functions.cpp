@@ -116,6 +116,14 @@ TEST_F(gtest_run_coordinates_basic_functions, pose_transformation) {
     EXPECT_DOUBLE_EQ(coord2_enu.north, coord2_local.y);
     EXPECT_DOUBLE_EQ(coord2_enu.up, coord2_local.z);
 
+    //Initialize with Local coords and convert to Wgs84 and back
+    CoordLocal coord3_local(-60367.2, -41938.9, -419.205);
+    CoordWgs84 coord3_wgs84(coord3_local.toWgs84(p1));
+
+    EXPECT_DOUBLE_EQ(coord3_wgs84.getLat(), coord2.getLat());
+    EXPECT_DOUBLE_EQ(coord3_wgs84.getLon(), coord2.getLon());
+    EXPECT_DOUBLE_EQ(coord3_wgs84.getAlt(), coord2.getAlt());
+
     // Transform to local frame rotated around up axis
     PoseWgs84 p3(47.8 * M_PI / 180.0, 23.29 * M_PI / 180.0, 290.0, M_PI / 2.0,
                  0.0, 0.0);
