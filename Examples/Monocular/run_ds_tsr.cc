@@ -13,9 +13,7 @@ int main(int argc, char** argv)
         cv::FileStorage fSettings{args.camera_settings().string(), cv::FileStorage::READ};
         double fps = fSettings["Camera.fps"];
         ext::run_tracking(slam, ds, fps);
-    }
-    catch (std::exception ex)
-    {
+    } catch (std::exception ex) {
         std::cerr << ex.what() << std::endl;
     }
 }
