@@ -28,6 +28,8 @@ if(${CMAKE_CXX_COMPILER_ID} EQUAL MSVC)
     add_compile_options(/MP /bigobj)
     if (DEFINED WARNINGS AND NOT WARNINGS)
         add_compile_options(/w)
+    else()
+        add_compile_options(/W3)
     endif()
     add_compile_options(
         /wd4251 #'identifier' : class 'type' needs to have dll-interface to be used by clients of class 'type2'
@@ -43,7 +45,7 @@ endif()
 
 find_package(OpenCV REQUIRED)
 find_package(Eigen3 REQUIRED)
-find_package(Boost REQUIRED COMPONENTS filesystem log program_options)
+find_package(Boost REQUIRED COMPONENTS filesystem log program_options unit_test_framework)
 # This is unfortunate but some Boost libraries (e.g. Boost::log) need this.
 add_definitions(-DBOOST_ALL_DYN_LINK)
 
@@ -61,11 +63,8 @@ include_directories(
 add_subdirectory(Thirdparty/DBoW2)
 add_subdirectory(utils)
 add_subdirectory(ext_g2o)
-
-# INTERFACE targets seems to be broken for "Visual Studio" generators. 
-# I want to see these files in the generated solutions, hence the hack with
-# a static library.
 add_subdirectory(ext)
+add_subdirectory(ext_ds)
 
 add_library(orb-slam2 STATIC
     src/System.cc
@@ -108,6 +107,10 @@ install(TARGETS orb-slam2 EXPORT orb-slam2
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION include/orb-slam2)
 install(EXPORT orb-slam2 FILE orb-slam2Config.cmake DESTINATION share/orb-slam2)
 
+
+if(BUILD_TESTING)
+    add_subdirectory(ext_tests)
+endif()
 add_subdirectory(Examples)
 
 if(BUILD_TOOLS)

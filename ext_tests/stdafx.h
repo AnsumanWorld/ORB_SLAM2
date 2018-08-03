@@ -1,5 +1,10 @@
 #pragma once
-
+// We can only support precompilation of boost unit test headers with MSVC++.
+// Please use this pattern in each boost unit test framework based test suite.
+#ifdef _MSC_VER
+#include "orb-slam2-ext_tests.boost.h"
+#include <boost/test/unit_test.hpp>
+#endif
 #include "System.h"
 #include <Eigen/Core>
 #include <Eigen/StdVector>
@@ -10,7 +15,8 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/program_options.hpp>
 #include <boost/optional.hpp>
-#include <boost/range/iterator_range.hpp>
+#include <boost/range.hpp>
+#include <boost/range/algorithm.hpp>
 #include <boost/noncopyable.hpp>
 #include <memory>
 #include <chrono>

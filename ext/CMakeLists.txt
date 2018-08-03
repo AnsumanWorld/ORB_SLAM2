@@ -13,8 +13,6 @@ add_library(orb-slam2-ext STATIC
     pos_adder.h
     ds_kitty.h
     ds_dashcam.h
-    ds_tsr.h
-    ds_tsr_args.h
     slam_object.h
     run_tracking.h
 )

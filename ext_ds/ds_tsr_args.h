@@ -18,7 +18,7 @@ namespace ORB_SLAM2 {
         public:
             ds_tsr_args() = default;
 
-            ds_tsr_args(int argc, char** argv)
+            ds_tsr_args(int argc, char const* argv[])
             {
                 po::options_description desc{"Options"};
                 po::variables_map vm;

@@ -1,7 +1,9 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 project(orb-slam2-examples C CXX)
 
-include(${VendorDir}/tools/cotire/CMake/cotire.cmake)
+if (NOT COMMAND cotire)
+    include(${VendorDir}/tools/cotire/CMake/cotire.cmake)
+endif()
 
 if(BUILD_ALL_EXAMPLES)
     add_executable(rgbd_tum RGB-D/rgbd_tum.cc) 
@@ -45,6 +47,7 @@ if(BUILD_EXAMPLES)
         Boost::filesystem)
 
     add_executable(run_ds_tsr 
+        # For cotire stdafx.cpp has to be the first file in the list!
         stdafx.cpp
         stdafx.h
         Monocular/run_ds_tsr.cc)
@@ -52,6 +55,7 @@ if(BUILD_EXAMPLES)
     target_link_libraries(run_ds_tsr 
         orb-slam2
         orb-slam2-ext
+        orb-slam2-ext_ds
         Boost::filesystem)
     set_target_properties(run_ds_tsr PROPERTIES 
         COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h"

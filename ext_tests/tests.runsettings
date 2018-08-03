@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+
+    <!-- Adapter Specific sections -->
+
+    <!-- Google Test Adapter Specific Settings Section -->
+    <GoogleTestAdapterSettings>
+        <SolutionSettings>
+            <Settings>
+                <TestDiscoveryRegex>\.*tests\.gtest\..+\.exe</TestDiscoveryRegex>
+            </Settings>
+        </SolutionSettings>
+    </GoogleTestAdapterSettings>
+
+    <!-- Boost Test Adapter Specific Settings Section -->
+    <BoostTest>
+        <FailTestOnMemoryLeak>true</FailTestOnMemoryLeak>
+
+        <!--
+        LogLevel - Specify Boost Test log verbosity.
+        Possible values: 'All', 'Success', 'TestSuite', 'Message', 'Warning', 'Error', 'CppException', 'SystemError', 'FatalError', 'Nothing'
+        Default: 'TestSuite'
+        Reference: http://www.boost.org/doc/libs/1_55_0/libs/test/doc/html/utf/user-guide/runtime-config/reference.html
+        -->
+        <LogLevel>TestSuite</LogLevel>
+
+        <!--
+        DetectFloatingPointExceptions - Set to 'true'|'1' to enable Boost Test's detect_fp_exceptions.
+        Default: 'false'|'0'
+        Reference: http://www.boost.org/doc/libs/1_59_0/libs/test/doc/html/boost_test/utf_reference/rt_param_reference/detect_fp_exceptions.html
+        -->
+        <DetectFloatingPointExceptions>false</DetectFloatingPointExceptions>
+
+        <!--
+        TestBatchStrategy - Determines how tests should be grouped for execution.
+        Possible values: Source, TestSuite, TestCase.
+        Default: TestCase
+        -->
+        <TestBatchStrategy>TestSuite</TestBatchStrategy>
+
+        <!--
+        ForceListContent - Forces the use of 'list_content=DOT' even if the test module is not recognized as a safe module.
+        Default: 'false'|'0'
+        -->
+        <ForceListContent>true</ForceListContent>
+
+        <!--
+        WorkingDirectory - Determines the working directory which is to be used during the discovery/execution of the test module. If the test module is executed within a Visual Studio test adapter session, the Working Directory defined in the 'Debug' property sheet configuration overrides this value.
+        -->
+        <WorkingDirectory>$(OutDir)</WorkingDirectory>
+
+        <!--
+        Filters - Define a series of regular expression patterns which determine which test modules should be taken into consideration for discovery/execution.
+        Default: All test modules are taken into consideration.
+        -->
+        <Filters>
+            <Include>
+                <!-- Patterns for naming test executables -->
+                <!-- blablabla-tests.boost.exe, blablabla.tests.boost.exe, etc. -->
+                <Pattern>*tests\.boost\..+\.exe</Pattern>
+                <!-- Include all executables located under 'tests' subdirectories -->
+                <!-- <Pattern>tests\\[^\\]+?.exe$</Pattern> -->
+            </Include>
+        </Filters>
+    </BoostTest>
+
+
+</RunSettings>
