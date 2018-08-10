@@ -57,7 +57,7 @@
             <Include>
                 <!-- Patterns for naming test executables -->
                 <!-- blablabla-tests.boost.exe, blablabla.tests.boost.exe, etc. -->
-                <Pattern>*tests\.boost\..+\.exe</Pattern>
+                <Pattern>.+tests\.boost\.exe</Pattern>
                 <!-- Include all executables located under 'tests' subdirectories -->
                 <!-- <Pattern>tests\\[^\\]+?.exe$</Pattern> -->
             </Include>

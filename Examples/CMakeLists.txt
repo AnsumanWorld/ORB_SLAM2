@@ -60,7 +60,7 @@ if(BUILD_EXAMPLES)
     set_target_properties(run_ds_tsr PROPERTIES 
         COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h"
         COTIRE_ADD_UNITY_BUILD FALSE)
-    cotire(run_ds_tsr)
+    #cotire(run_ds_tsr)
 
     add_executable(run_ds_dashcam Monocular/run_ds_dashcam.cc)
     target_link_libraries(run_ds_dashcam

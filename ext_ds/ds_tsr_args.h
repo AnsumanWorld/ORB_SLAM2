@@ -18,7 +18,7 @@ namespace ORB_SLAM2 {
         public:
             ds_tsr_args() = default;
 
-            ds_tsr_args(int argc, char const* argv[])
+            ds_tsr_args(int argc, char const* const argv[])
             {
                 po::options_description desc{"Options"};
                 po::variables_map vm;
@@ -27,7 +27,7 @@ namespace ORB_SLAM2 {
                         ("help,h", "Help screen")
                         ("orb-vocabulary,o", po::value(&_orb_vocabulary)->required(), "Path to orb-vocabulary")
                         ("camera-settings,c", po::value(&_camera_settings)->required(), "Path to camera settings (yaml)")
-                        ("image-folder,i", po::value(&_images)->required(), "Path to folder with input images")
+                        ("images,i", po::value(&_images)->required(), "Path to folder with input images")
                         ("tsr-info,t", po::value(&_tsr_info)->required(), "Path to traffic-signs recognition results");
 
                     po::store(po::parse_command_line(argc, argv, desc), vm);

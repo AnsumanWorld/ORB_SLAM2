@@ -6,11 +6,11 @@
 
 using namespace ORB_SLAM2;
 
-int main(int argc, char** argv)
+int main(int argc, char* argv[])
 {
     try {
-        ext::ds_tsr_args args{ argc, argv };
-        ext::slam_object slam{ args.orb_vocabulary().string(), args.camera_settings().string() };
+        ext::ds_tsr_args args{argc, argv};
+        ext::slam_object slam{args.orb_vocabulary().string(), args.camera_settings().string()};
         
         cv::FileStorage fSettings{args.camera_settings().string(), cv::FileStorage::READ};
         int max_fps = fSettings["Camera.fps"];
