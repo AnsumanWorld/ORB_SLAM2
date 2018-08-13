@@ -23,6 +23,16 @@ namespace tests { // <- all tests live in this namespace
             {
                 return static_cast<int>(boost::distance(r_));
             }
+
+            auto ds_tsr_test_data_dir() const
+            {
+                return "data/tests.ds_tsr.garching-first-25-frames";
+            }
+
+            auto ds_tsr_vocabulary_path() const
+            {
+                return "Vocabulary/ORBvoc.bin";
+            }
         };
 
         // test suite name = file name
@@ -30,29 +40,30 @@ namespace tests { // <- all tests live in this namespace
 
         using namespace ORB_SLAM2;
 
-        BOOST_AUTO_TEST_CASE(ds_tsr_args_must_throw_with_invalid_cli_arguments)
+        BOOST_AUTO_TEST_CASE(ds_tsr_args_parsing_must_throw_with_invalid_cli_arguments)
         {
             {
                 char const* argv[] = {"--boo"};
-                // This is why I hat macros: The curly bracket notation for constructors does not work inside the macro... :-(
                 BOOST_REQUIRE_THROW({
-                    ext::ds_tsr_args args(1, argv);
+                    auto args = ext::ds_tsr_args::parse_command_line(1, argv);
                 }, boost::program_options::error);
             }
 
             {
                 BOOST_REQUIRE_THROW({
-                    ext::ds_tsr_args args(0, nullptr);
+                    auto args = ext::ds_tsr_args::parse_command_line(0, nullptr);
                 }, boost::program_options::error);
             }
 
             {
                 char const* argv[] = {"--orb-vocabulary=promise",  "-c promise"};
-                BOOST_REQUIRE_THROW(ext::ds_tsr_args args(1, argv), boost::program_options::error);
+                BOOST_REQUIRE_THROW({
+                    auto args = ext::ds_tsr_args::parse_command_line(1, argv);
+                }, boost::program_options::error);
             }
         }
 
-        BOOST_AUTO_TEST_CASE(ds_tsr_args_must_succeed_with_valid_cli_arguments)
+        BOOST_AUTO_TEST_CASE(ds_tsr_args_parsing_must_succeed_with_valid_cli_arguments)
         {
             {
                 char const* argv[] = {
@@ -63,12 +74,12 @@ namespace tests { // <- all tests live in this namespace
                     "--tsr-info=far"
                 };
                 BOOST_REQUIRE_NO_THROW({
-                    ext::ds_tsr_args args(distance(argv), argv);
+                    auto args = ext::ds_tsr_args::parse_command_line(distance(argv), argv);
                 });
             }
         }
 
-        BOOST_AUTO_TEST_CASE(ds_tsr_args_must_succeed_with_valid_short_cli_arguments)
+        BOOST_AUTO_TEST_CASE(ds_tsr_args_parsing_must_succeed_with_valid_short_cli_arguments)
         {
             try {
                 char const* argv[] = {
@@ -78,7 +89,7 @@ namespace tests { // <- all tests live in this namespace
                     "-i=baz", 
                     "-t=far"
                 };
-                ext::ds_tsr_args args{distance(argv), argv};
+                auto args = ext::ds_tsr_args::parse_command_line(distance(argv), argv);
             } catch (std::exception const& ex_) {
                 BOOST_REQUIRE_MESSAGE(false, "unexpected exception thrown: " << typeid(ex_).name() << " reason: " << ex_.what());
             }
@@ -93,7 +104,7 @@ namespace tests { // <- all tests live in this namespace
                 "--images=baz",
                 "--tsr-info=far"
             };
-            ext::ds_tsr_args args(distance(argv), argv);
+            auto args = ext::ds_tsr_args::parse_command_line(distance(argv), argv);
 
             BOOST_CHECK_EQUAL("boo", args.orb_vocabulary());
             BOOST_CHECK_EQUAL("baa", args.camera_settings());
@@ -101,22 +112,18 @@ namespace tests { // <- all tests live in this namespace
             BOOST_CHECK_EQUAL("far", args.tsr_info());
         }
 
-        BOOST_AUTO_TEST_CASE(ds_tsr_args_have_expected_values_with_short_notation)
+        BOOST_AUTO_TEST_CASE(ds_tsr_args_test_values_exist_in_test_folder)
         {
-            char const* argv[] = {
-                "doit.exe",
-                "-oboo",
-                "-cbaa",
-                "-ibaz",
-                "-tfar"
-            };
-            ext::ds_tsr_args args(distance(argv), argv);
-
-            BOOST_CHECK_EQUAL("boo", args.orb_vocabulary());
-            BOOST_CHECK_EQUAL("baa", args.camera_settings());
-            BOOST_CHECK_EQUAL("baz", args.images());
-            BOOST_CHECK_EQUAL("far", args.tsr_info());
+            BOOST_TEST_MESSAGE("Please assure that working directory is the same as the location of the test binary executable. When running tests in Visual Studio Test Runner use the provided tests.runsettings file.");
+            BOOST_CHECK(fs::exists(this->ds_tsr_test_data_dir()));
+            BOOST_CHECK(fs::exists(this->ds_tsr_test_data_dir() / fs::path{"images"}));
+            BOOST_CHECK(fs::exists(this->ds_tsr_test_data_dir() / fs::path{"images"} / fs::path{"000000.jpg"}));
+            BOOST_CHECK(fs::exists(this->ds_tsr_test_data_dir() / fs::path{"config.yaml"}));
+            BOOST_CHECK(fs::exists(this->ds_tsr_test_data_dir() / fs::path{"results.txt"}));
+            BOOST_CHECK(fs::exists(this->ds_tsr_test_data_dir() / fs::path{"video.mov"}));
+            BOOST_CHECK(fs::exists(this->ds_tsr_vocabulary_path()));
         }
+
 
         BOOST_AUTO_TEST_SUITE_END();
     }

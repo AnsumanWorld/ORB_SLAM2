@@ -15,6 +15,8 @@ add_executable(${PROJECT_NAME}
     tests.boost.ds_tsr.boost_program_options.cpp)
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${PROJECT_NAME}>/Vocabulary
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/Vocabulary/ORBvoc.bin $<TARGET_FILE_DIR:${PROJECT_NAME}>/Vocabulary
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/data/tests.ds_tsr.garching-first-25-frames $<TARGET_FILE_DIR:${PROJECT_NAME}>/data/tests.ds_tsr.garching-first-25-frames)
  
 # cotire support for precompiled headers
