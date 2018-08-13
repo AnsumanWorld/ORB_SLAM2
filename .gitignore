@@ -32,6 +32,15 @@ products/
 /install
 orbslam.csv
 /.vscode/settings.json
-data/
 data.zip
 /.vendor
+/data/Garching_LoopClosure-5-images.zip
+/data/Garching_LoopClosure-5-images
+/data/Garching_LoopClosure-5-features.json
+/data/Garching_LoopClosure-4.mp4
+/data/Garching_LoopClosure-4-images
+/data/Garching_LoopClosure-4-features.json
+/data/Garching_LoopClosure-3.mp4
+/data/Garching_LoopClosure-3-images
+/data/Garching_LoopClosure-3-features.json
+/data/Garching_LoopClosure-2.mp4
