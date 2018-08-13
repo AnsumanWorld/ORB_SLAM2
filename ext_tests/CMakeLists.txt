@@ -11,7 +11,12 @@ add_executable(${PROJECT_NAME}
     stdafx.h
     ${PROJECT_NAME}.h
     ${PROJECT_NAME}.cpp
-    tests.boost.ds_tsr.cpp)
+    tests.boost.ds_tsr.cpp
+    tests.boost.ds_tsr.boost_program_options.cpp)
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/data/test_image.jpg $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+
  
 # cotire support for precompiled headers
 set_target_properties(${PROJECT_NAME} PROPERTIES 

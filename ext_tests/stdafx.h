@@ -16,6 +16,7 @@
 #include <boost/program_options.hpp>
 #include <boost/optional.hpp>
 #include <boost/range.hpp>
+#include <boost/range/adaptors.hpp>
 #include <boost/range/algorithm.hpp>
 #include <boost/noncopyable.hpp>
 #include <memory>
