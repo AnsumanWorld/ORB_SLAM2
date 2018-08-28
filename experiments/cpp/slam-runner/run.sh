@@ -25,15 +25,16 @@ BinaryDir=${BuildDir}/${Buildtype}/bin
 export LD_LIBRARY_PATH=/usr/local/lib/:${BinaryDir}:$LD_LIBRARY_PATH
 
 SettingsPath=${ProjectDir}/Examples/Monocular/Garching-Test-Drive.yaml
-# SettingsPath=${ProjectDir}/Examples/Monocular/KITTI00-02.yaml
+# SettingsPath=${ProjectDir}/Examples/Monocular/KITTI04-12.yaml
 VocabularyPath=${ProjectDir}/Vocabulary/ORBvoc.bin
-ImageSource=/mnt/c/Shanmukha/Dataset/Garching/Garching_LoopClosure-4.mp4
-# ImageSource=/mnt/c/Shanmukha/Dataset/KITTI/data_odometry_gray/dataset/sequences/00/image_0
+# ImageSource=/mnt/c/Shanmukha/Shared/Dataset/Garching/Garching_LoopClosure-5.mp4
+ImageSource=/mnt/c/Shanmukha/Shared/Dataset/Garching/Garching-5/images
+# ImageSource=/mnt/c/Shanmukha/Shared/Dataset/KITTI/data_odometry_gray/dataset/sequences/07/image_0
 # ImageSource=0
 
  ${BinaryDir}/slam-runner \
     --image_source=${ImageSource} \
-    --frame_interval_ms=33 \
+    --frame_interval_ms=1000 \
     --settings_path=${SettingsPath} \
     --vocabulary_path=${VocabularyPath} \
     --wait_for_stdin=false \

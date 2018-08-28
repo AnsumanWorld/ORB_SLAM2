@@ -35,3 +35,4 @@ orbslam.csv
 data/
 data.zip
 *.log
+*.g2o

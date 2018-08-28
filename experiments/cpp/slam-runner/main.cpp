@@ -193,20 +193,16 @@ void run_slam(const config& cfg) {
                                  cfg.image_source().generic_string());
 
     slam.Shutdown();
-    // slam.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectoryTUM.log");
-    // slam.SaveTrajectoryKITTI("FrameTrajectoryKITTI.log");
+    slam.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectoryTUM.log");
+    slam.SaveTrajectoryKITTI("FrameTrajectoryKITTI.log");
     
-    std::chrono::steady_clock::time_point begin =
-        std::chrono::steady_clock::now();
-    auto map_ = slam.GetMapData();
-    std::chrono::steady_clock::time_point end =
-        std::chrono::steady_clock::now();
 
-    LOG_MSG
-        << "Time for GetMapData (ms) = "
-        << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin)
-               .count()
-        << std::endl;
+    ORB_SLAM2::ext::map_export_t map_;
+    {
+        LOG_SCOPE;
+        map_ = slam.GetMapData();
+    }
+
     dump_map(map_);
 }
 
@@ -220,6 +216,7 @@ void run(int argc, char** argv) {
 }
 
 int main(int argc, char** argv) {
+    LOG_SCOPE;
     LOG_MSG << "Starting " << argv[0] << std::endl;
 
     auto ret_val{EXIT_SUCCESS};
@@ -233,6 +230,5 @@ int main(int argc, char** argv) {
         ret_val = EXIT_FAILURE;
     }
 
-    LOG_MSG << "Exiting " << argv[0] << std::endl;
     return ret_val;
 }

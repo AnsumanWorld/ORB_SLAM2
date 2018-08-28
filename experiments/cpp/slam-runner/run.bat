@@ -1,7 +1,7 @@
 @echo off
 
 setlocal
-set "BuildType=Debug"
+set "BuildType=RelWithDebInfo"
 
 set "ExtToolsBinDir=C:\Program Files\7-Zip"
 
@@ -9,8 +9,8 @@ set "VcpkgRelBinDir=%USERPROFILE%\.vcpkg\vcpkg\installed\x64-windows\bin"
 set "VcpkgDbgBinDir=%USERPROFILE%\.vcpkg\vcpkg\installed\x64-windows\debug\bin"
 
 set "ProjectDir=%~dp0..\..\.."
-set "ProductsDir=%ProjectDir%\products\cmake.msbuild.windows.x64.v141"
-set "BinaryDir=%ProjectDir%\products\cmake.msbuild.windows.x64.v141\%BuildType%\bin"
+set "ProductsDir=%ProjectDir%\products\cmake.msbuild.windows.x64"
+set "BinaryDir=%ProductsDir%\%BuildType%\bin"
 
 set "Path=%VcpkgRelBinDir%;%VcpkgDbgBinDir%;%ExtToolsBinDir%;%BinaryDir%;%Path%"
 
@@ -22,11 +22,20 @@ if not exist "%ProjectDir%\Vocabulary\ORBvoc.bin" (
     del /f /q "%ProjectDir%\Vocabulary\ORBvoc.bin.tar"
 )
 
-set App="%BinaryDir%\slam-runner.exe"
-set VideoFile="%~1"
-set VocabularyFile="%ProjectDir%\Vocabulary\ORBvoc.bin"
-set SettingsFile="%ProjectDir%\Examples\Monocular\Garching-Test-Drive.yaml"
+set "SettingsPath=%ProjectDir%\Examples\Monocular\Garching-Test-Drive.yaml"
+REM set "SettingsPath=%ProjectDir%\Examples\Monocular\KITTI04-12.yaml"
+set "VocabularyPath=%ProjectDir%\Vocabulary\ORBvoc.bin"
+REM set "ImageSource=C:\Shanmukha\Dataset\Garching\Garching_LoopClosure-4.mp4"
+set "ImageSource=C:\Shanmukha\Dataset\Garching\Garching-5\images"
+REM set "ImageSource=C:\Shanmukha\Dataset\KITTI\data_odometry_gray\dataset\sequences\07\image_0"
+REM set ImageSource=0
 
-%App% %VideoFile% %VocabularyFile% %SettingsFile%
+ %BinaryDir%\slam-runner ^
+    --image_source="%ImageSource%" ^
+    --frame_interval_ms=1000 ^
+    --settings_path="%SettingsPath%" ^
+    --vocabulary_path="%VocabularyPath%" ^
+    --wait_for_stdin=false ^
+    --show_viewer=true 
 
 endlocal

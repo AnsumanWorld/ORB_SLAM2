@@ -43,17 +43,17 @@
 // #define COMPUTE_MP_COV
 // #define COMPUTE_KF_COV
 // #define COMPUTE_COV_FROM_FILE
-
+// #define DUMP_G2O_FILE
 namespace ORB_SLAM2
 {
     static void compute_cov(g2o::SparseOptimizer& optimizer_) {
-        #ifndef COMPUTE_COV_FROM_FILE
-        return;
-        #endif
+#ifdef DUMP_G2O_FILE
         static std::size_t count{ 0 };
         std::string filename = std::to_string(++count) + ".g2o";
         std::cout << "Saving " << filename << std::endl;
         optimizer_.save(filename.c_str());
+#endif
+#ifdef COMPUTE_COV_FROM_FILE
         if (!optimizer_.verifyInformationMatrices())
             throw std::runtime_error("optimizer_ verifyInformationMatrices failed");
 
@@ -112,7 +112,12 @@ namespace ORB_SLAM2
 
             if (v->hessianIndex() > 0)
                 cov = spinv.block(v->hessianIndex() - 1, v->hessianIndex())->eval();
+            
+            std::cout << "---cov---" << std::endl;
+            std::cout << cov << std::endl;
+            std::cout << "---cov---" << std::endl;
         }
+#endif
     }
 
 void Optimizer::GlobalBundleAdjustemnt(Map* pMap, int nIterations, bool* pbStopFlag, const unsigned long nLoopKF, const bool bRobust)
@@ -130,10 +135,10 @@ void Optimizer::BundleAdjustment(const vector<KeyFrame *> &vpKFs, const vector<M
     vbNotIncludedMP.resize(vpMP.size());
 
     g2o::SparseOptimizer optimizer;
-    std::unique_ptr<g2o::BlockSolver_6_3::LinearSolverType> linearSolver;
-    linearSolver = g2o::make_unique<g2o::LinearSolverCholmod<g2o::BlockSolver_6_3::PoseMatrixType>>();
+    std::unique_ptr<g2o::BlockSolverX::LinearSolverType> linearSolver;
+    linearSolver = g2o::make_unique<g2o::LinearSolverCholmod<g2o::BlockSolverX::PoseMatrixType>>();
     g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(
-        g2o::make_unique<g2o::BlockSolver_6_3>(std::move(linearSolver)));
+        g2o::make_unique<g2o::BlockSolverX>(std::move(linearSolver)));
     optimizer.setAlgorithm(solver);
 
     if(pbStopFlag)
@@ -354,10 +359,10 @@ void Optimizer::BundleAdjustment(const vector<KeyFrame *> &vpKFs, const vector<M
 int Optimizer::PoseOptimization(Frame *pFrame)
 {
     g2o::SparseOptimizer optimizer;
-    std::unique_ptr<g2o::BlockSolver_6_3::LinearSolverType> linearSolver;
-    linearSolver = g2o::make_unique<g2o::LinearSolverCholmod<g2o::BlockSolver_6_3::PoseMatrixType>>();
+    std::unique_ptr<g2o::BlockSolverX::LinearSolverType> linearSolver;
+    linearSolver = g2o::make_unique<g2o::LinearSolverCholmod<g2o::BlockSolverX::PoseMatrixType>>();
     g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(
-        g2o::make_unique<g2o::BlockSolver_6_3>(std::move(linearSolver)));
+        g2o::make_unique<g2o::BlockSolverX>(std::move(linearSolver)));
     optimizer.setAlgorithm(solver);
 
     int nInitialCorrespondences=0;
@@ -617,10 +622,10 @@ void Optimizer::LocalBundleAdjustment(KeyFrame *pKF, bool* pbStopFlag, Map* pMap
 
     // Setup optimizer
     g2o::SparseOptimizer optimizer;
-    std::unique_ptr<g2o::BlockSolver_6_3::LinearSolverType> linearSolver;
-    linearSolver = g2o::make_unique<g2o::LinearSolverCholmod<g2o::BlockSolver_6_3::PoseMatrixType>>();
+    std::unique_ptr<g2o::BlockSolverX::LinearSolverType> linearSolver;
+    linearSolver = g2o::make_unique<g2o::LinearSolverCholmod<g2o::BlockSolverX::PoseMatrixType>>();
     g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(
-        g2o::make_unique<g2o::BlockSolver_6_3>(std::move(linearSolver)));
+        g2o::make_unique<g2o::BlockSolverX>(std::move(linearSolver)));
     optimizer.setAlgorithm(solver);
 
     if(pbStopFlag)
@@ -952,10 +957,10 @@ void Optimizer::OptimizeEssentialGraph(Map* pMap, KeyFrame* pLoopKF, KeyFrame* p
 {
     // Setup optimizer
     g2o::SparseOptimizer optimizer;
-    std::unique_ptr<g2o::BlockSolver_7_3::LinearSolverType> linearSolver;
-    linearSolver = g2o::make_unique<g2o::LinearSolverCholmod<g2o::BlockSolver_7_3::PoseMatrixType>>();
+    std::unique_ptr<g2o::BlockSolverX::LinearSolverType> linearSolver;
+    linearSolver = g2o::make_unique<g2o::LinearSolverCholmod<g2o::BlockSolverX::PoseMatrixType>>();
     g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(
-        g2o::make_unique<g2o::BlockSolver_7_3>(std::move(linearSolver)));
+        g2o::make_unique<g2o::BlockSolverX>(std::move(linearSolver)));
     
     solver->setUserLambdaInit(1e-16);
     optimizer.setAlgorithm(solver);
